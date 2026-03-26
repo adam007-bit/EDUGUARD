@@ -74,44 +74,34 @@
                         </select>
                     </div>
                 </div>
-
-             <div class="mb-3">
-    <label class="form-label fw-bold"><i class="bi bi-book"></i> Pilih Subjek & Lihat Senarai Pelajar</label>
-    <div class="input-group input-group-lg shadow-sm">
-        <select id="searchSubject" class="form-select">
-            <option value="" disabled selected>-- Pilih Subjek --</option>
-            <option value="Sains Komputer">Sains Komputer</option>
-            <option value="Sains Fizik">Sains Fizik</option>
-            <option value="Sains Biologi">Sains Biologi</option>
-            <option value="Ekonomi">Ekonomi</option>
-            <option value="Perniagaan">Perniagaan</option>
-            <option value="Matematik">Matematik</option>
-        </select>
-        <button class="btn btn-primary px-4" type="button" onclick="searchBySubject()">
-            <i class="bi bi-search"></i> Cari
-        </button>
-        <button class="btn btn-outline-success" type="button" onclick="addCourseRow()">
-            <i class="bi bi-plus-circle"></i> Tambah
-        </button>
-    </div>
-    <small class="text-primary mt-2 d-block">* Pilih subjek untuk menarik data pendaftaran pelajar secara automatik.</small>
+<div class="mb-2 d-flex justify-content-between align-items-center">
+    <label class="form-label fw-bold">Pilih Kursus Pendaftaran</label>
+    <button type="button" class="btn btn-sm btn-success" onclick="addCourseRow()">
+        <i class="bi bi-plus-circle"></i> + Tambah Kursus
+    </button>
 </div>
-                
-                <div id="courseListContainer">
-                    <div class="row g-2 course-row">
-                        <div class="col-5">
-                            <input type="text" class="form-control form-control-sm course-name" placeholder="Nama Kursus">
-                        </div>
-                        <div class="col-4">
-                            <input type="text" class="form-control form-control-sm course-code" placeholder="Kod">
-                        </div>
-                        <div class="col-3 text-end">
-                            <input type="number" class="form-control form-control-sm course-credit" placeholder="Kredit">
-                        </div>
-                    </div>
-                </div>
-            </div>
 
+<div id="courseListContainer">
+    <div class="row g-2 course-row mb-2">
+        <div class="col-5">
+            <select class="form-select form-select-sm course-name">
+                <option value="" disabled selected>-- Pilih Kursus --</option>
+                <option value="Sains Komputer">Sains Komputer</option>
+                <option value="Sains Fizik">Sains Fizik</option>
+                <option value="Sains Biologi">Sains Biologi</option>
+                <option value="Ekonomi">Ekonomi</option>
+                <option value="Perniagaan">Perniagaan</option>
+                <option value="Matematik">Matematik</option>
+            </select>
+        </div>
+        <div class="col-4">
+            <input type="text" class="form-control form-control-sm course-code" placeholder="Kod (Contoh: SK015)">
+        </div>
+        <div class="col-3">
+            <input type="number" class="form-control form-control-sm course-credit" placeholder="Kredit">
+        </div>
+    </div>
+</div>
             <div class="mb-4">
                 <label class="form-label" id="passLabel">Kata Laluan</label>
                 <div class="input-group">
