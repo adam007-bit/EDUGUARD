@@ -18,7 +18,7 @@ const db = getFirestore(app);
 let currentRole = 'supervisor';
 let isLoginMode = true;
 
-// --- PHASE 1: LOAD SUPERVISOR ---
+// --- 1. LOAD SUPERVISOR ---
 async function loadSupervisors() {
     const svSelect = document.getElementById('supervisorSelect');
     if (!svSelect) return;
@@ -36,13 +36,31 @@ async function loadSupervisors() {
     } catch (error) { console.error("Ralat load supervisor:", error); }
 }
 
-// --- PHASE 2: UI SWITCHING ---
+// --- 2. DYNAMIC COURSE ROWS ---
+window.addCourseRow = function() {
+    const container = document.getElementById('courseListContainer');
+    const newRow = document.createElement('div');
+    newRow.className = 'row g-2 mb-2 course-row';
+    newRow.innerHTML = `
+        <div class="col-5"><input type="text" class="form-control form-control-sm course-name" placeholder="Nama Kursus"></div>
+        <div class="col-4"><input type="text" class="form-control form-control-sm course-code" placeholder="Kod"></div>
+        <div class="col-3">
+            <div class="input-group input-group-sm">
+                <input type="number" class="form-control course-credit" placeholder="Kredit">
+                <button class="btn btn-outline-danger" type="button" onclick="this.closest('.course-row').remove()">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newRow);
+};
+
+// --- 3. UI SWITCHING ---
 window.switchRole = function(role) {
     currentRole = role;
     const nameField = document.getElementById('nameField');
-    const courseField = document.getElementById('courseField');
-    const semesterField = document.getElementById('semesterField'); // Element baru anda
-    const supervisorField = document.getElementById('supervisorField');
+    const academicSection = document.getElementById('academicSection');
     const authTitle = document.getElementById('authTitle');
     const authBtn = document.getElementById('authBtn');
     const passLabel = document.getElementById('passLabel');
@@ -51,35 +69,31 @@ window.switchRole = function(role) {
     document.querySelectorAll('.btn-outline-primary').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`btn-${role}`).classList.add('active');
 
-    // Paparan mengikut Mode & Role
     nameField.style.display = isLoginMode ? "none" : "block";
     
+    // Tunjuk Academic Section hanya untuk Student & Register Mode
     if (role === 'student' && !isLoginMode) {
-        courseField.style.display = "block";
-        semesterField.style.display = "block"; // Munculkan field semester
-        supervisorField.style.display = "block";
+        academicSection.style.display = "block";
         loadSupervisors();
     } else {
-        courseField.style.display = "none";
-        semesterField.style.display = "none";
-        supervisorField.style.display = "none";
+        academicSection.style.display = "none";
     }
 
     if (role === 'student') {
-        authTitle.innerText = isLoginMode ? "Semak Keputusan Pelajar" : "Pendaftaran Subjek Baru";
+        authTitle.innerText = isLoginMode ? "Semak Keputusan Pelajar" : "Pendaftaran Pelajar Baru";
         passLabel.innerText = "ID Pelajar";
-        authBtn.innerText = isLoginMode ? "Semak Keputusan" : "Daftar Subjek";
+        authBtn.innerText = isLoginMode ? "Semak Keputusan" : "Daftar & Simpan";
         if (passHint) passHint.style.display = isLoginMode ? "none" : "block";
     } else {
         const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
-        authTitle.innerText = isLoginMode ? `Log Masuk ${roleLabel}` : `Daftar ${roleLabel} Baru`;
+        authTitle.innerText = isLoginMode ? `Log Masuk ${roleLabel}` : `Daftar ${roleLabel}`;
         passLabel.innerText = "Kata Laluan";
         authBtn.innerText = isLoginMode ? "Log Masuk" : "Daftar Akaun";
         if (passHint) passHint.style.display = "none";
     }
 };
 
-// --- PHASE 3: SUBMIT LOGIC ---
+// --- 4. SUBMIT LOGIC ---
 document.getElementById('authForm').onsubmit = async function(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -88,34 +102,47 @@ document.getElementById('authForm').onsubmit = async function(e) {
 
     if (currentRole === 'student') {
         if (!isLoginMode) {
-            const studentCourse = document.getElementById('courseSelect').value;
-            const selectedSVEmail = document.getElementById('supervisorSelect').value;
-            const selectedSem = document.getElementById('semesterSelect').value; // Ambil nilai semester
-
-            if(!studentCourse || !selectedSVEmail || !selectedSem) {
-                return alert("Sila lengkapkan pilihan Kursus, Semester dan Supervisor!");
-            }
+            const program = document.getElementById('programInput').value;
+            const year = document.getElementById('yearSelect').value;
+            const semester = document.getElementById('semesterSelect').value;
+            const svEmail = document.getElementById('supervisorSelect').value;
             
+            const courseRows = document.querySelectorAll('.course-row');
+            let coursesData = [];
+            courseRows.forEach(row => {
+                const name = row.querySelector('.course-name').value;
+                const code = row.querySelector('.course-code').value;
+                const credit = row.querySelector('.course-credit').value;
+                if(name && code) coursesData.push({ name, code, credit });
+            });
+
+            if(!svEmail || coursesData.length === 0) return alert("Sila pilih Supervisor dan masukkan kursus!");
+
             try {
-                // 1. Simpan Profil Pelajar
+                // Simpan Profil
                 await setDoc(doc(db, "students", password), {
-                    name: fullName, id: password, studentEmail: email, role: "student"
+                    name: fullName, id: password, studentEmail: email, program: program, role: "student"
                 }, { merge: true });
 
-                // 2. Simpan Pendaftaran Kursus (ID unik: ID_Kursus_Semester)
-                const regID = `${password}_${studentCourse.replace(/\s+/g, '')}_${selectedSem.replace(/\s+/g, '')}`;
-                await setDoc(doc(db, "course_registrations", regID), {
-                    studentID: password,
-                    studentName: fullName,
-                    course: studentCourse,
-                    semester: selectedSem,
-                    supervisorEmail: selectedSVEmail,
-                    quiz: 0, test: 0, midterm: 0,
-                    grade: "-", status: "Pending",
-                    timestamp: serverTimestamp()
-                });
-
-                alert(`✅ Berjaya mendaftar ${studentCourse} untuk ${selectedSem}!`);
+                // Simpan Setiap Kursus
+                for (const course of coursesData) {
+                    const regID = `${password}_${course.code.replace(/\s+/g, '')}_Sem${semester}`;
+                    await setDoc(doc(db, "course_registrations", regID), {
+                        studentID: password,
+                        studentName: fullName,
+                        program: program,
+                        year: year,
+                        semester: `Semester ${semester}`,
+                        course: course.name,
+                        courseCode: course.code,
+                        creditHours: course.credit,
+                        supervisorEmail: svEmail,
+                        quiz: 0, test: 0, midterm: 0,
+                        grade: "-", status: "Pending",
+                        timestamp: serverTimestamp()
+                    });
+                }
+                alert("✅ Pendaftaran Berjaya!");
                 location.reload(); 
             } catch (err) { alert("Ralat: " + err.message); }
         } else {
@@ -125,7 +152,7 @@ document.getElementById('authForm').onsubmit = async function(e) {
         return;
     }
 
-    // Logik Supervisor/Host (Auth)
+    // Logik Supervisor/Host
     try {
         if (isLoginMode) {
             const userCred = await signInWithEmailAndPassword(auth, email, password);
@@ -147,18 +174,7 @@ document.getElementById('authForm').onsubmit = async function(e) {
     } catch (error) { alert("Ralat: " + error.message); }
 };
 
-// --- PHASE 4: UTILITIES ---
-const togglePassword = document.getElementById('togglePassword');
-if (togglePassword) {
-    togglePassword.addEventListener('click', function () {
-        const passwordInput = document.getElementById('password');
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('bi-eye');
-        this.querySelector('i').classList.toggle('bi-eye-slash');
-    });
-}
-
+// --- 5. TOGGLE & INIT ---
 document.getElementById('toggleAuth').onclick = function(e) {
     e.preventDefault();
     isLoginMode = !isLoginMode;
@@ -166,5 +182,15 @@ document.getElementById('toggleAuth').onclick = function(e) {
     document.getElementById('toggleAuth').innerText = isLoginMode ? "Daftar Sini" : "Log Masuk Sini";
     window.switchRole(currentRole);
 };
+
+const togglePassBtn = document.getElementById('togglePassword');
+if (togglePassBtn) {
+    togglePassBtn.onclick = function() {
+        const passInput = document.getElementById('password');
+        const isPass = passInput.type === "password";
+        passInput.type = isPass ? "text" : "password";
+        this.innerHTML = isPass ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    };
+}
 
 window.switchRole('supervisor');
