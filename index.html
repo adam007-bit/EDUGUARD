@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGuard AI | Portal Akses</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { background: #f0f2f5; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
-        .auth-card { width: 100%; max-width: 450px; padding: 2.5rem; border-radius: 20px; border: none; }
+        body { background: #f0f2f5; min-height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; padding: 20px 0; }
+        .auth-card { width: 100%; max-width: 500px; padding: 2.5rem; border-radius: 20px; border: none; margin: auto; }
         .btn-primary { background: #4361ee; border: none; border-radius: 12px; padding: 12px; font-weight: 600; }
         .btn-outline-primary { border-radius: 10px; border-color: #4361ee; color: #4361ee; font-size: 0.9rem; }
         .btn-outline-primary.active { background-color: #4361ee; color: white; }
-        .form-label { font-weight: 500; color: #4b5563; }
+        .form-label { font-weight: 500; color: #4b5563; margin-bottom: 5px; }
         .form-control, .form-select { border-radius: 10px; padding: 10px; border: 1px solid #d1d5db; }
+        .course-row { background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px dashed #cbd5e1; }
     </style>
 </head>
 <body>
@@ -42,50 +44,76 @@
                 <label class="form-label">Alamat Emel</label>
                 <input type="email" id="email" class="form-control" placeholder="nama@email.com" required>
             </div>
-<div id="supervisorField" class="mb-3" style="display:none;">
-    <label class="form-label fw-bold">Pilih Supervisor Seliaan:</label>
-    <select id="supervisorSelect" class="form-select">
-        <option value="">-- Sila Pilih --</option>
-    </select>
-    <div id="semesterField" class="mb-3" style="display: none;">
-    <label class="form-label">Pilih Semester</label>
-    <select id="semesterSelect" class="form-select">
-        <option value="" selected disabled>-- Pilih Semester --</option>
-        <option value="Semester 1">Semester 1</option>
-        <option value="Semester 2">Semester 2</option>
-        <option value="Semester 3">Semester 3</option>
-    </select>
-</div>
-</div>
-            <div id="courseField" class="mb-3" style="display: none;">
-                <label class="form-label">Pilih Kursus</label>
-                <select id="courseSelect" class="form-select">
-                    <option value="" selected disabled>-- Pilih Kursus --</option>
-                    <option value="Sains Komputer">Sains Komputer</option>
-                    <option value="Sains Fizik">Sains Fizik</option>
-                    <option value="Sains Biologi">Sains Biologi</option>
-                    <option value="Ekonomi">Ekonomi</option>
-                    <option value="Perniagaan">Perniagaan</option>
-                     <option value="Matematik">Matematik</option>
-                </select>
+
+            <div id="academicSection" style="display: none;">
+                <div id="supervisorField" class="mb-3">
+                    <label class="form-label fw-bold text-primary">Pilih Supervisor Seliaan:</label>
+                    <select id="supervisorSelect" class="form-select"></select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Program Pengajian</label>
+                    <input type="text" id="programInput" class="form-control" placeholder="Diploma Sains Komputer">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tahun Pengajian</label>
+                        <select id="yearSelect" class="form-select">
+                            <option value="1">Tahun 1</option>
+                            <option value="2">Tahun 2</option>
+                            <option value="3">Tahun 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Semester</label>
+                        <select id="semesterSelect" class="form-select">
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-2 d-flex justify-content-between align-items-center">
+                    <label class="form-label fw-bold">Senarai Kursus</label>
+                    <button type="button" class="btn btn-sm btn-success" onclick="addCourseRow()">
+                        <i class="bi bi-plus-circle"></i> + Add
+                    </button>
+                </div>
+                
+                <div id="courseListContainer">
+                    <div class="row g-2 course-row">
+                        <div class="col-5">
+                            <input type="text" class="form-control form-control-sm course-name" placeholder="Nama Kursus">
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control form-control-sm course-code" placeholder="Kod">
+                        </div>
+                        <div class="col-3 text-end">
+                            <input type="number" class="form-control form-control-sm course-credit" placeholder="Kredit">
+                        </div>
+                    </div>
+                </div>
             </div>
-<div class="mb-3">
-    <label class="form-label" id="passLabel">ID Pelajar / Kata Laluan</label>
-    <div class="input-group">
-        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-            <i class="bi bi-eye"></i>
-        </button>
-    </div>
-    <small class="text-muted" id="passHint" style="display: none;">Gunakan ID Pelajar untuk mendaftar subjek.</small>
-</div>
+
+            <div class="mb-4">
+                <label class="form-label" id="passLabel">Kata Laluan</label>
+                <div class="input-group">
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <small class="text-muted" id="passHint" style="display: none;">Gunakan ID Pelajar untuk mendaftar subjek.</small>
+            </div>
             
             <button type="submit" class="btn btn-primary w-100 mb-3" id="authBtn">Log Masuk</button>
             
             <div class="text-center" id="regSection">
                 <small class="text-muted">
                     <span id="toggleText">Belum ada akaun?</span> 
-                    <a href="javascript:void(0)" id="toggleAuth" class="text-decoration-none fw-bold">Daftar Sini</a>
+                    <a href="javascript:void(0)" id="toggleAuth" class="text-decoration-none fw-bold text-primary">Daftar Sini</a>
                 </small>
             </div>
         </form>
