@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGuard AI | Lengkapkan Pendaftaran</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7fe; padding-top: 50px; font-family: 'Inter', sans-serif; }
+        .reg-card { max-width: 500px; margin: auto; background: white; border-radius: 25px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+        .form-label { font-weight: 600; color: #444; }
+        .btn-primary { background: #4361ee; border: none; border-radius: 12px; padding: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="reg-card">
+        <h3 class="fw-bold text-primary mb-2 text-center">Lengkapkan Profil</h3>
+        <p class="text-muted text-center mb-4">Sila pilih kursus dan penyelia (SV) anda.</p>
+
+        <form id="courseRegForm">
+            <div class="mb-3">
+                <label class="form-label">ID Pelajar</label>
+                <input type="text" id="displayID" class="form-control bg-light" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Kursus Utama</label>
+                <select id="course" class="form-select" required>
+                    <option value="">-- Pilih Kursus --</option>
+                    <option value="Software Engineering">Software Engineering</option>
+                    <option value="IoT Systems">IoT Systems</option>
+                    <option value="Data Analytics">Data Analytics</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Semester Semasa</label>
+                <select id="semester" class="form-select" required>
+                    <option value="">-- Pilih Semester --</option>
+                    <option value="Semester 1">Semester 1</option>
+                    <option value="Semester 2">Semester 2</option>
+                    <option value="Semester 3">Semester 3</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Penyelia (Supervisor)</label>
+                <select id="supervisor" class="form-select" required>
+                    <option value="">Memuatkan senarai SV...</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold shadow-sm">
+                Sahkan Pendaftaran & Mula
+            </button>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, doc, updateDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Ambil data sementara dari pendaftaran fasa 1
+    const tempID = localStorage.getItem("tempStudentID");
+    const tempName = localStorage.getItem("tempStudentName");
+
+    // Sekiranya tiada data (user cuba skip page), hantar balik ke login
+    if (!tempID) {
+        alert("Sila daftar profil anda terlebih dahulu.");
+        window.location.href = "index.html";
+    }
+
+    // Paparkan ID di input
+    document.getElementById('displayID').value = tempID;
+
+    // --- LOAD SUPERVISORS DARI DATABASE ---
+    async function fetchSupervisors() {
+        const svSelect = document.getElementById('supervisor');
+        try {
+            const q = query(collection(db, "users"), where("role", "==", "supervisor"));
+            const snap = await getDocs(q);
+            svSelect.innerHTML = '<option value="">-- Pilih Supervisor --</option>';
+            snap.forEach(doc => {
+                const sv = doc.data();
+                svSelect.innerHTML += `<option value="${sv.email}">${sv.name}</option>`;
+            });
+        } catch (e) {
+            svSelect.innerHTML = '<option value="">Gagal memuatkan SV</option>';
+        }
+    }
+    fetchSupervisors();
+
+    // --- SIMPAN PENDAFTARAN ---
+    document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Menghantar...";
+
+        const course = document.getElementById('course').value;
+        const sem = document.getElementById('semester').value;
+        const svEmail = document.getElementById('supervisor').value;
+
+        // RegID unik untuk pendaftaran ini
+        const regID = `${tempID}_${course.replace(/\s+/g, '')}_${sem.replace(/\s+/g, '')}`;
+
+        try {
+            // 1. Simpan rekod pendaftaran kursus
+            await setDoc(doc(db, "course_registrations", regID), {
+                studentID: tempID,
+                studentName: tempName,
+                course: course,
+                semester: sem,
+                supervisorEmail: svEmail,
+                totalMark: 0,
+                grade: "-",
+                status: "Pending",
+                timestamp: serverTimestamp()
+            });
+
+            // 2. Kemaskini status profil pelajar kepada 'complete'
+            await updateDoc(doc(db, "students", tempID), {
+                registrationStatus: "complete"
+            });
+
+            // 3. Simpan data sesi semasa
+            localStorage.setItem("currentStudentID", tempID);
+            localStorage.setItem("currentStudentName", tempName);
+            
+            // Padam data sementara
+            localStorage.removeItem("tempStudentID");
+            localStorage.removeItem("tempStudentName");
+
+            alert("Pendaftaran subjek berjaya!");
+            window.location.href = "student-view.html";
+
+        } catch (error) {
+            alert("Ralat: " + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Sahkan Pendaftaran & Mula";
+        }
+    });
+</script>
+</body>
+</html>
