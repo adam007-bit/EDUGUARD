@@ -3,106 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Portal Akses</title>
+    <title>EduGuard AI | Log Masuk & Daftar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { background: #f0f2f5; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
-        .auth-card { width: 100%; max-width: 450px; padding: 2.5rem; border-radius: 20px; border: none; }
-        .btn-primary { background: #4361ee; border: none; border-radius: 12px; padding: 12px; font-weight: 600; }
-        .btn-outline-primary { border-radius: 10px; border-color: #4361ee; color: #4361ee; font-size: 0.9rem; }
-        .btn-outline-primary.active { background-color: #4361ee; color: white; }
-        .form-label { font-weight: 500; color: #4b5563; }
-        .form-control, .form-select { border-radius: 10px; padding: 10px; border: 1px solid #d1d5db; }
+        body { background: #f4f7fe; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; }
+        .auth-card { border: none; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; background: white; width: 100%; max-width: 450px; margin: auto; }
+        .auth-header { background: #4361ee; color: white; padding: 30px; text-align: center; }
+        .role-selector .btn { border-radius: 12px; font-weight: 600; flex: 1; }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
+        .btn-primary { border-radius: 12px; padding: 12px; font-weight: 700; background: #4361ee; border: none; }
+        .input-group-text { border-radius: 0 12px 12px 0; background: white; cursor: pointer; }
+        .password-input { border-radius: 12px 0 0 12px !important; }
     </style>
 </head>
 <body>
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link px-3 active fw-bold text-primary" href="assessment.html">Self-Assessment</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-<div class="container d-flex justify-content-center">
-    <div class="card auth-card shadow-lg">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold text-primary mb-1">EduGuard AI</h2>
-            <p class="text-muted small mb-4">Sistem Pemantauan Prestasi Akademik</p>
-            
-            <div class="btn-group w-100 mb-3" role="group">
-                <button type="button" class="btn btn-outline-primary active" id="btn-supervisor" onclick="switchRole('supervisor')">Supervisor</button>
-                <button type="button" class="btn btn-outline-primary" id="btn-host" onclick="switchRole('host')">Host</button>
-                <button type="button" class="btn btn-outline-primary" id="btn-student" onclick="switchRole('student')">Student</button>
-            </div>
-            
-            <h5 class="fw-bold mt-3" id="authTitle">Log Masuk Supervisor</h5>
+<div class="container">
+    <div class="auth-card animate__animated animate__fadeIn">
+        <div class="auth-header">
+            <h3 class="fw-bold mb-1" id="authTitle">Log Masuk Supervisor</h3>
+            <p class="small mb-0 opacity-75">Sila pilih peranan dan masukkan butiran anda.</p>
         </div>
 
-        <form id="authForm">
-            <div id="nameField" class="mb-3" style="display: none;">
-                <label class="form-label">Nama Penuh</label>
-                <input type="text" id="fullName" class="form-control" placeholder="Nama penuh anda">
+        <div class="p-4">
+            <div class="role-selector d-flex gap-2 mb-4">
+                <button type="button" id="btn-supervisor" class="btn btn-outline-primary active" onclick="switchRole('supervisor')">Supervisor</button>
+                <button type="button" id="btn-student" class="btn btn-outline-primary" onclick="switchRole('student')">Pelajar</button>
+                <button type="button" id="btn-host" class="btn btn-outline-primary" onclick="switchRole('host')">Host</button>
             </div>
 
-            <div class="mb-3" id="emailDiv">
-                <label class="form-label">Alamat Emel</label>
-                <input type="email" id="email" class="form-control" placeholder="nama@email.com" required>
+            <form id="authForm">
+                <div class="mb-3" id="nameField" style="display: none;">
+                    <label class="form-label fw-semibold">Nama Penuh</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="Nama penuh anda">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Alamat Emel</label>
+                    <input type="email" id="email" class="form-control" placeholder="contoh@emel.com" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" id="passLabel">Kata Laluan</label>
+                    <div class="input-group">
+                        <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
+                        <span class="input-group-text" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                    <small id="passHint" class="text-muted mt-1" style="display: none;">Gunakan ID unik anda (Contoh: ST12345)</small>
+                </div>
+
+                <div class="mb-3" id="courseField" style="display: none;">
+                    <label class="form-label fw-semibold">Kursus / Subjek</label>
+                    <select id="courseSelect" class="form-control">
+                        <option value="">-- Pilih Kursus --</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="semesterField" style="display: none;">
+                    <label class="form-label fw-semibold">Semester</label>
+                    <select id="semesterSelect" class="form-control">
+                        <option value="">-- Pilih Semester --</option>
+                        <option value="Semester 1">Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                        <option value="Semester 3">Semester 3</option>
+                    </select>
+                </div>
+
+                <div class="mb-4" id="supervisorField" style="display: none;">
+                    <label class="form-label fw-semibold">Pilih Supervisor (SV)</label>
+                    <select id="supervisorSelect" class="form-control">
+                        <option value="">Memuatkan...</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">Log Masuk</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <span id="toggleText">Belum ada akaun?</span> 
+                <a href="#" id="toggleAuth" class="text-primary fw-bold text-decoration-none">Daftar Sini</a>
             </div>
-<div id="supervisorField" class="mb-3" style="display:none;">
-    <label class="form-label fw-bold">Pilih Supervisor Seliaan:</label>
-    <select id="supervisorSelect" class="form-select">
-        <option value="">-- Sila Pilih --</option>
-    </select>
-    <div id="semesterField" class="mb-3" style="display: none;">
-    <label class="form-label">Pilih Semester</label>
-    <select id="semesterSelect" class="form-select">
-        <option value="" selected disabled>-- Pilih Semester --</option>
-        <option value="Semester 1">Semester 1</option>
-        <option value="Semester 2">Semester 2</option>
-        <option value="Semester 3">Semester 3</option>
-    </select>
-</div>
-</div>
-            <div id="courseField" class="mb-3" style="display: none;">
-                <label class="form-label">Pilih Kursus</label>
-                <select id="courseSelect" class="form-select">
-                    <option value="" selected disabled>-- Pilih Kursus --</option>
-                    <option value="Sains Komputer">Sains Komputer</option>
-                    <option value="Sains Fizik">Sains Fizik</option>
-                    <option value="Sains Biologi">Sains Biologi</option>
-                    <option value="Ekonomi">Ekonomi</option>
-                    <option value="Perniagaan">Perniagaan</option>
-                     <option value="Matematik">Matematik</option>
-                </select>
-            </div>
-<div class="mb-3">
-    <label class="form-label" id="passLabel">ID Pelajar / Kata Laluan</label>
-    <div class="input-group">
-        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-            <i class="bi bi-eye"></i>
-        </button>
+        </div>
     </div>
-    <small class="text-muted" id="passHint" style="display: none;">Gunakan ID Pelajar untuk mendaftar subjek.</small>
-</div>
-            
-            <button type="submit" class="btn btn-primary w-100 mb-3" id="authBtn">Log Masuk</button>
-            
-            <div class="text-center" id="regSection">
-                <small class="text-muted">
-                    <span id="toggleText">Belum ada akaun?</span> 
-                    <a href="javascript:void(0)" id="toggleAuth" class="text-decoration-none fw-bold">Daftar Sini</a>
-                </small>
-            </div>
-        </form>
-    </div>
-    
 </div>
 
 <script type="module" src="auth.js"></script>
