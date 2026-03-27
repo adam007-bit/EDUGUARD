@@ -6,22 +6,124 @@
     <title>EduGuard AI | Log Masuk & Daftar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { background: #f4f7fe; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; }
-        .auth-card { border: none; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; background: white; width: 100%; max-width: 450px; margin: auto; }
-        .auth-header { background: #4361ee; color: white; padding: 30px; text-align: center; }
-        .role-selector .btn { border-radius: 12px; font-weight: 600; flex: 1; }
-        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
-        .btn-primary { border-radius: 12px; padding: 12px; font-weight: 700; background: #4361ee; border: none; }
-        .input-group-text { border-radius: 0 12px 12px 0; background: white; cursor: pointer; }
-        .password-input { border-radius: 12px 0 0 12px !important; }
+        /* Menggunakan font yang sama dengan Student Portal */
+        body { 
+            background: #f0f2f5; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: white !important;
+            padding: 15px 0;
+        }
+
+        /* Container utama untuk centering card */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card { 
+            border: none; 
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+            overflow: hidden; 
+            background: white; 
+            width: 100%; 
+            max-width: 450px; 
+        }
+
+        /* Header Card dengan Gradient Gradient sama seperti Portal */
+        .auth-header { 
+            background: linear-gradient(135deg, #4361ee, #4cc9f0); 
+            color: white; 
+            padding: 40px 30px; 
+            text-align: center; 
+        }
+
+        .role-selector .btn { 
+            border-radius: 12px; 
+            font-weight: 600; 
+            flex: 1; 
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+        }
+
+        .role-selector .btn.active {
+            background: #4361ee;
+            border-color: #4361ee;
+            color: white;
+        }
+
+        .form-control, .form-select { 
+            border-radius: 12px; 
+            padding: 12px; 
+            border: 1px solid #e2e8f0; 
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            border-color: #4361ee;
+        }
+
+        .btn-primary { 
+            border-radius: 12px; 
+            padding: 14px; 
+            font-weight: 700; 
+            background: #4361ee; 
+            border: none; 
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #3651d1;
+            transform: translateY(-2px);
+        }
+
+        .input-group-text { 
+            border-radius: 0 12px 12px 0; 
+            background: #f8fafc; 
+            cursor: pointer; 
+            border: 1px solid #e2e8f0;
+            border-left: none;
+        }
+
+        .password-input { 
+            border-radius: 12px 0 0 12px !important; 
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="auth-card animate__animated animate__fadeIn">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">
+            <i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span>
+        </a>
+    </div>
+</nav>
+
+<div class="main-wrapper mt-5">
+    <div class="auth-card">
         <div class="auth-header">
+            <i class="bi bi-person-circle fs-1 mb-2 d-block"></i>
             <h3 class="fw-bold mb-1" id="authTitle">Log Masuk Supervisor</h3>
             <p class="small mb-0 opacity-75">Sila pilih peranan dan masukkan butiran anda.</p>
         </div>
@@ -35,59 +137,36 @@
 
             <form id="authForm">
                 <div class="mb-3" id="nameField" style="display: none;">
-                    <label class="form-label fw-semibold">Nama Penuh</label>
+                    <label class="fw-semibold">Nama Penuh</label>
                     <input type="text" id="fullName" class="form-control" placeholder="Nama penuh anda">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Alamat Emel</label>
+                    <label class="fw-semibold">Alamat Emel</label>
                     <input type="email" id="email" class="form-control" placeholder="contoh@emel.com" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold" id="passLabel">Kata Laluan</label>
+                    <label class="fw-semibold" id="passLabel">Kata Laluan</label>
                     <div class="input-group">
                         <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
                         <span class="input-group-text" id="togglePassword">
                             <i class="bi bi-eye"></i>
                         </span>
                     </div>
-                    <small id="passHint" class="text-muted mt-1" style="display: none;">Gunakan ID unik anda (Contoh: ST12345)</small>
+                    <small id="passHint" class="text-muted mt-2 d-block" style="display: none; font-size: 0.8rem;">
+                        <i class="bi bi-info-circle me-1"></i> Gunakan ID unik anda (Contoh: ST12345)
+                    </small>
                 </div>
 
-                <div class="mb-3" id="courseField" style="display: none;">
-                    <label class="form-label fw-semibold">Kursus / Subjek</label>
-                    <select id="courseSelect" class="form-control">
-                        <option value="">-- Pilih Kursus --</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                    </select>
-                </div>
-
-                <div class="mb-3" id="semesterField" style="display: none;">
-                    <label class="form-label fw-semibold">Semester</label>
-                    <select id="semesterSelect" class="form-control">
-                        <option value="">-- Pilih Semester --</option>
-                        <option value="Semester 1">Semester 1</option>
-                        <option value="Semester 2">Semester 2</option>
-                        <option value="Semester 3">Semester 3</option>
-                    </select>
-                </div>
-
-                <div class="mb-4" id="supervisorField" style="display: none;">
-                    <label class="form-label fw-semibold">Pilih Supervisor (SV)</label>
-                    <select id="supervisorSelect" class="form-control">
-                        <option value="">Memuatkan...</option>
-                    </select>
-                </div>
+              
 
                 <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">Log Masuk</button>
             </form>
 
             <div class="text-center mt-4">
-                <span id="toggleText">Belum ada akaun?</span> 
-                <a href="#" id="toggleAuth" class="text-primary fw-bold text-decoration-none">Daftar Sini</a>
+                <span id="toggleText" class="text-muted small">Belum ada akaun?</span> 
+                <a href="#" id="toggleAuth" class="text-primary fw-bold text-decoration-none small ms-1">Daftar Sini</a>
             </div>
         </div>
     </div>
