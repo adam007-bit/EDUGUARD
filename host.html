@@ -113,6 +113,47 @@
                 </div>
             </div>
         </form>
+        <div class="host-container mt-4 border-top pt-4">
+    <div class="text-center mb-4">
+        <h4 class="fw-bold"><i class="bi bi-megaphone text-warning"></i> Sebaran Bahan & Tugasan</h4>
+        <p class="text-muted small">Muat naik nota, tarikh penting atau pautan kuiz untuk pelajar.</p>
+    </div>
+
+    <div class="portal-card border p-4 bg-white">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Pilih Subjek Sasaran</label>
+                <select id="postCourse" class="form-select">
+                    <option value="Software Engineering">Software Engineering</option>
+                    <option value="IoT Systems">IoT Systems</option>
+                    <option value="Data Analytics">Data Analytics</option>
+                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Kategori</label>
+                <select id="postCategory" class="form-select">
+                    <option value="Nota">Nota Kuliah</option>
+                    <option value="Kuiz">Pautan Kuiz</option>
+                    <option value="Tarikh Penting">Tarikh Penting (Deadline)</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-bold">Tajuk / Perkara</label>
+                <input type="text" id="postTitle" class="form-control" placeholder="Contoh: Nota Minggu 5 - Firebase Integration">
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-bold">Kandungan / Pautan (URL)</label>
+                <textarea id="postContent" class="form-control" rows="3" placeholder="Masukkan info atau pautan Google Drive/Quizizz di sini..."></textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-warning w-100 fw-bold py-3" onclick="uploadMaterial()">
+                    <i class="bi bi-send-fill me-2"></i> Hantar ke Portal Pelajar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 
