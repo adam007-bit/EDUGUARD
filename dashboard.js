@@ -16,10 +16,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// Global Variables
 let allData = [];
 let riskChartInstance = null;
 let gradeChartInstance = null;
-let isInitialLoad = true; // Untuk mengelakkan 'spam' notifikasi semasa mula login
+let isInitialLoad = true; 
 
 // 2. Pantau Status Log Masuk
 onAuthStateChanged(auth, (user) => {
@@ -33,7 +34,7 @@ onAuthStateChanged(auth, (user) => {
 
 // 3. Fungsi Utama: Load Dashboard (Real-Time)
 async function loadSupervisorDashboard(svEmail) {
-    // Bina container untuk Notifikasi jika belum ada
+    // Bina container untuk Notifikasi pop-up
     if (!document.querySelector('.toast-container')) {
         const container = document.createElement('div');
         container.className = 'toast-container position-fixed top-0 end-0 p-3';
@@ -41,7 +42,7 @@ async function loadSupervisorDashboard(svEmail) {
         document.body.appendChild(container);
     }
 
-    // Query A: Pendaftaran Kursus (Dengar perubahan pelajar baru)
+    // LISTENER 1: Dengar pendaftaran/markah (Koleksi: course_registrations)
     const qMarks = query(
         collection(db, "course_registrations"), 
         where("supervisorEmail", "==", svEmail)
@@ -50,11 +51,11 @@ async function loadSupervisorDashboard(svEmail) {
     onSnapshot(qMarks, (marksSnap) => {
         const marksMap = new Map();
         
-        // Kesan pelajar baru berdaftar (Hanya selepas load pertama)
+        // Notifikasi jika ada pelajar baru berdaftar (Bukan initial load)
         marksSnap.docChanges().forEach((change) => {
             if (change.type === "added" && !isInitialLoad) {
                 const newData = change.doc.data();
-                showNotification(`Pelajar Baru Berdaftar: ${newData.studentName}`);
+                showNotification(`Pelajar Baru: ${newData.studentName}`);
             }
         });
 
@@ -63,7 +64,7 @@ async function loadSupervisorDashboard(svEmail) {
             marksMap.set(d.studentID, d);
         });
 
-        // Query B: Penilaian/Stress (Dengar perubahan risiko/markah)
+        // LISTENER 2: Dengar penilaian/risiko (Koleksi: assessments)
         const qAssess = query(
             collection(db, "assessments"), 
             where("supervisorEmail", "==", svEmail),
@@ -72,12 +73,12 @@ async function loadSupervisorDashboard(svEmail) {
 
         onSnapshot(qAssess, (assessSnap) => {
             renderDashboard(assessSnap, marksMap);
-            isInitialLoad = false; // Set false selepas data pertama dimuatkan
+            isInitialLoad = false; 
         });
     });
 }
 
-// 4. Fungsi Render Jadual UI
+// 4. Fungsi Render UI
 function renderDashboard(snap, marksMap) {
     const tbody = document.getElementById('dashTable');
     if (!tbody) return;
@@ -89,7 +90,7 @@ function renderDashboard(snap, marksMap) {
     let grades = { A: 0, B: 0, C: 0, GAGAL: 0 };
 
     if (snap.empty) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar ditemui.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar aktif.</td></tr>';
         return;
     }
 
@@ -97,6 +98,7 @@ function renderDashboard(snap, marksMap) {
         const s = doc.data();
         const academic = marksMap.get(s.studentID) || {};
         
+        // Simpan untuk export CSV
         allData.push({ ...s, ...academic });
 
         // Kira Statistik
@@ -107,7 +109,7 @@ function renderDashboard(snap, marksMap) {
         if (['A', 'B', 'C'].includes(g)) grades[g]++;
         else if (g === 'F' || g === 'GAGAL') grades.GAGAL++;
 
-        // UI Logic
+        // Render Baris Jadual
         const gredDisplay = academic.grade ? `<span class="fw-bold text-primary">${academic.grade}</span>` : `<span class="text-muted small">N/A</span>`;
         const rowClass = (s.risk === 'HIGH' && (g === 'F' || g === 'GAGAL')) ? 'table-danger' : '';
 
@@ -134,13 +136,14 @@ function renderDashboard(snap, marksMap) {
             </tr>`;
     });
 
-    // Update Header
-    document.getElementById('totalCount').innerText = snap.size;
-    document.getElementById('highRiskCount').innerText = highRiskCount;
+    // Update Header Stats
+    if(document.getElementById('totalCount')) document.getElementById('totalCount').innerText = snap.size;
+    if(document.getElementById('highRiskCount')) document.getElementById('highRiskCount').innerText = highRiskCount;
+    
     updateCharts(counts, grades);
 }
 
-// 5. Fungsi Notifikasi Toast
+// 5. Fungsi Notifikasi
 function showNotification(message) {
     const container = document.querySelector('.toast-container');
     const toast = document.createElement('div');
@@ -150,7 +153,7 @@ function showNotification(message) {
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-bell-fill text-primary"></i>
             <div>
-                <strong class="d-block small">Notifikasi EduGuard</strong>
+                <strong class="d-block small">Notifikasi Real-Time</strong>
                 <span class="small">${message}</span>
             </div>
         </div>
@@ -162,7 +165,7 @@ function showNotification(message) {
     }, 4000);
 }
 
-// 6. Fungsi Lukis Carta
+// 6. Fungsi Lukis Carta (Chart.js)
 function updateCharts(riskData, gradeData) {
     const ctxRisk = document.getElementById('riskChart')?.getContext('2d');
     const ctxGrade = document.getElementById('gradeChart')?.getContext('2d');
@@ -190,7 +193,7 @@ function updateCharts(riskData, gradeData) {
         data: {
             labels: ['A', 'B', 'C', 'F/Gagal'],
             datasets: [{
-                label: 'Bilangan Pelajar',
+                label: 'Pelajar',
                 data: [gradeData.A, gradeData.B, gradeData.C, gradeData.GAGAL],
                 backgroundColor: '#4361ee',
                 borderRadius: 8
@@ -200,7 +203,7 @@ function updateCharts(riskData, gradeData) {
     });
 }
 
-// 7. Global Functions (Export & Logout)
+// 7. Window Functions (Export & Logout)
 window.exportToCSV = () => {
     if (allData.length === 0) return alert("Tiada data!");
     let csv = "Nama Pelajar,ID Pelajar,Kursus,Stress,Risiko,Markah,Gred\n";
@@ -211,12 +214,12 @@ window.exportToCSV = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `EduGuard_Report.csv`;
+    a.download = `EduGuard_Report_${new Date().toLocaleDateString()}.csv`;
     a.click();
 };
 
 window.handleLogout = async () => {
-    if(confirm("Log keluar?")) {
+    if(confirm("Adakah anda pasti untuk log keluar?")) {
         signOut(auth).then(() => window.location.href = "index.html");
     }
 };
