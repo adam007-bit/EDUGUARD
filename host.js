@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getFirestore, doc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-// 1. Konfigurasi Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
     authDomain: "eduguard-ai-2742b.firebaseapp.com",
@@ -16,15 +15,20 @@ const db = getFirestore(app);
 
 let currentEditDocId = null;
 
-// --- 2. FUNGSI CARI PELAJAR ---
+// --- 1. CARI PELAJAR ---
 window.searchBySubject = async function() {
-    const selectedCourse = document.getElementById('searchSubject').value;
+    // PEMBETULAN: Gunakan 'courseSelect' mengikut ID dalam HTML anda
+    const courseDropdown = document.getElementById('courseSelect');
     const resultsArea = document.getElementById('searchResults');
     const hostForm = document.getElementById('hostForm');
 
+    if (!courseDropdown) return console.error("Elemen courseSelect tidak dijumpai!");
+    
+    const selectedCourse = courseDropdown.value;
+
     if (!selectedCourse) return alert("Sila pilih subjek dahulu!");
 
-    resultsArea.innerHTML = `<div class="text-center"><div class="spinner-border text-primary"></div> Menghubungi pangkalan data...</div>`;
+    resultsArea.innerHTML = `<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>`;
 
     try {
         const q = query(collection(db, "course_registrations"), where("course", "==", selectedCourse));
@@ -36,14 +40,10 @@ window.searchBySubject = async function() {
             return;
         }
 
-        // Buang duplikasi ID Pelajar
         const uniqueStudents = new Map();
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
-            const studentID = data.studentID;
-            if (!uniqueStudents.has(studentID)) {
-                uniqueStudents.set(studentID, { docId: docSnap.id, ...data });
-            }
+            uniqueStudents.set(data.studentID, { docId: docSnap.id, ...data });
         });
 
         let tableHTML = `
@@ -88,72 +88,59 @@ window.searchBySubject = async function() {
         resultsArea.innerHTML = tableHTML;
         hostForm.style.display = 'none';
 
-    } catch (err) {
-        alert("Ralat Carian: " + err.message);
-    }
+    } catch (err) { alert("Ralat Carian: " + err.message); }
 };
 
-// --- 3. FUNGSI SEDIAKAN BORANG EDIT ---
+// --- 2. PERSEDIAAN EDIT ---
 window.prepareEdit = function(docId, name, course, q, t, m, svEmail) {
     currentEditDocId = docId;
     document.getElementById('studentName').value = name;
     
-    // Set subjek dalam dropdown
     const subjectSelect = document.getElementById('subjectSelect');
-    subjectSelect.innerHTML = `<option value="${docId}" selected>${course}</option>`;
+    subjectSelect.innerHTML = `<option value="${course}" selected>${course}</option>`;
     
-    // Auto-isi emel supervisor
     const svInput = document.getElementById('svEmail');
     svInput.value = svEmail || "Tiada Supervisor"; 
 
-    // Isi markah sedia ada
     document.getElementById('quiz').value = q;
     document.getElementById('test').value = t;
     document.getElementById('midterm').value = m;
 
-    // Papar borang dan scroll
     document.getElementById('hostForm').style.display = 'block';
     document.getElementById('hostForm').scrollIntoView({ behavior: 'smooth' });
 };
 
-// --- 4. FUNGSI SIMPAN & KIRA GRED ---
+// --- 3. SIMPAN DATA & KIRA GRED ---
 document.getElementById('hostForm').onsubmit = async (e) => {
     e.preventDefault();
+    if (!currentEditDocId) return alert("Sila pilih pelajar dahulu!");
 
-    if (!currentEditDocId) return alert("Sila pilih pelajar semula.");
+    const quiz = Number(document.getElementById('quiz').value);
+    const test = Number(document.getElementById('test').value);
+    const midterm = Number(document.getElementById('midterm').value);
+    const svEmail = document.getElementById('svEmail').value;
 
-    const qVal = parseFloat(document.getElementById('quiz').value) || 0;
-    const tVal = parseFloat(document.getElementById('test').value) || 0;
-    const mVal = parseFloat(document.getElementById('midterm').value) || 0;
-
-    // Logik Pengiraan Gred (Total 100)
-    const total = qVal + tVal + mVal;
-    let grade = "F";
-    if (total >= 80) grade = "A";
-    else if (total >= 70) grade = "B";
-    else if (total >= 60) grade = "C";
-    else if (total >= 50) grade = "D";
-    else grade = "F";
+    const totalMark = (quiz * 0.2) + (test * 0.3) + (midterm * 0.5); 
+    
+    let grade = "GAGAL";
+    if (totalMark >= 80) grade = "A";
+    else if (totalMark >= 60) grade = "B";
+    else if (totalMark >= 40) grade = "C";
 
     try {
-        const docRef = doc(db, "course_registrations", currentEditDocId);
-        
-        await updateDoc(docRef, {
-            quiz: qVal,
-            test: tVal,
-            midterm: mVal,
-            grade: grade,
+        const regRef = doc(db, "course_registrations", currentEditDocId);
+        await updateDoc(regRef, {
+            quiz, test, midterm,
+            totalMark: totalMark.toFixed(2),
+            grade,
+            supervisorEmail: svEmail,
+            lastUpdated: new Date(),
             status: "Marked"
         });
 
-        alert(`Berjaya! Gred Pelajar: ${grade}`);
-        
-        // Sembunyikan borang & refresh senarai
-        document.getElementById('hostForm').style.display = 'none';
+        alert(`Berjaya! Gred Akhir: ${grade} (${totalMark.toFixed(2)}%)`);
         window.searchBySubject(); 
-
-    } catch (err) {
-        console.error("Error updating:", err);
-        alert("Gagal simpan markah: " + err.message);
-    }
+        document.getElementById('hostForm').style.display = 'none';
+        document.getElementById('hostForm').reset();
+    } catch (error) { alert("Ralat simpan: " + error.message); }
 };
