@@ -30,88 +30,101 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // FUNGSI UTAMA (Hanya ada satu pengisytiharan di sini)
+// ... (Firebase Config & Init kekal sama)
+
 async function loadSupervisorDashboard(svEmail) {
-    const qAssess = query(
-        collection(db, "assessments"), 
-        where("supervisorEmail", "==", svEmail),
-        orderBy("timestamp", "desc")
+    // 1. Dengar data akademik (course_registrations) secara REAL-TIME
+    const qMarks = query(
+        collection(db, "course_registrations"), 
+        where("supervisorEmail", "==", svEmail)
     );
 
-    onSnapshot(qAssess, async (snap) => {
-        const tbody = document.getElementById('dashTable');
-        
-        // 1. Ambil data akademik dari course_registrations
-        const qMarks = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
-        const marksSnap = await getDocs(qMarks);
+    // Snapshot pertama: Untuk senarai pendaftaran kursus
+    onSnapshot(qMarks, (marksSnap) => {
         const marksMap = new Map();
         marksSnap.forEach(doc => {
             const d = doc.data();
             marksMap.set(d.studentID, d);
         });
 
-        // 2. Persediaan Data Table & Chart
-        tbody.innerHTML = '';
-        allData = [];
-        let highRiskCount = 0;
-        let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
-        let grades = { A: 0, B: 0, C: 0, GAGAL: 0, F: 0 };
+        // 2. Dengar data penilaian (assessments) secara REAL-TIME
+        const qAssess = query(
+            collection(db, "assessments"), 
+            where("supervisorEmail", "==", svEmail),
+            orderBy("timestamp", "desc")
+        );
 
-        if (snap.empty) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar.</td></tr>';
-            return;
-        }
-
-        // 3. Loop Data
-        snap.forEach(doc => {
-            const s = doc.data();
-            const academic = marksMap.get(s.studentID) || {};
-            
-            allData.push({ ...s, ...academic });
-
-            // Kira Stats & Chart
-            if (s.risk === 'HIGH') highRiskCount++;
-            if (counts[s.risk] !== undefined) counts[s.risk]++;
-            
-            let g = (academic.grade || "").toUpperCase();
-            if (g === 'A') grades.A++;
-            else if (g === 'B') grades.B++;
-            else if (g === 'C') grades.C++;
-            else if (g === 'F' || g === 'GAGAL') { grades.GAGAL++; grades.F++; }
-
-            // Render Table
-            const gredDisplay = academic.grade ? `<span class="fw-bold text-primary">${academic.grade}</span>` : `<span class="text-muted small">N/A</span>`;
-            const rowClass = (s.risk === 'HIGH' && (g === 'F' || g === 'GAGAL')) ? 'table-danger' : '';
-
-            tbody.innerHTML += `
-                <tr class="${rowClass}">
-                    <td class="ps-3">
-                        <div class="fw-bold">${s.studentName}</div>
-                        <small class="text-muted">ID: ${s.studentID}</small>
-                    </td>
-                    <td><span class="badge bg-light text-primary border">${s.course}</span></td>
-                    <td class="text-center">${s.stress}/5</td>
-                    <td class="text-center">
-                        <span class="badge ${s.risk === 'HIGH' ? 'bg-danger' : (s.risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success')} shadow-sm">
-                            ${s.risk}
-                        </span>
-                    </td>
-                    <td class="text-center">${academic.totalMark ? academic.totalMark + '%' : '-'}</td>
-                    <td class="text-center">${gredDisplay}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Info Pelajar: ${s.studentID}')">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                    </td>
-                </tr>`;
+        onSnapshot(qAssess, (assessSnap) => {
+            renderDashboard(assessSnap, marksMap, svEmail);
         });
-
-        // 4. Kemaskini UI & Chart
-        if(document.getElementById('totalCount')) document.getElementById('totalCount').innerText = snap.size;
-        if(document.getElementById('highRiskCount')) document.getElementById('highRiskCount').innerText = highRiskCount;
-        updateCharts(counts, grades);
     });
 }
 
+// Fungsi pecah untuk memudahkan pengurusan UI
+function renderDashboard(snap, marksMap, svEmail) {
+    const tbody = document.getElementById('dashTable');
+    tbody.innerHTML = '';
+    allData = [];
+    let highRiskCount = 0;
+    let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+    let grades = { A: 0, B: 0, C: 0, GAGAL: 0, F: 0 };
+
+    if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar aktif.</td></tr>';
+        return;
+    }
+
+    snap.forEach(doc => {
+        const s = doc.data();
+        const academic = marksMap.get(s.studentID) || {};
+        
+        // Simpan data untuk export
+        allData.push({ ...s, ...academic });
+
+        // Kira Statistik
+        if (s.risk === 'HIGH') highRiskCount++;
+        if (counts[s.risk] !== undefined) counts[s.risk]++;
+        
+        let g = (academic.grade || "").toUpperCase();
+        if (g === 'A') grades.A++;
+        else if (g === 'B') grades.B++;
+        else if (g === 'C') grades.C++;
+        else if (g === 'F' || g === 'GAGAL') grades.GAGAL++;
+
+        // Render Baris Jadual
+        const gredDisplay = academic.grade ? `<span class="fw-bold text-primary">${academic.grade}</span>` : `<span class="text-muted small">N/A</span>`;
+        const rowClass = (s.risk === 'HIGH' && (g === 'F' || g === 'GAGAL')) ? 'table-danger' : '';
+
+        tbody.innerHTML += `
+            <tr class="${rowClass} animate__animated animate__fadeIn">
+                <td class="ps-3">
+                    <div class="fw-bold">${s.studentName}</div>
+                    <small class="text-muted">ID: ${s.studentID}</small>
+                </td>
+                <td><span class="badge bg-light text-primary border">${s.course || 'Kursus Tidak Sah'}</span></td>
+                <td class="text-center">${s.stress}/5</td>
+                <td class="text-center">
+                    <span class="badge ${s.risk === 'HIGH' ? 'bg-danger' : (s.risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success')} shadow-sm">
+                        ${s.risk}
+                    </span>
+                </td>
+                <td class="text-center">${academic.totalMark ? academic.totalMark + '%' : '-'}</td>
+                <td class="text-center">${gredDisplay}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="alert('Info Pelajar: ${s.studentID}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            </tr>`;
+    });
+
+    // Kemaskini Header Stats & Carta
+    if(document.getElementById('totalCount')) document.getElementById('totalCount').innerText = snap.size;
+    if(document.getElementById('highRiskCount')) document.getElementById('highRiskCount').innerText = highRiskCount;
+    updateCharts(counts, grades);
+}
+
+// ... (Fungsi updateCharts, exportToCSV, dan handleLogout kekal sama)
 // FUNGSI LUKIS CARTA
 function updateCharts(riskData, gradeData) {
     const ctxRisk = document.getElementById('riskChart')?.getContext('2d');
