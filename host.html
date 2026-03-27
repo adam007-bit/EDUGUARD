@@ -3,163 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Master Entry</title>
+    <title>EduGuard - Host Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        body { background: #f8f9fa; min-height: 100vh; font-family: 'Inter', sans-serif; }
-        .host-container { max-width: 850px; margin: 40px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .btn-submit { background: #4361ee; color: white; width: 100%; border-radius: 12px; padding: 14px; font-weight: 600; transition: 0.3s; border: none; }
-        .btn-submit:hover { background: #3046bd; transform: translateY(-2px); }
-        .search-box { background: #eef2ff; padding: 25px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #e0e7ff; }
-        .readonly-input { background-color: #f1f5f9 !important; font-weight: 500; color: #475569; }
-        
-        /* Custom scroll behavior */
-        html { scroll-behavior: smooth; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
-<body>
+<body class="bg-light">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="index.html">
-            <i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="index.html">Utama</a></li>
-                <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard SV</a></li>
-                <li class="nav-item"><a class="nav-link active" href="host.html">Kemas Kini Markah</a></li>
-                <li class="nav-item"><a class="nav-link" href="student-view.html">Semakan Pelajar</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<div class="container py-5">
+    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-cpu-fill"></i> Host Control Panel</h2>
 
-<div class="container">
-    <div class="host-container">
-        <div class="text-center mb-4">
-            <h3 class="fw-bold text-dark"><i class="bi bi-database-fill-gear text-primary"></i> Panel Pengurusan Markah (Host)</h3>
-            <p class="text-muted">Pilih subjek untuk memaparkan senarai pelajar dan mengemaskini markah.</p>
-        </div>
-        
-        <div class="search-box shadow-sm">
-            <label class="form-label fw-bold"><i class="bi bi-book"></i> Pilih Subjek & Lihat Senarai Pelajar</label>
-            <div class="input-group">
-               <select id="courseSelect" class="form-control">
-                        <option value="">-- Pilih Kursus --</option>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title fw-bold">Pengurusan Markah Pelajar</h5>
+            <div class="row g-2 mt-3">
+                <div class="col-md-8">
+                    <select id="courseSelect" class="form-select">
+                        <option value="">-- Pilih Subjek --</option>
                         <option value="Software Engineering">Software Engineering</option>
                         <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
+                        <option value="AI Solutions">AI Solutions</option>
                     </select>
-                <button class="btn btn-primary px-4" type="button" onclick="searchBySubject()">
-                    <i class="bi bi-people-fill"></i> Papar Pelajar
-                </button>
-            </div>
-            <small class="text-primary mt-2 d-block">* Data pelajar ditarik secara unik berdasarkan studentID.</small>
-        </div>
-
-        <div id="searchResults" class="mb-4"></div>
-
-        <form id="hostForm" style="display: none;" class="p-4 border rounded shadow-sm bg-light">
-            <h5 class="fw-bold mb-4 text-primary border-bottom pb-2">
-                <i class="bi bi-pencil-square"></i> Borang Penilaian Prestasi
-            </h5>
-            
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Nama Pelajar</label>
-                    <input type="text" id="studentName" class="form-control readonly-input" readonly>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Subjek</label>
-                    <select id="subjectSelect" class="form-select readonly-input" readonly disabled>
-                        </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">Quiz (20%)</label>
-                    <input type="number" id="quiz" class="form-control" min="0" max="100" placeholder="0-100" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Test (30%)</label>
-                    <input type="number" id="test" class="form-control" min="0" max="100" placeholder="0-100" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Midterm (50%)</label>
-                    <input type="number" id="midterm" class="form-control" min="0" max="100" placeholder="0-100" required>
-                </div>
-
-                <div class="col-12 mt-4">
-                    <div class="p-3 bg-white rounded border border-warning-subtle">
-                        <label class="form-label fw-semibold text-dark small">
-                            <i class="bi bi-person-check-fill text-warning"></i> Mentor/Supervisor Terlibat
-                        </label>
-                        <input type="email" id="svEmail" class="form-control bg-light border-0" readonly>
-                        <small class="text-muted italic" style="font-size: 0.75rem;">
-                            E-mel ini dipadankan secara automatik daripada rekod pendaftaran asal.
-                        </small>
-                    </div>
-                </div>
-
-                <div class="col-12 mt-4">
-                    <button type="submit" class="btn btn-submit shadow">
-                        <i class="bi bi-cloud-arrow-up-fill"></i> Simpan & Kemaskini Dashboard AI
+                    <button class="btn btn-primary w-100" onclick="searchBySubject()">
+                        <i class="bi bi-search"></i> Cari Pelajar
                     </button>
                 </div>
             </div>
-        </form>
-        <div class="host-container mt-4 border-top pt-4">
-    <div class="text-center mb-4">
-        <h4 class="fw-bold"><i class="bi bi-megaphone text-warning"></i> Sebaran Bahan & Tugasan</h4>
-        <p class="text-muted small">Muat naik nota, tarikh penting atau pautan kuiz untuk pelajar.</p>
+            <div id="searchResults" class="mt-4"></div>
+        </div>
     </div>
 
-    <div class="portal-card border p-4 bg-white">
+    <form id="hostForm" class="card shadow-sm p-4 mb-4 border-primary" style="display:none;">
+        <h5 class="fw-bold border-bottom pb-2 mb-3">Kemasukan Markah: <span id="displayStudentName" class="text-primary"></span></h5>
         <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Pilih Subjek Sasaran</label>
-                <select id="postCourse" class="form-select">
-                    <option value="Software Engineering">Software Engineering</option>
-                    <option value="IoT Systems">IoT Systems</option>
-                    <option value="Data Analytics">Data Analytics</option>
-                    <option value="Artificial Intelligence">Artificial Intelligence</option>
-                </select>
+            <input type="hidden" id="svEmail">
+            <div class="col-md-4">
+                <label class="form-label small">Quiz (20%)</label>
+                <input type="number" id="quiz" class="form-control" max="100" required>
             </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Kategori</label>
-                <select id="postCategory" class="form-select">
-                    <option value="Nota">Nota Kuliah</option>
-                    <option value="Kuiz">Pautan Kuiz</option>
-                    <option value="Tarikh Penting">Tarikh Penting (Deadline)</option>
-                </select>
+            <div class="col-md-4">
+                <label class="form-label small">Test (30%)</label>
+                <input type="number" id="test" class="form-control" max="100" required>
             </div>
-            <div class="col-12">
-                <label class="form-label fw-bold">Tajuk / Perkara</label>
-                <input type="text" id="postTitle" class="form-control" placeholder="Contoh: Nota Minggu 5 - Firebase Integration">
+            <div class="col-md-4">
+                <label class="form-label small">Midterm (50%)</label>
+                <input type="number" id="midterm" class="form-control" max="100" required>
             </div>
-            <div class="col-12">
-                <label class="form-label fw-bold">Kandungan / Pautan (URL)</label>
-                <textarea id="postContent" class="form-control" rows="3" placeholder="Masukkan info atau pautan Google Drive/Quizizz di sini..."></textarea>
+            <div class="col-12 mt-4 text-end">
+                <button type="button" class="btn btn-secondary me-2" onclick="this.parentElement.parentElement.parentElement.style.display='none'">Batal</button>
+                <button type="submit" class="btn btn-success px-4">Simpan & Hantar ke Dashboard</button>
             </div>
-            <div class="col-12">
-                <button class="btn btn-warning w-100 fw-bold py-3" onclick="uploadMaterial()">
-                    <i class="bi bi-send-fill me-2"></i> Hantar ke Portal Pelajar
-                </button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title fw-bold">Muat Naik Bahan Pembelajaran</h5>
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <input type="text" id="postTitle" class="form-control" placeholder="Tajuk Bahan">
+                </div>
+                <div class="col-md-3">
+                    <select id="postCourse" class="form-select">
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="postCategory" class="form-select">
+                        <option value="Lecture">Lecture</option>
+                        <option value="Lab">Lab</option>
+                        <option value="Assignment">Assignment</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <textarea id="postContent" class="form-control" rows="3" placeholder="Kandungan/Link Bahan"></textarea>
+                </div>
+                <div class="col-12 text-end">
+                    <button class="btn btn-dark w-100" onclick="uploadMaterial()">Hantar Bahan</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-    </div>
-</div>
 
-<script type="module" src="host.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentEditDocId = null;
+
+    // --- CARI PELAJAR ---
+    window.searchBySubject = async function() {
+        const selectedCourse = document.getElementById('courseSelect').value;
+        const resultsArea = document.getElementById('searchResults');
+        if (!selectedCourse) return alert("Pilih subjek!");
+
+        resultsArea.innerHTML = "Memuatkan...";
+
+        try {
+            const q = query(collection(db, "course_registrations"), where("course", "==", selectedCourse));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                resultsArea.innerHTML = "Tiada pelajar.";
+                return;
+            }
+
+            let html = `<table class="table table-sm"><thead><tr><th>Nama</th><th>ID</th><th>Gred</th><th>Aksi</th></tr></thead><tbody>`;
+            snap.forEach(d => {
+                const data = d.data();
+                html += `<tr>
+                    <td>${data.studentName}</td>
+                    <td>${data.studentID}</td>
+                    <td><span class="badge bg-info">${data.grade || '-'}</span></td>
+                    <td><button class="btn btn-sm btn-primary" onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0}, '${data.supervisorEmail||''}')">Edit</button></td>
+                </tr>`;
+            });
+            resultsArea.innerHTML = html + "</tbody></table>";
+        } catch (e) { alert(e.message); }
+    };
+
+    // --- PERSEDIAAN EDIT ---
+    window.prepareEdit = (id, name, q, t, m, email) => {
+        currentEditDocId = id;
+        document.getElementById('displayStudentName').innerText = name;
+        document.getElementById('quiz').value = q;
+        document.getElementById('test').value = t;
+        document.getElementById('midterm').value = m;
+        document.getElementById('svEmail').value = email;
+        document.getElementById('hostForm').style.display = 'block';
+    };
+
+    // --- SIMPAN MARKAH ---
+    document.getElementById('hostForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const quiz = Number(document.getElementById('quiz').value);
+        const test = Number(document.getElementById('test').value);
+        const midterm = Number(document.getElementById('midterm').value);
+        const svEmail = document.getElementById('svEmail').value;
+
+        const totalMark = (quiz * 0.2) + (test * 0.3) + (midterm * 0.5);
+        let grade = totalMark >= 80 ? "A" : totalMark >= 60 ? "B" : totalMark >= 40 ? "C" : "GAGAL";
+
+        try {
+            await updateDoc(doc(db, "course_registrations", currentEditDocId), {
+                quiz, test, midterm, totalMark: totalMark.toFixed(2), grade,
+                status: "Marked", lastUpdated: serverTimestamp()
+            });
+            alert("Markah dikemaskini!");
+            searchBySubject();
+            document.getElementById('hostForm').style.display = 'none';
+        } catch (e) { alert(e.message); }
+    };
+
+    // --- UPLOAD MATERIAL ---
+    window.uploadMaterial = async () => {
+        const title = document.getElementById('postTitle').value;
+        const content = document.getElementById('postContent').value;
+        if(!title) return;
+
+        await addDoc(collection(db, "materials"), {
+            title, content, course: document.getElementById('postCourse').value,
+            category: document.getElementById('postCategory').value,
+            datePosted: serverTimestamp()
+        });
+        alert("Bahan Berjaya Dihantar!");
+    };
+</script>
 </body>
 </html>
