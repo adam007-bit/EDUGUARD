@@ -6,82 +6,180 @@
     <title>EduGuard AI | Portal Pelajar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { background: #f0f2f5; font-family: 'Inter', sans-serif; }
-        .student-header { background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; padding: 40px 0; border-radius: 0 0 30px 30px; }
-        .result-card { border: none; border-radius: 20px; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .grade-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; padding-top: 70px; }
+        .student-header { background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; padding: 40px 0; border-radius: 0 0 40px 40px; }
+        .portal-card { border: none; border-radius: 24px; padding: 30px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        .badge-val { background: #eef2ff; color: #4361ee; font-weight: bold; border-radius: 8px; padding: 5px 12px; }
+        .grade-circle { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .bg-grade-a { background: #dcfce7; color: #166534; }
         .bg-grade-g { background: #fee2e2; color: #991b1b; }
+        .nav-pills .nav-link { border-radius: 12px; font-weight: 600; color: #64748b; background: white; margin: 0 5px; }
+        .nav-pills .nav-link.active { background: #4361ee; color: white; }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="../index.html">
-            <i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="../index.html">Utama</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="dashboard.html">Dashboard SV</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="host.html">Kemas Kini Markah</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="student-view.html">Semakan Pelajar</a>
-                </li>
-            </ul>
-        </div>
+        <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span></a>
     </div>
 </nav>
-<div class="student-header text-center mb-4">
-    <div class="container">
-        <h2 class="fw-bold">EduGuard <span class="text-warning">AI</span></h2>
-        <p class="mb-0">Portal Semakan Keputusan Pelajar</p>
-    </div>
-</div>
 
-<div class="container">
+<div id="verifySection" class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card result-card p-4 mb-4">
-                <label class="form-label fw-bold">Masukkan ID Pelajar untuk Semakan:</label>
-                <div class="input-group">
-                    <input type="text" id="inputStudentID" class="form-control form-control-lg" placeholder="Contoh: ST12345">
-                    <button class="btn btn-primary px-4" onclick="checkResults()"><i class="bi bi-search"></i> Semak</button>
-                </div>
-            </div>
-
-            <div id="studentProfile" class="d-none">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-white p-3 rounded-circle shadow-sm me-3">
-                        <i class="bi bi-person-fill fs-2 text-primary"></i>
-                    </div>
-                    <div>
-                        <h4 class="fw-bold mb-0" id="dispStudentName">-</h4>
-                        <p class="text-muted mb-0" id="dispStudentID">-</p>
-                    </div>
-                </div>
-
-                <div id="resultsList">
-                    </div>
-            </div>
-
-            <div id="noDataMsg" class="alert alert-info d-none text-center">
-                Maaf, tiada rekod ditemui untuk ID tersebut. Sila pastikan ID adalah betul.
+        <div class="col-md-5">
+            <div class="portal-card text-center">
+                <i class="bi bi-person-badge fs-1 text-primary mb-3"></i>
+                <h4 class="fw-bold">Pengesahan Pelajar</h4>
+                <p class="text-muted small">Sila masukkan ID Pelajar anda untuk memulakan.</p>
+                <input type="text" id="verifyID" class="form-control form-control-lg text-center mb-3" placeholder="Contoh: ST123">
+                <button class="btn btn-primary w-100 py-3 fw-bold" onclick="verifyStudent()">Sahkan ID & Masuk</button>
             </div>
         </div>
     </div>
 </div>
 
-<script type="module" src="student.js"></script>
+<div id="mainPortal" class="d-none">
+    <div class="student-header text-center">
+        <div class="container">
+            <h2 class="fw-bold">Selamat Datang, <span id="userDisplayName">-</span></h2>
+            <p class="opacity-75">ID: <span id="userDisplayID">-</span> | SV: <span id="userDisplaySV">-</span></p>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <ul class="nav nav-pills justify-content-center mb-5">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-assessment">Penilaian Kendiri</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-results">Keputusan Markah</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="content-assessment">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="portal-card">
+                            <h4 class="fw-bold mb-4">Borang Penilaian Harian</h4>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between"><label>Tahap Stress</label><span id="stressVal" class="badge-val">3</span></div>
+                                <input type="range" class="form-range" min="1" max="5" id="stress" value="3" oninput="document.getElementById('stressVal').innerText=this.value">
+                            </div>
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between"><label>Beban Belajar</label><span id="loadVal" class="badge-val">3</span></div>
+                                <input type="range" class="form-range" min="1" max="5" id="load" value="3" oninput="document.getElementById('loadVal').innerText=this.value">
+                            </div>
+                            <button class="btn btn-primary w-100 py-3 fw-bold" onclick="submitAssessment()">Hantar Penilaian</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-results">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div id="resultsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let activeStudent = null;
+
+    // --- FUNGSI VERIFIKASI ---
+    window.verifyStudent = async function() {
+        const id = document.getElementById('verifyID').value.trim();
+        if(!id) return alert("Sila masukkan ID!");
+
+        try {
+            // Cari data pendaftaran asal
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+            const snap = await getDocs(q);
+
+            if(snap.empty) return alert("ID Pelajar tidak dijumpai dalam sistem!");
+
+            activeStudent = snap.docs[0].data(); // Ambil data pendaftaran pertama
+
+            // Papar UI Portal
+            document.getElementById('verifySection').classList.add('d-none');
+            document.getElementById('mainPortal').classList.remove('d-none');
+            
+            // Set Header Info
+            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+            document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
+
+            loadResults(id);
+        } catch (e) { console.error(e); }
+    }
+
+    // --- FUNGSI LOAD MARKAH ---
+    async function loadResults(id) {
+        const list = document.getElementById('resultsList');
+        list.innerHTML = "";
+        
+        const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+        const snap = await getDocs(q);
+
+        snap.forEach(doc => {
+            const data = doc.data();
+            let gradeClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'G' ? 'bg-grade-g' : 'bg-light');
+
+            list.innerHTML += `
+                <div class="card portal-card mb-3 border-start border-4 ${data.status === 'High Risk' ? 'border-danger' : 'border-success'}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">${data.course}</h6>
+                            <p class="small text-muted mb-0">Sem: ${data.semester} | Quiz: ${data.quiz}% | Test: ${data.test}%</p>
+                        </div>
+                        <div class="grade-circle ${gradeClass} shadow-sm">${data.grade || '-'}</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    // --- FUNGSI SIMPAN PENILAIAN (DENGAN DATA SV) ---
+    window.submitAssessment = async function() {
+        if(!activeStudent) return;
+
+        const s = parseInt(document.getElementById('stress').value);
+        const l = parseInt(document.getElementById('load').value);
+        
+        try {
+            await addDoc(collection(db, "assessments"), {
+                studentID: activeStudent.studentID,
+                studentName: activeStudent.studentName,
+                course: activeStudent.course,
+                supervisorEmail: activeStudent.supervisorEmail, // PENTING: Untuk filter SV Dashboard
+                stress: s,
+                load: l,
+                timestamp: serverTimestamp(),
+                risk: (s >= 4) ? "HIGH" : "LOW" // Contoh logik ringkas
+            });
+            alert("Penilaian berjaya dihantar kepada " + activeStudent.supervisorEmail);
+        } catch (e) { alert("Gagal hantar."); }
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
