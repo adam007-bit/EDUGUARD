@@ -159,7 +159,32 @@
                     </small>
                 </div>
 
-              
+                <div class="mb-3" id="courseField" style="display: none;">
+                    <label class="fw-semibold">Kursus / Subjek</label>
+                    <select id="courseSelect" class="form-select">
+                        <option value="">-- Pilih Kursus --</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="semesterField" style="display: none;">
+                    <label class="fw-semibold">Semester</label>
+                    <select id="semesterSelect" class="form-select">
+                        <option value="">-- Pilih Semester --</option>
+                        <option value="Semester 1">Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                        <option value="Semester 3">Semester 3</option>
+                    </select>
+                </div>
+
+                <div class="mb-4" id="supervisorField" style="display: none;">
+                    <label class="fw-semibold">Pilih Supervisor (SV)</label>
+                    <select id="supervisorSelect" class="form-select">
+                        <option value="">Memuatkan SV...</option>
+                    </select>
+                </div>
 
                 <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">Log Masuk</button>
             </form>
