@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+// 1. Konfigurasi Firebase
 const firebaseConfig = { 
     apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
     authDomain: "eduguard-ai-2742b.firebaseapp.com",
@@ -18,36 +19,51 @@ const auth = getAuth(app);
 let allData = [];
 let riskChartInstance = null;
 let gradeChartInstance = null;
+let isInitialLoad = true; // Untuk mengelakkan 'spam' notifikasi semasa mula login
 
-// Pantau Log Masuk
+// 2. Pantau Status Log Masuk
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log("Supervisor Logged In:", user.email);
+        console.log("Supervisor Aktif:", user.email);
         loadSupervisorDashboard(user.email);
     } else {
         window.location.href = "index.html";
     }
 });
 
-// FUNGSI UTAMA (Hanya ada satu pengisytiharan di sini)
-// ... (Firebase Config & Init kekal sama)
-
+// 3. Fungsi Utama: Load Dashboard (Real-Time)
 async function loadSupervisorDashboard(svEmail) {
-    // 1. Dengar data akademik (course_registrations) secara REAL-TIME
+    // Bina container untuk Notifikasi jika belum ada
+    if (!document.querySelector('.toast-container')) {
+        const container = document.createElement('div');
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = "9999";
+        document.body.appendChild(container);
+    }
+
+    // Query A: Pendaftaran Kursus (Dengar perubahan pelajar baru)
     const qMarks = query(
         collection(db, "course_registrations"), 
         where("supervisorEmail", "==", svEmail)
     );
 
-    // Snapshot pertama: Untuk senarai pendaftaran kursus
     onSnapshot(qMarks, (marksSnap) => {
         const marksMap = new Map();
+        
+        // Kesan pelajar baru berdaftar (Hanya selepas load pertama)
+        marksSnap.docChanges().forEach((change) => {
+            if (change.type === "added" && !isInitialLoad) {
+                const newData = change.doc.data();
+                showNotification(`Pelajar Baru Berdaftar: ${newData.studentName}`);
+            }
+        });
+
         marksSnap.forEach(doc => {
             const d = doc.data();
             marksMap.set(d.studentID, d);
         });
 
-        // 2. Dengar data penilaian (assessments) secara REAL-TIME
+        // Query B: Penilaian/Stress (Dengar perubahan risiko/markah)
         const qAssess = query(
             collection(db, "assessments"), 
             where("supervisorEmail", "==", svEmail),
@@ -55,22 +71,25 @@ async function loadSupervisorDashboard(svEmail) {
         );
 
         onSnapshot(qAssess, (assessSnap) => {
-            renderDashboard(assessSnap, marksMap, svEmail);
+            renderDashboard(assessSnap, marksMap);
+            isInitialLoad = false; // Set false selepas data pertama dimuatkan
         });
     });
 }
 
-// Fungsi pecah untuk memudahkan pengurusan UI
-function renderDashboard(snap, marksMap, svEmail) {
+// 4. Fungsi Render Jadual UI
+function renderDashboard(snap, marksMap) {
     const tbody = document.getElementById('dashTable');
+    if (!tbody) return;
+
     tbody.innerHTML = '';
     allData = [];
     let highRiskCount = 0;
     let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
-    let grades = { A: 0, B: 0, C: 0, GAGAL: 0, F: 0 };
+    let grades = { A: 0, B: 0, C: 0, GAGAL: 0 };
 
     if (snap.empty) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar aktif.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar ditemui.</td></tr>';
         return;
     }
 
@@ -78,20 +97,17 @@ function renderDashboard(snap, marksMap, svEmail) {
         const s = doc.data();
         const academic = marksMap.get(s.studentID) || {};
         
-        // Simpan data untuk export
         allData.push({ ...s, ...academic });
 
         // Kira Statistik
         if (s.risk === 'HIGH') highRiskCount++;
         if (counts[s.risk] !== undefined) counts[s.risk]++;
         
-        let g = (academic.grade || "").toUpperCase();
-        if (g === 'A') grades.A++;
-        else if (g === 'B') grades.B++;
-        else if (g === 'C') grades.C++;
+        const g = (academic.grade || "").toUpperCase();
+        if (['A', 'B', 'C'].includes(g)) grades[g]++;
         else if (g === 'F' || g === 'GAGAL') grades.GAGAL++;
 
-        // Render Baris Jadual
+        // UI Logic
         const gredDisplay = academic.grade ? `<span class="fw-bold text-primary">${academic.grade}</span>` : `<span class="text-muted small">N/A</span>`;
         const rowClass = (s.risk === 'HIGH' && (g === 'F' || g === 'GAGAL')) ? 'table-danger' : '';
 
@@ -101,7 +117,7 @@ function renderDashboard(snap, marksMap, svEmail) {
                     <div class="fw-bold">${s.studentName}</div>
                     <small class="text-muted">ID: ${s.studentID}</small>
                 </td>
-                <td><span class="badge bg-light text-primary border">${s.course || 'Kursus Tidak Sah'}</span></td>
+                <td><span class="badge bg-light text-primary border">${s.course || academic.course || 'Kursus'}</span></td>
                 <td class="text-center">${s.stress}/5</td>
                 <td class="text-center">
                     <span class="badge ${s.risk === 'HIGH' ? 'bg-danger' : (s.risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success')} shadow-sm">
@@ -118,14 +134,35 @@ function renderDashboard(snap, marksMap, svEmail) {
             </tr>`;
     });
 
-    // Kemaskini Header Stats & Carta
-    if(document.getElementById('totalCount')) document.getElementById('totalCount').innerText = snap.size;
-    if(document.getElementById('highRiskCount')) document.getElementById('highRiskCount').innerText = highRiskCount;
+    // Update Header
+    document.getElementById('totalCount').innerText = snap.size;
+    document.getElementById('highRiskCount').innerText = highRiskCount;
     updateCharts(counts, grades);
 }
 
-// ... (Fungsi updateCharts, exportToCSV, dan handleLogout kekal sama)
-// FUNGSI LUKIS CARTA
+// 5. Fungsi Notifikasi Toast
+function showNotification(message) {
+    const container = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'bg-white border-start border-primary border-5 p-3 mb-2 shadow rounded animate__animated animate__slideInRight';
+    toast.style.minWidth = "250px";
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bell-fill text-primary"></i>
+            <div>
+                <strong class="d-block small">Notifikasi EduGuard</strong>
+                <span class="small">${message}</span>
+            </div>
+        </div>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.replace('animate__slideInRight', 'animate__slideOutRight');
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+// 6. Fungsi Lukis Carta
 function updateCharts(riskData, gradeData) {
     const ctxRisk = document.getElementById('riskChart')?.getContext('2d');
     const ctxGrade = document.getElementById('gradeChart')?.getContext('2d');
@@ -163,25 +200,23 @@ function updateCharts(riskData, gradeData) {
     });
 }
 
-// REGISTER KE WINDOW (Penyelesaian Export & Logout)
+// 7. Global Functions (Export & Logout)
 window.exportToCSV = () => {
-    if (allData.length === 0) return alert("Tiada data untuk dieksport!");
+    if (allData.length === 0) return alert("Tiada data!");
     let csv = "Nama Pelajar,ID Pelajar,Kursus,Stress,Risiko,Markah,Gred\n";
     allData.forEach(r => {
-        csv += `"${r.studentName}","${r.studentID}","${r.course}",${r.stress},"${r.risk}","${r.totalMark || '-'}","${r.grade || '-'}"\n`;
+        csv += `"${r.studentName}","${r.studentID}","${r.course || '-'}",${r.stress},"${r.risk}","${r.totalMark || '-'}","${r.grade || '-'}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `EduGuard_Report_${new Date().toLocaleDateString()}.csv`;
+    a.download = `EduGuard_Report.csv`;
     a.click();
 };
 
 window.handleLogout = async () => {
-    if(confirm("Adakah anda pasti untuk log keluar?")) {
-        const { getAuth, signOut } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
-        const auth = getAuth();
+    if(confirm("Log keluar?")) {
         signOut(auth).then(() => window.location.href = "index.html");
     }
 };
