@@ -69,6 +69,85 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const activeID = sessionStorage.getItem("activeUser");
+    const tempName = sessionStorage.getItem("tempRegName");
+
+    if (!activeID) {
+        window.location.href = "index.html";
+    } else {
+        document.getElementById('displayID').value = activeID;
+    }
+
+    async function loadSupervisors() {
+        const svDropdown = document.getElementById('supervisor');
+        try {
+            const q = query(collection(db, "users"), where("role", "==", "supervisor"));
+            const snap = await getDocs(q);
+            svDropdown.innerHTML = '<option value="">-- Pilih Penyelidik --</option>';
+            snap.forEach(doc => {
+                svDropdown.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`;
+            });
+        } catch (e) {
+            svDropdown.innerHTML = '<option>Ralat memuatkan data</option>';
+        }
+    }
+    loadSupervisors();
+
+    document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const selectedCourse = document.getElementById('course').value;
+        const selectedSupervisor = document.getElementById('supervisor').value;
+        
+        // Guna ID unik gabungan ID_Pelajar + Nama_Kursus supaya kursus sama tidak berulang
+        const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}`;
+
+        Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            // 1. Simpan rekod pendaftaran (Update jika ID sama, Tambah jika ID baru)
+            await setDoc(doc(db, "course_registrations", uniqueDocID), {
+                studentID: activeID,
+                studentName: tempName || "Pelajar",
+                course: selectedCourse,
+                supervisorEmail: selectedSupervisor,
+                totalMark: 0,
+                grade: "-",
+                status: "Pending",
+                timestamp: serverTimestamp()
+            });
+
+            // 2. Kemaskini status user & simpan emel supervisor dalam profil
+            await updateDoc(doc(db, "users", activeID), {
+                registrationStatus: "complete",
+                supervisorEmail: selectedSupervisor 
+            });
+
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Berjaya!', 
+                text: 'Pendaftaran kursus anda telah dikemaskini.', 
+                timer: 2000, 
+                showConfirmButton: false 
+            })
+            .then(() => {
+                window.location.href = "student-view.html";
+            });
+        } catch (error) {
+            Swal.fire('Gagal', error.message, 'error');
+        }
+    });
+</script>
+</body>
+</html>        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     // Ambil data dari sessionStorage yang kita simpan di index.html
     const activeID = sessionStorage.getItem("activeUser");
     const tempName = sessionStorage.getItem("tempRegName");
