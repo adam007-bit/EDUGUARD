@@ -15,16 +15,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        :root { --p-blue: #4361ee; --p-red: #ef4444; }
         body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
         .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
-        .navbar-brand { color: #4361ee !important; font-weight: 700; }
+        .navbar-brand { color: var(--p-blue) !important; font-weight: 700; }
         
         .stat-card { border: none; border-radius: 16px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         
         .master-row { cursor: pointer; transition: background 0.2s; border-left: 4px solid transparent; }
         .master-row:hover { background-color: #f1f5f9 !important; }
-        .row-critical { border-left-color: #ef4444; background-color: #fff1f2 !important; }
+        
+        /* Barisan Kritikal (Gagal + Stress) */
+        .row-critical { border-left-color: var(--p-red); background-color: #fff1f2 !important; }
+        .text-critical { color: var(--p-red); font-weight: 700; }
         
         .table thead th { background: #f8fafc; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; border: none; }
         .badge { padding: 6px 12px; border-radius: 8px; font-weight: 600; }
@@ -32,9 +36,7 @@
         .detail-pane { background-color: #f1f5f9; padding: 20px !important; }
         .inner-table { border-radius: 12px; overflow: hidden; background: white; }
 
-        @media print {
-            .no-print { display: none; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body id="dashboardContent">
@@ -56,7 +58,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">Analisis Holistik Pelajar</h4>
-            <p class="text-muted small mb-0">Klik pada barisan pelajar untuk perincian mendalam.</p>
+            <p class="text-muted small mb-0">Klik pada barisan pelajar untuk melihat perincian <b>Stress</b> dan <b>Akademik</b>.</p>
         </div>
         <div class="d-flex gap-2 no-print">
             <button onclick="exportToCSV()" class="btn btn-success shadow-sm fw-bold px-3">
@@ -81,7 +83,7 @@
             <div class="stat-card p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-heart-pulse"></i></div>
-                    <div><small class="text-danger fw-bold text-uppercase">Risiko Tinggi</small><h3 id="stressHighCount" class="text-danger fw-bold mb-0">0</h3></div>
+                    <div><small class="text-danger fw-bold text-uppercase">Stress Tinggi (Risk)</small><h3 id="stressHighCount" class="text-danger fw-bold mb-0">0</h3></div>
                 </div>
             </div>
         </div>
@@ -89,7 +91,7 @@
             <div class="stat-card p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-exclamation-triangle"></i></div>
-                    <div><small class="text-warning fw-bold text-uppercase">Purata Gagal</small><h3 id="failCount" class="text-warning fw-bold mb-0">0</h3></div>
+                    <div><small class="text-warning fw-bold text-uppercase">Berisiko Gagal</small><h3 id="failCount" class="text-warning fw-bold mb-0">0</h3></div>
                 </div>
             </div>
         </div>
@@ -103,8 +105,8 @@
                         <th class="ps-4">Profil Pelajar</th>
                         <th class="text-center">Bil. Kursus</th>
                         <th class="text-center">Purata Akademik</th>
-                        <th class="text-center">Risiko Mental</th>
-                        <th class="text-end pe-4">Status</th>
+                        <th class="text-center">Risiko Stress</th>
+                        <th class="text-end pe-4">Status EduGuard</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
@@ -123,7 +125,7 @@
         </div>
         <div class="col-md-6">
             <div class="card border-0 shadow-sm p-4 rounded-4">
-                <h6 class="fw-bold mb-4 text-center">Status Kesihatan Mental</h6>
+                <h6 class="fw-bold mb-4 text-center">Status Saringan Mental Pelajar</h6>
                 <div style="height: 250px;"><canvas id="stressChart"></canvas></div>
             </div>
         </div>
@@ -163,12 +165,17 @@
     });
 
     function loadData(svEmail) {
+        // Query 1: Kursus yang diselia
         const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
+        
         onSnapshot(qReg, (regSnap) => {
             const regs = [];
             regSnap.forEach(doc => regs.push(doc.data()));
 
+            // Query 2: Keputusan Stress (Dari koleksi assessments atau users)
+            // Di sini kita tarik dari koleksi assessments yang dihantar oleh openPsiko()
             const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail));
+            
             onSnapshot(qAssess, (assessSnap) => {
                 const aMap = new Map();
                 assessSnap.forEach(doc => aMap.set(doc.data().studentID, doc.data()));
@@ -191,18 +198,22 @@
         globalAssessMap = aMap;
 
         let s_high = 0, s_fail = 0, s_norm = 0, s_excel = 0;
-        let m_low = 0, m_med = 0, m_high = 0;
+        let m_low = 0, m_med = 0, m_high = 0, m_none = 0;
 
         Object.values(groups).forEach((stu) => {
+            // Ambil data stress dari Map
             const assess = aMap.get(stu.id) || { risk: 'TIADA', stress: 0 };
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
             
+            // Statistik Chart
             if(assess.risk === "HIGH") { s_high++; m_high++; }
             else if(assess.risk === "MEDIUM") m_med++;
-            else m_low++;
+            else if(assess.risk === "LOW") m_low++;
+            else m_none++;
 
             if(avg < 40) s_fail++; else if(avg >= 75) s_excel++; else s_norm++;
 
+            // LOGIK KRITIKAL: Gagal Akademik (<40) + Stress Tinggi (HIGH)
             const isCrit = (avg < 40 && assess.risk === "HIGH");
             const collId = `c_${stu.id.replace(/\s+/g, '')}`;
 
@@ -213,14 +224,14 @@
                         <small class="text-muted">${stu.id}</small>
                     </td>
                     <td class="text-center"><span class="badge bg-light text-dark border">${stu.courses.length}</span></td>
-                    <td class="text-center fw-bold">${avg}%</td>
+                    <td class="text-center fw-bold ${avg < 40 ? 'text-danger':''}">${avg}%</td>
                     <td class="text-center">
                         <span class="badge ${assess.risk==='HIGH'?'bg-danger':(assess.risk==='MEDIUM'?'bg-warning text-dark':'bg-info')}">
                             ${assess.risk}
                         </span>
                     </td>
                     <td class="text-end pe-4">
-                        <span class="badge ${isCrit?'bg-danger animate__animated animate__flash animate__infinite':'bg-light text-muted'}">
+                        <span class="badge ${isCrit?'bg-danger animate__animated animate__pulse animate__infinite':'bg-light text-muted'}">
                             ${isCrit?'KRITIKAL':'STABIL'}
                         </span>
                     </td>
@@ -228,14 +239,30 @@
                 <tr class="collapse" id="${collId}">
                     <td colspan="5" class="detail-pane">
                         <div class="inner-table p-3 shadow-sm border bg-white">
-                            <h6 class="fw-bold mb-3 text-primary">Rekod Akademik Terperinci</h6>
-                            <table class="table table-sm mb-3">
-                                <thead class="table-light"><tr><th>Kursus</th><th>Markah</th><th>Gred</th></tr></thead>
-                                <tbody>${stu.courses.map(c=>`<tr><td>${c.course}</td><td>${c.totalMark}%</td><td>${c.grade}</td></tr>`).join('')}</tbody>
-                            </table>
-                            <div class="p-2 rounded bg-light border-start border-4 border-primary">
-                                <small class="fw-bold d-block">Hasil Analisis Psikometrik:</small>
-                                <small>Skor Stres: <strong>${assess.stress}/15</strong> | Status Risiko: <strong>${assess.risk}</strong></small>
+                            <div class="row">
+                                <div class="col-md-7 border-end">
+                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book me-2"></i>Rekod Kursus</h6>
+                                    <table class="table table-sm table-hover" style="font-size: 0.8rem;">
+                                        <thead><tr><th>Kursus</th><th class="text-center">Markah</th><th class="text-center">Gred</th></tr></thead>
+                                        <tbody>${stu.courses.map(c=>`<tr><td>${c.course}</td><td class="text-center">${c.totalMark}%</td><td class="text-center"><b>${c.grade}</b></td></tr>`).join('')}</tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-5">
+                                    <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-activity me-2"></i>Status Kesihatan Mental</h6>
+                                    <div class="p-3 rounded-3 bg-light">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Skor Stress:</span>
+                                            <span class="fw-bold">${assess.stress || 0} / 20</span>
+                                        </div>
+                                        <div class="progress mb-3" style="height: 10px;">
+                                            <div class="progress-bar ${assess.risk==='HIGH'?'bg-danger':'bg-primary'}" role="progressbar" style="width: ${(assess.stress/20)*100}%"></div>
+                                        </div>
+                                        <small class="text-muted">Status: <b class="text-dark">${assess.risk}</b></small>
+                                        <p class="mt-2 xsmall text-muted" style="font-size: 0.7rem;">
+                                            ${assess.risk === 'HIGH' ? '⚠️ Pelajar memerlukan sokongan emosi segera.' : 'Sesuai untuk meneruskan tugasan.'}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -245,6 +272,7 @@
         document.getElementById('totalCount').innerText = Object.keys(groups).length;
         document.getElementById('stressHighCount').innerText = s_high;
         document.getElementById('failCount').innerText = s_fail;
+        
         updateCharts({fail: s_fail, normal: s_norm, excel: s_excel}, {LOW: m_low, MEDIUM: m_med, HIGH: m_high});
     }
 
@@ -261,17 +289,11 @@
         stressChart = new Chart(document.getElementById('stressChart'), {
             type: 'doughnut',
             data: { labels: ['Rendah', 'Sederhana', 'Tinggi'], datasets: [{ data: [m.LOW, m.MEDIUM, m.HIGH], backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'] }] },
-            options: { maintainAspectRatio: false, cutout: '70%' }
+            options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
         });
     }
 
-    // --- FUNGSI EXPORT CSV ---
     window.exportToCSV = () => {
-        if (Object.keys(globalGroupedData).length === 0) {
-            Swal.fire('Ralat', 'Tiada data untuk dieksport.', 'error');
-            return;
-        }
-
         let csv = "ID,Nama,Bil Kursus,Purata(%),Risiko Mental,Status\n";
         Object.values(globalGroupedData).forEach(stu => {
             const assess = globalAssessMap.get(stu.id) || { risk: 'TIADA' };
@@ -279,39 +301,23 @@
             const status = (avg < 40 && assess.risk === "HIGH") ? "KRITIKAL" : "STABIL";
             csv += `${stu.id},${stu.name},${stu.courses.length},${avg},${assess.risk},${status}\n`;
         });
-
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.setAttribute('href', url);
-        a.setAttribute('download', `Laporan_EduGuard_${new Date().getTime()}.csv`);
-        a.click();
+        a.href = url; a.download = `Laporan_EduGuard_${new Date().getTime()}.csv`; a.click();
     };
 
-    // --- FUNGSI DOWNLOAD GAMBAR ---
     window.downloadDashboardImage = () => {
         const target = document.body;
         Swal.fire({ title: 'Menjana Gambar...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
         html2canvas(target, { scale: 2, backgroundColor: "#f8fafc", useCORS: true }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Dashboard_EduGuard_AI_${new Date().getTime()}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
+            link.download = `Analisis_EduGuard_AI.png`; link.href = canvas.toDataURL(); link.click();
             Swal.close();
         });
     };
 
-    window.handleLogout = () => {
-        Swal.fire({
-            title: 'Log Keluar?',
-            text: "Anda akan dibawa ke halaman utama.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya',
-            cancelButtonText: 'Batal'
-        }).then((res) => { if(res.isConfirmed) signOut(auth); });
-    };
+    window.handleLogout = () => { signOut(auth); };
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
