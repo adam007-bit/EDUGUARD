@@ -223,39 +223,64 @@
     const db = getFirestore(app);
     let activeStudent = null;
 
-    window.verifyStudent = async function() {
-        const idInput = document.getElementById('verifyID').value.trim();
-        if(!idInput) return Swal.fire('Info', 'Sila masukkan ID atau Email!', 'info');
+  window.verifyStudent = async function() {
+    const idInput = document.getElementById('verifyID').value.trim();
+    if(!idInput) return Swal.fire('Info', 'Sila masukkan ID!', 'info');
 
-        Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
 
-        try {
-            const q = query(collection(db, "users"), where("role", "==", "student"));
-            const snap = await getDocs(q);
-            let found = null;
+    try {
+        // 1. Ambil SEMUA user yang ada role 'student'
+        const q = query(collection(db, "users"), where("role", "==", "student"));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+            return Swal.fire('Ralat', 'Tiada data pelajar dalam koleksi "users". Sila pastikan role adalah "student".', 'error');
+        }
 
-            snap.forEach(d => {
-                const data = d.data();
-                if(data.email === idInput || (data.studentID && data.studentID === idInput)) {
-                    found = { uid: d.id, studentID: data.studentID || idInput, studentName: data.name, email: data.email };
-                }
-            });
+        let foundUser = null;
 
-            if(!found) return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai!', 'error');
+        snap.forEach(doc => {
+            const data = doc.data();
+            console.log("Menyemak data:", data); // Lihat dalam Inspect Element > Console
 
-            activeStudent = found;
-            Swal.close();
-            document.getElementById('verifySection').classList.add('d-none');
-            document.getElementById('mainPortal').classList.remove('d-none');
-            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+            // 2. Padankan input dengan mana-mana field yang mungkin (ID, Email, atau Nama)
+            // Pastikan field 'studentID' atau 'email' wujud dalam Firestore anda
+            if (
+                (data.studentID && data.studentID.toString() === idInput) || 
+                (data.email && data.email === idInput) ||
+                (data.name && data.name.includes(idInput))
+            ) {
+                foundUser = {
+                    uid: doc.id,
+                    studentID: data.studentID || idInput,
+                    studentName: data.name,
+                    email: data.email
+                };
+            }
+        });
 
-            loadResults(activeStudent.studentID);
-            loadAutoMaterials(activeStudent.studentID);
-            fetchSVList();
-        } catch (e) { Swal.fire('Ralat', 'Database Offline', 'error'); }
+        if (!foundUser) {
+            return Swal.fire('Gagal', `ID "${idInput}" tidak dijumpai dalam senarai pelajar.`, 'error');
+        }
+
+        // Jika jumpa, teruskan...
+        activeStudent = foundUser;
+        Swal.close();
+        document.getElementById('verifySection').classList.add('d-none');
+        document.getElementById('mainPortal').classList.remove('d-none');
+        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+
+        loadResults(activeStudent.studentID);
+        loadAutoMaterials(activeStudent.studentID);
+        fetchSVList();
+
+    } catch (e) {
+        console.error("Error Detail:", e);
+        Swal.fire('Ralat', 'Gangguan sambungan Firebase atau masalah permission.', 'error');
     }
-
+}
     window.logout = () => { location.reload(); }
 
     async function loadResults(id) {
