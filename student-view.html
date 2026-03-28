@@ -3,203 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Portal Pelajar Holistik</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>EduGuard AI | Dashboard Pelajar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         :root {
-            --primary-neon: #4361ee;
-            --accent-neon: #4cc9f0;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --glass-bg: rgba(255, 255, 255, 0.9);
+            --primary: #4361ee;
+            --bg: #f8fafc;
         }
-
         body { 
-            background: var(--bg-gradient); 
+            background-color: var(--bg); 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            min-height: 100vh;
             color: #1e293b;
         }
-
-        .navbar {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        #verifySection { height: 100vh; display: flex; align-items: center; }
-        .verify-card {
-            max-width: 450px; width: 100%;
-            background: var(--glass-bg);
-            border-radius: 30px; padding: 50px 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
-        }
-
-        .verify-input {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.4rem; text-align: center;
-            border-radius: 16px; padding: 15px; border: 2px solid #e2e8f0;
-        }
-
-        .student-header { 
-            background: linear-gradient(135deg, #1e293b, #334155); 
-            color: white; padding: 110px 0 70px 0; 
-            border-radius: 0 0 50px 50px;
-            position: relative;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.1);
-            border: none;
+        .navbar { background: white; border-bottom: 1px solid #e2e8f0; }
+        .welcome-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             color: white;
-            padding: 8px 15px;
-            border-radius: 10px;
-            font-size: 0.8rem;
+            padding: 60px 0;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 30px;
         }
-
-        .header-info {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 8px 20px; border-radius: 12px; font-size: 0.85rem;
-        }
-
-        .portal-card { 
-            border: none; border-radius: 24px; padding: 25px; 
-            background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.02); 
-            margin-bottom: 20px; border: 1px solid #f1f5f9;
+        .stat-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             transition: transform 0.2s;
         }
-        
-        .portal-card:hover { transform: translateY(-5px); }
-
-        .grade-circle { 
-            width: 55px; height: 55px; border-radius: 16px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 800; font-size: 1.2rem;
+        .stat-card:hover { transform: translateY(-5px); }
+        .grade-badge {
+            width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; font-weight: 800; font-size: 1.2rem;
         }
-
-        .bg-grade-a { background: #dcfce7; color: #166534; }
-        .bg-grade-g { background: #fee2e2; color: #991b1b; }
-
-        .nav-pills { background: #fff; padding: 8px; border-radius: 20px; display: inline-flex; }
-        .nav-pills .nav-link { border-radius: 15px; font-weight: 700; color: #64748b; padding: 10px 20px; }
-        .nav-pills .nav-link.active { background: var(--primary-neon); color: white; }
-
-        .q-box { border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
-        .form-check-label { font-size: 0.85rem; cursor: pointer; }
+        .bg-pending { background: #fef3c7; color: #92400e; }
+        .bg-complete { background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top">
+<nav class="navbar sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="#">
-            <i class="bi bi-shield-check-fill me-2"></i>EduGuard <span class="text-warning">AI</span>
-        </a>
+        <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</a>
+        <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logout()">
+            <i class="bi bi-power me-1"></i> Keluar
+        </button>
     </div>
 </nav>
 
-<div id="verifySection" class="container">
-    <div class="row justify-content-center w-100 mx-0">
-        <div class="verify-card text-center">
-            <h3 class="fw-bold mb-2">Portal Pelajar</h3>
-            <p class="text-muted small mb-4">Sila masukkan ID anda untuk akses sistem.</p>
-            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="ID/EMAIL">
-            <button class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="verifyStudent()">
-                LOG MASUK <i class="bi bi-box-arrow-in-right ms-2"></i>
-            </button>
-        </div>
+<div class="welcome-section text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Selamat Datang, <span id="studentName">...</span></h2>
+        <p class="text-white-50 small">ID: <span id="studentID">...</span></p>
     </div>
 </div>
 
-<div id="mainPortal" class="d-none">
-    <div class="student-header text-center">
-        <button class="logout-btn" onclick="logout()"><i class="bi bi-power me-1"></i> Keluar</button>
-        <div class="container">
-            <h1 class="fw-bold mb-3"><span id="userDisplayName">-</span></h1>
-            <div class="header-info d-inline-block">
-                <span><i class="bi bi-hash me-1"></i> <span id="userDisplayID">ID</span></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mt-4">
-        <div class="text-center mb-5">
-            <ul class="nav nav-pills shadow-sm" id="pills-tab">
-                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-results">Keputusan</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-materials">Bahan</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-register">Daftar</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-assessment">Status Minda</button></li>
-            </ul>
-        </div>
-
-        <div class="tab-content pb-5">
-            <div class="tab-pane fade show active" id="content-results">
-                <div class="row justify-content-center"><div class="col-md-8" id="resultsList"></div></div>
-            </div>
-
-            <div class="tab-pane fade" id="content-materials">
-                <div class="row justify-content-center"><div class="col-md-8" id="materialsDisplay"></div></div>
-            </div>
-
-            <div class="tab-pane fade" id="content-register">
-                <div class="row justify-content-center">
-                    <div class="col-md-7">
-                        <div class="portal-card">
-                            <h5 class="fw-bold mb-4"><i class="bi bi-plus-circle me-2 text-primary"></i>Daftar Kursus Baru</h5>
-                            <div class="mb-3">
-                                <label class="small fw-bold text-muted mb-2">PILIH SUBJEK</label>
-                                <select id="newCourse" class="form-select py-3 rounded-3">
-                                    <option value="Software Engineering">Software Engineering</option>
-                                    <option value="IoT Systems">IoT Systems</option>
-                                    <option value="Data Analytics">Data Analytics</option>
-                                    <option value="AI Solutions">AI Solutions</option>
-                                </select>
-                            </div>
-                            <div class="mb-4">
-                                <label class="small fw-bold text-muted mb-2">PILIH PENYELIA (SV)</label>
-                                <select id="newSupervisor" class="form-select py-3 rounded-3">
-                                    <option value="">Memuatkan SV...</option>
-                                </select>
-                            </div>
-                            <button class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow" onclick="registerNewCourse()">
-                                SAHKAN PENDAFTARAN
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="content-assessment">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="portal-card">
-                            <h5 class="fw-bold text-center">Ujian Kesejahteraan Minda (DASS-Lite)</h5>
-                            <p class="text-muted text-center small mb-4">Sila jawab dengan jujur untuk pemantauan SV.</p>
-                            
-                            <form id="assessmentForm">
-                                <div class="q-box">
-                                    <label class="fw-bold small mb-3 text-primary">1. Berapa kerap anda rasa tidak mampu mengawal perkara penting dalam hidup?</label>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="0" required><label class="form-check-label">Tiada</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="1"><label class="form-check-label">Jarang</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="2"><label class="form-check-label">Kerap</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="3"><label class="form-check-label">Sangat Kerap</label></div>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow" onclick="submitAssessment()">
-                                    HANTAR PENILAIAN <i class="bi bi-heart-pulse-fill ms-2"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+<div class="container mb-5">
+    <div class="row g-4">
+        <div class="col-12">
+            <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2"></i>Kursus Anda</h5>
+            <div id="courseContainer" class="row g-3">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
                 </div>
             </div>
         </div>
@@ -208,7 +77,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, getDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -221,149 +90,63 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    let activeStudent = null;
 
-  window.verifyStudent = async function() {
-    const idInput = document.getElementById('verifyID').value.trim();
-    if(!idInput) return Swal.fire('Info', 'Sila masukkan ID!', 'info');
+    // Ambil data dari localStorage
+    const currentID = localStorage.getItem("currentStudentID");
+    const currentName = localStorage.getItem("currentStudentName");
 
-    Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
-
-    try {
-        // 1. Ambil SEMUA user yang ada role 'student'
-        const q = query(collection(db, "users"), where("role", "==", "student"));
-        const snap = await getDocs(q);
-        
-        if (snap.empty) {
-            return Swal.fire('Ralat', 'Tiada data pelajar dalam koleksi "users". Sila pastikan role adalah "student".', 'error');
-        }
-
-        let foundUser = null;
-
-        snap.forEach(doc => {
-            const data = doc.data();
-            console.log("Menyemak data:", data); // Lihat dalam Inspect Element > Console
-
-            // 2. Padankan input dengan mana-mana field yang mungkin (ID, Email, atau Nama)
-            // Pastikan field 'studentID' atau 'email' wujud dalam Firestore anda
-            if (
-                (data.studentID && data.studentID.toString() === idInput) || 
-                (data.email && data.email === idInput) ||
-                (data.name && data.name.includes(idInput))
-            ) {
-                foundUser = {
-                    uid: doc.id,
-                    studentID: data.studentID || idInput,
-                    studentName: data.name,
-                    email: data.email
-                };
-            }
-        });
-
-        if (!foundUser) {
-            return Swal.fire('Gagal', `ID "${idInput}" tidak dijumpai dalam senarai pelajar.`, 'error');
-        }
-
-        // Jika jumpa, teruskan...
-        activeStudent = foundUser;
-        Swal.close();
-        document.getElementById('verifySection').classList.add('d-none');
-        document.getElementById('mainPortal').classList.remove('d-none');
-        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
-
-        loadResults(activeStudent.studentID);
-        loadAutoMaterials(activeStudent.studentID);
-        fetchSVList();
-
-    } catch (e) {
-        console.error("Error Detail:", e);
-        Swal.fire('Ralat', 'Gangguan sambungan Firebase atau masalah permission.', 'error');
-    }
-}
-    window.logout = () => { location.reload(); }
-
-    async function loadResults(id) {
-        const list = document.getElementById('resultsList');
-        const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
-        const snap = await getDocs(q);
-        list.innerHTML = snap.empty ? '<p class="text-center text-muted">Tiada subjek.</p>' : "";
-        snap.forEach(d => {
-            const data = d.data();
-            list.innerHTML += `
-                <div class="portal-card d-flex justify-content-between align-items-center">
-                    <div><h6 class="fw-bold mb-1">${data.course}</h6><p class="small text-muted mb-0">Total: ${data.totalMark || 0}%</p></div>
-                    <div class="grade-circle ${data.grade === 'A' ? 'bg-grade-a' : 'bg-light'}">${data.grade || '-'}</div>
-                </div>`;
-        });
+    if (!currentID) {
+        window.location.href = "index.html";
     }
 
-    async function loadAutoMaterials(id) {
-        const display = document.getElementById('materialsDisplay');
-        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", id));
-        const snapReg = await getDocs(qReg);
-        let courses = snapReg.docs.map(d => d.data().course);
+    document.getElementById('studentName').innerText = currentName;
+    document.getElementById('studentID').innerText = currentID;
 
-        const snapMat = await getDocs(collection(db, "materials"));
-        display.innerHTML = "";
-        snapMat.forEach(d => {
-            const m = d.data();
-            if(courses.includes(m.course)) {
-                display.innerHTML += `
-                    <div class="portal-card border-start border-4 border-primary">
-                        <span class="badge bg-primary mb-2">${m.course}</span>
-                        <h6 class="fw-bold mb-1">${m.title}</h6>
-                        <div class="bg-light p-3 rounded-3 small mt-2">${m.content}</div>
-                    </div>`;
-            }
-        });
-    }
-
-    async function fetchSVList() {
-        const svSelect = document.getElementById('newSupervisor');
-        const snap = await getDocs(query(collection(db, "users"), where("role", "==", "supervisor")));
-        svSelect.innerHTML = '<option value="">-- Pilih SV --</option>';
-        snap.forEach(doc => svSelect.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`);
-    }
-
-    window.registerNewCourse = async function() {
-        const course = document.getElementById('newCourse').value;
-        const svEmail = document.getElementById('newSupervisor').value;
-        if(!svEmail) return Swal.fire('Info', 'Sila pilih SV!', 'info');
-
-        const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
+    async function loadStudentCourses() {
+        const container = document.getElementById('courseContainer');
         try {
-            await setDoc(doc(db, "course_registrations", regID), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                course: course, supervisorEmail: svEmail, grade: "-", totalMark: 0, timestamp: serverTimestamp()
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", currentID));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                container.innerHTML = '<div class="col-12"><div class="stat-card text-center text-muted">Tiada kursus terdaftar.</div></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                container.innerHTML += `
+                    <div class="col-md-6">
+                        <div class="stat-card d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary mb-2">${data.semester}</span>
+                                <h6 class="fw-bold mb-1">${data.course}</h6>
+                                <p class="small text-muted mb-0"><i class="bi bi-person-badge me-1"></i> SV: ${data.supervisorEmail}</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="grade-badge ${data.grade === '-' ? 'bg-pending' : 'bg-complete'} mb-1">
+                                    ${data.grade}
+                                </div>
+                                <div style="font-size: 0.7rem; font-weight: bold;">MARK: ${data.totalMark}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
-            Swal.fire('Berjaya!', 'Subjek didaftarkan.', 'success');
-            loadResults(activeStudent.studentID);
-        } catch (e) { Swal.fire('Ralat', 'Gagal daftar.', 'error'); }
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<p class="text-danger text-center">Gagal memuatkan data.</p>';
+        }
     }
 
-    window.submitAssessment = async function() {
-        const form = document.getElementById('assessmentForm');
-        const formData = new FormData(form);
-        let score = 0;
-        for (let i = 1; i <= 5; i++) score += parseInt(formData.get(`q${i}`) || 0);
+    window.logout = () => {
+        localStorage.clear();
+        window.location.href = "index.html";
+    };
 
-        // Cari SV rujukan
-        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", activeStudent.studentID));
-        const snap = await getDocs(qReg);
-        let svEmail = snap.empty ? "umum@eduguard.ai" : snap.docs[0].data().supervisorEmail;
-
-        try {
-            await addDoc(collection(db, "assessments"), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                supervisorEmail: svEmail, stress: score, risk: score >= 11 ? "TINGGI" : "RENDAH", timestamp: serverTimestamp()
-            });
-            Swal.fire('Berjaya!', 'Data dihantar.', 'success');
-            form.reset();
-        } catch (e) { Swal.fire('Ralat', 'Gagal.', 'error'); }
-    }
+    loadStudentCourses();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
