@@ -3,58 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Lengkapkan Pendaftaran</title>
+    <title>EduGuard AI | Cyber Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
-        body { background: #f4f7fe; padding-top: 50px; font-family: 'Inter', sans-serif; }
-        .reg-card { max-width: 500px; margin: auto; background: white; border-radius: 25px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
-        .form-label { font-weight: 600; color: #444; }
-        .btn-primary { background: #4361ee; border: none; border-radius: 12px; padding: 12px; }
+        :root {
+            --primary-neon: #4361ee; /* Tukar ke Royal Blue yang lebih terang */
+            --accent-neon: #4cc9f0;
+            --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Latar belakang cerah */
+            --card-bg: rgba(255, 255, 255, 0.85); /* Glassmorphism putih */
+            --input-bg: #ffffff;
+        }
+
+        body { 
+            background: var(--bg-gradient); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        /* Card dengan kesan Glassmorphism yang lebih cerah */
+        .reg-card { 
+            max-width: 500px; 
+            width: 100%;
+            background: var(--card-bg); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 28px; 
+            padding: 40px; 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary-neon);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .form-label { 
+            font-weight: 700; 
+            color: #475569; 
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            background-color: var(--input-bg);
+            color: #1e293b;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-neon);
+            transform: translateY(-1px);
+        }
+
+        /* ID Token dengan gaya Tech */
+        .form-control[readonly] {
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: var(--primary-neon);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            cursor: not-allowed;
+        }
+
+        /* Butang Neon Blue */
+        .btn-tech { 
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
+            color: #fff;
+            border: none; 
+            border-radius: 14px; 
+            padding: 16px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-tech:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.3);
+            color: #fff;
+        }
+
+        .text-muted-custom {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Spinner color */
+        .spinner-border {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container d-flex justify-content-center">
     <div class="reg-card">
-        <h3 class="fw-bold text-primary mb-2 text-center">Lengkapkan Profil</h3>
-        <p class="text-muted text-center mb-4">Sila pilih kursus dan penyelia RPS anda.</p>
+        <div class="brand-logo">
+            <i class="bi bi-shield-lock-fill"></i> EDUGUARD <span style="color: #f59e0b;">AI</span>
+        </div>
+        
+        <p class="text-center text-muted-custom mb-4 small">LENGKAPKAN KONFIGURASI PROFIL</p>
 
         <form id="courseRegForm">
             <div class="mb-3">
-                <label class="form-label">ID Pelajar</label>
-                <input type="text" id="displayID" class="form-control bg-light" readonly>
+                <label class="form-label">System Token ID</label>
+                <input type="text" id="displayID" class="form-control" readonly>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Kursus Utama</label>
-                <select id="course" class="form-select" required>
-                    <option value="">-- Pilih Kursus --</option>
-                    <option value="Software Engineering">Software Engineering</option>
-                    <option value="IoT Systems">IoT Systems</option>
-                    <option value="Data Analytics">Data Analytics</option>
-                </select>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Pengajian</label>
+                    <select id="course" class="form-select" required>
+                        <option value="">-- PILIH Subjek --</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Semester</label>
+                    <select id="semester" class="form-select" required>
+                        <option value="">-- PILIH Semester --</option>
+                        <option value="Semester 1">Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                        <option value="Semester 3">Semester 3</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Penyelia (RPS)</label>
+                    <select id="supervisor" class="form-select" required>
+                        <option value="">Mengakses data...</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Semester Semasa</label>
-                <select id="semester" class="form-select" required>
-                    <option value="">-- Pilih Semester --</option>
-                    <option value="Semester 1">Semester 1</option>
-                    <option value="Semester 2">Semester 2</option>
-                    <option value="Semester 3">Semester 3</option>
-                </select>
+            <div class="mt-5">
+                <button type="submit" id="submitBtn" class="btn btn-tech w-100">
+                    AKTIFKAN PROFIL <i class="bi bi-arrow-right-circle ms-2"></i>
+                </button>
             </div>
-
-            <div class="mb-4">
-                <label class="form-label">Penyelia RPS</label>
-                <select id="supervisor" class="form-select" required>
-                    <option value="">Memuatkan senarai RPS...</option>
-                </select>
+            
+            <div class="text-center mt-3">
+                <small style="color: #cbd5e1; font-size: 0.65rem; letter-spacing: 2px;">SECURE INTERFACE v2.0</small>
             </div>
-
-            <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold shadow-sm">
-                Sahkan Pendaftaran & Mula
-            </button>
         </form>
     </div>
 </div>
@@ -75,52 +193,44 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Ambil data sementara dari pendaftaran fasa 1
     const tempID = localStorage.getItem("tempStudentID");
     const tempName = localStorage.getItem("tempStudentName");
 
-    // Sekiranya tiada data (user cuba skip page), hantar balik ke login
     if (!tempID) {
-        alert("Sila daftar profil anda terlebih dahulu.");
         window.location.href = "index.html";
     }
 
-    // Paparkan ID di input
     document.getElementById('displayID').value = tempID;
 
-    // --- LOAD SUPERVISORS DARI DATABASE ---
     async function fetchSupervisors() {
         const svSelect = document.getElementById('supervisor');
         try {
             const q = query(collection(db, "users"), where("role", "==", "supervisor"));
             const snap = await getDocs(q);
-            svSelect.innerHTML = '<option value="">-- Pilih Supervisor --</option>';
+            svSelect.innerHTML = '<option value="">-- PILIH PENYELIA --</option>';
             snap.forEach(doc => {
                 const sv = doc.data();
-                svSelect.innerHTML += `<option value="${sv.email}">${sv.name}</option>`;
+                svSelect.innerHTML += `<option value="${sv.email}">${sv.name.toUpperCase()}</option>`;
             });
         } catch (e) {
-            svSelect.innerHTML = '<option value="">Gagal memuatkan SV</option>';
+            svSelect.innerHTML = '<option value="">ERROR LOADING DATA</option>';
         }
     }
     fetchSupervisors();
 
-    // --- SIMPAN PENDAFTARAN ---
     document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerText = "Menghantar...";
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>UPLOADING...';
 
         const course = document.getElementById('course').value;
         const sem = document.getElementById('semester').value;
         const svEmail = document.getElementById('supervisor').value;
 
-        // RegID unik untuk pendaftaran ini
         const regID = `${tempID}_${course.replace(/\s+/g, '')}_${sem.replace(/\s+/g, '')}`;
 
         try {
-            // 1. Simpan rekod pendaftaran kursus
             await setDoc(doc(db, "course_registrations", regID), {
                 studentID: tempID,
                 studentName: tempName,
@@ -133,28 +243,23 @@
                 timestamp: serverTimestamp()
             });
 
-            // 2. Kemaskini status profil pelajar kepada 'complete'
             await updateDoc(doc(db, "students", tempID), {
                 registrationStatus: "complete"
             });
 
-            // 3. Simpan data sesi semasa
             localStorage.setItem("currentStudentID", tempID);
             localStorage.setItem("currentStudentName", tempName);
-            
-            // Padam data sementara
             localStorage.removeItem("tempStudentID");
             localStorage.removeItem("tempStudentName");
 
-            alert("Pendaftaran subjek berjaya!");
             window.location.href = "student-view.html";
-
         } catch (error) {
             alert("Ralat: " + error.message);
             submitBtn.disabled = false;
-            submitBtn.innerText = "Sahkan Pendaftaran & Mula";
+            submitBtn.innerText = "AKTIFKAN PROFIL";
         }
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
