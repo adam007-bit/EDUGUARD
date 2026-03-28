@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Dashboard RPS</title>
+    <title>EduGuard AI | Dashboard Holistik</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -15,26 +15,18 @@
         .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
         .navbar-brand { color: #4361ee !important; font-weight: 700; font-size: 1.4rem; }
         
-        .stat-card { 
-            border: none; border-radius: 16px; background: #ffffff; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; 
-        }
+        .stat-card { border: none; border-radius: 16px; background: #ffffff; transition: 0.3s; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
         
-        .icon-box { 
-            width: 48px; height: 48px; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; 
-        }
-        
+        .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .main-card { border: none; border-radius: 20px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
-        .table thead th { 
-            background: #f8fafc; border-top: none; padding: 16px; 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; 
-        }
+        .table thead th { background: #f8fafc; padding: 16px; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
         .table tbody td { padding: 18px 16px; border-color: #f1f5f9; }
         
-        .btn-logout { border-radius: 10px; font-weight: 600; transition: 0.2s; }
+        /* Highlight baris jika markah rendah DAN stres tinggi */
+        .row-critical { background-color: #fff1f2 !important; border-left: 5px solid #ef4444; }
+        
         .btn-export { border-radius: 10px; font-weight: 600; background: #4361ee; color: white; border: none; }
     </style>
 </head>
@@ -42,14 +34,10 @@
 
 <nav class="navbar navbar-expand-lg sticky-top mb-4 py-3">
     <div class="container">
-        <a class="navbar-brand" href="#">
-            <i class="bi bi-shield-lock-fill"></i> EduGuard <span style="color: #f59e0b;">AI</span>
-        </a>
+        <a class="navbar-brand" href="#"><i class="bi bi-shield-lock-fill"></i> EduGuard <span style="color: #f59e0b;">AI</span></a>
         <div class="d-flex align-items-center gap-3">
-            <span class="text-muted d-none d-md-block small" id="svEmailDisplay">Memuatkan...</span>
-            <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm btn-logout px-3">
-                <i class="bi bi-box-arrow-right"></i> Log Keluar
-            </button>
+            <span class="text-muted small" id="svEmailDisplay">Memuatkan...</span>
+            <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm px-3">Log Keluar</button>
         </div>
     </div>
 </nav>
@@ -58,11 +46,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">Selamat Datang, <span id="rpsNameDisplay" class="text-primary">...</span></h4>
-            <p class="text-muted mb-0">Panel Pemantauan Pelajar Berdaftar.</p>
+            <p class="text-muted mb-0">Pemantauan Akademik & Kesejahteraan Mental.</p>
         </div>
-        <button onclick="exportToCSV()" class="btn btn-export shadow-sm px-4 py-2">
-            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export CSV
-        </button>
+        <button onclick="exportToCSV()" class="btn btn-export shadow-sm px-4 py-2">Export CSV</button>
     </div>
 
     <div class="row g-3 mb-4">
@@ -71,7 +57,7 @@
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-primary-subtle text-primary me-3"><i class="bi bi-people"></i></div>
                     <div>
-                        <h6 class="text-muted small fw-bold mb-0">JUMLAH PELAJAR</h6>
+                        <h6 class="text-muted small fw-bold mb-0">TOTAL PELAJAR</h6>
                         <h3 id="totalCount" class="fw-bold mb-0">0</h3>
                     </div>
                 </div>
@@ -80,10 +66,21 @@
         <div class="col-md-4">
             <div class="card stat-card p-3 shadow-sm">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-success-subtle text-success me-3"><i class="bi bi-check-circle"></i></div>
+                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-heart-pulse"></i></div>
                     <div>
-                        <h6 class="text-success small fw-bold mb-0">STATUS AKTIF</h6>
-                        <h3 id="activeStatus" class="text-success fw-bold mb-0">AKTIF</h3>
+                        <h6 class="text-danger small fw-bold mb-0">RISIKO MENTAL (HIGH)</h6>
+                        <h3 id="stressHighCount" class="text-danger fw-bold mb-0">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-exclamation-octagon"></i></div>
+                    <div>
+                        <h6 class="text-warning small fw-bold mb-0">KRITIKAL (GAGAL)</h6>
+                        <h3 id="failCount" class="text-warning fw-bold mb-0">0</h3>
                     </div>
                 </div>
             </div>
@@ -96,25 +93,31 @@
                 <thead>
                     <tr>
                         <th class="ps-4">Profil Pelajar</th>
-                        <th>Kursus & Subjek</th>
-                        <th class="text-center">Status Pendaftaran</th>
-                        <th class="text-center">Markah (%)</th>
-                        <th class="text-center">Gred Akademik</th>
-                        <th class="text-end pe-4">Tindakan</th>
+                        <th>Markah (%)</th>
+                        <th class="text-center">Stres (AI)</th>
+                        <th class="text-center">Status Akademik</th>
+                        <th class="text-center">Status Mental</th>
+                        <th class="text-end pe-4">Profil</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="6" class="text-center p-5 text-muted">Mencari data pendaftaran dari sistem...</td></tr>
+                    <tr><td colspan="6" class="text-center p-5 text-muted">Mengambil data pendaftaran dan penilaian...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <div class="row g-3">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="card main-card p-4">
-                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Taburan Gred Akademik (Berdasarkan Pendaftaran)</h6>
-                <div style="height: 300px;"><canvas id="gradeChart"></canvas></div>
+                <h6 class="fw-bold mb-3">Status Prestasi Akademik</h6>
+                <div style="height: 250px;"><canvas id="gradeChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card main-card p-4">
+                <h6 class="fw-bold mb-3">Status Kesejahteraan Mental</h6>
+                <div style="height: 250px;"><canvas id="stressChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -124,7 +127,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -139,129 +142,135 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let allData = [];
-    let gradeChartInstance = null;
+    let allDataCombined = [];
+    let gradeChart = null;
+    let stressChart = null;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('svEmailDisplay').innerText = user.email;
-            fetchRPSName(user.email);
-            loadSupervisorDashboard(user.email);
+            loadCombinedData(user.email);
         } else {
             window.location.href = "index.html";
         }
     });
 
-    async function fetchRPSName(email) {
-        const q = query(collection(db, "users"), where("email", "==", email));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-            document.getElementById('rpsNameDisplay').innerText = snap.docs[0].data().name || "RPS";
-        }
-    }
-
-    function loadSupervisorDashboard(svEmail) {
-        // Terus ambil data dari course_registrations
+    function loadCombinedData(svEmail) {
+        // 1. Dengar data Pendaftaran (Akademik)
         const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
         
-        onSnapshot(qReg, (snap) => {
-            renderDashboard(snap);
+        onSnapshot(qReg, (regSnap) => {
+            const registrations = [];
+            regSnap.forEach(doc => registrations.push({ id: doc.id, ...doc.data() }));
+
+            // 2. Dengar data Assessment (Stres)
+            const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail));
+            
+            onSnapshot(qAssess, (assessSnap) => {
+                const assessmentsMap = new Map();
+                // Simpan penilaian terbaru bagi setiap pelajar
+                assessSnap.forEach(doc => {
+                    const d = doc.data();
+                    assessmentsMap.set(d.studentID, d);
+                });
+
+                combineAndRender(registrations, assessmentsMap);
+            });
         });
     }
 
-    function renderDashboard(snap) {
+    function combineAndRender(registrations, assessmentsMap) {
         const tbody = document.getElementById('dashTable');
         tbody.innerHTML = '';
-        allData = [];
-        let grades = { A: 0, B: 0, C: 0, GAGAL: 0 };
+        allDataCombined = [];
 
-        if (snap.empty) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-5 text-muted">Tiada rekod pelajar berdaftar di bawah seliaan anda.</td></tr>';
-            document.getElementById('totalCount').innerText = "0";
-            return;
-        }
+        let stats = { highStress: 0, fail: 0, excel: 0, normal: 0 };
+        let stressStats = { LOW: 0, MEDIUM: 0, HIGH: 0 };
 
-        snap.forEach(doc => {
-            const data = doc.data();
-            allData.push(data);
+        registrations.forEach(reg => {
+            const assess = assessmentsMap.get(reg.studentID) || { risk: 'TIADA DATA', stress: 0 };
+            const mark = parseFloat(reg.totalMark) || 0;
+            
+            // Logik Akademik
+            let acadLabel = mark < 40 ? "GAGAL" : (mark >= 75 ? "EXCELLENT" : "NORMAL");
+            let acadClass = mark < 40 ? "bg-danger" : (mark >= 75 ? "bg-success" : "bg-warning text-dark");
+            
+            // Logik Mental
+            let mentalLabel = assess.risk || "TIADA DATA";
+            let mentalClass = mentalLabel === "HIGH" ? "bg-danger" : (mentalLabel === "MEDIUM" ? "bg-warning text-dark" : "bg-info");
 
-            const g = (data.grade || "").toUpperCase();
-            if (['A', 'B', 'C'].includes(g)) grades[g]++;
-            else if (g !== "" && g !== "-") grades.GAGAL++;
+            if (mark < 40) stats.fail++;
+            if (mark >= 75) stats.excel++;
+            if (mentalLabel === "HIGH") stats.highStress++;
+            if (stressStats[mentalLabel] !== undefined) stressStats[mentalLabel]++;
+
+            allDataCombined.push({ ...reg, ...assess, acadLabel, mentalLabel });
+
+            // Highlight jika Gagal + Stres Tinggi
+            const isCritical = (mark < 40 && mentalLabel === "HIGH");
 
             tbody.innerHTML += `
-                <tr class="animate__animated animate__fadeIn">
+                <tr class="animate__animated animate__fadeIn ${isCritical ? 'row-critical' : ''}">
                     <td class="ps-4">
-                        <div class="fw-bold">${data.studentName || 'N/A'}</div>
-                        <small class="text-muted">${data.studentID || '-'}</small>
+                        <div class="fw-bold">${reg.studentName}</div>
+                        <small class="text-muted">${reg.studentID}</small>
                     </td>
-                    <td>
-                        <span class="badge bg-light text-primary border">
-                            ${data.course || data.subjectCode || '-'}
-                        </span>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
-                            <i class="bi bi-person-check me-1"></i> Berdaftar
-                        </span>
-                    </td>
-                    <td class="text-center">${data.totalMark || '0'}%</td>
-                    <td class="text-center fw-bold text-primary">${data.grade || '-'}</td>
+                    <td class="text-center fw-bold">${mark}%</td>
+                    <td class="text-center">${assess.stress}/5</td>
+                    <td class="text-center"><span class="badge ${acadClass}">${acadLabel}</span></td>
+                    <td class="text-center"><span class="badge ${mentalClass}">${mentalLabel}</span></td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Buka Profil: ${data.studentID}')">
-                            <i class="bi bi-eye"></i>
-                        </td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Lihat Skor: ${reg.studentName}')"><i class="bi bi-eye"></i></button>
+                    </td>
                 </tr>`;
         });
 
-        document.getElementById('totalCount').innerText = snap.size;
-        updateCharts(grades);
+        document.getElementById('totalCount').innerText = registrations.length;
+        document.getElementById('stressHighCount').innerText = stats.highStress;
+        document.getElementById('failCount').innerText = stats.fail;
+
+        updateCharts(stats, stressStats);
     }
 
-    function updateCharts(gradeData) {
-        const ctxGrade = document.getElementById('gradeChart').getContext('2d');
-        if (gradeChartInstance) gradeChartInstance.destroy();
+    function updateCharts(acad, mental) {
+        const ctxG = document.getElementById('gradeChart').getContext('2d');
+        const ctxS = document.getElementById('stressChart').getContext('2d');
 
-        gradeChartInstance = new Chart(ctxGrade, {
+        if (gradeChart) gradeChart.destroy();
+        if (stressChart) stressChart.destroy();
+
+        gradeChart = new Chart(ctxG, {
             type: 'bar',
             data: {
-                labels: ['A', 'B', 'C', 'Gagal'],
-                datasets: [{ 
-                    label: 'Bilangan Pelajar', 
-                    data: [gradeData.A, gradeData.B, gradeData.C, gradeData.GAGAL], 
-                    backgroundColor: '#4361ee', 
-                    borderRadius: 8 
-                }]
+                labels: ['Gagal', 'Normal', 'Cemerlang'],
+                datasets: [{ data: [acad.fail, acad.normal, acad.excel], backgroundColor: '#4361ee' }]
             },
-            options: { 
-                maintainAspectRatio: false, 
-                scales: { 
-                    y: { 
-                        beginAtZero: true, 
-                        ticks: { stepSize: 1 } 
-                    } 
-                } 
-            }
+            options: { maintainAspectRatio: false }
+        });
+
+        stressChart = new Chart(ctxS, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low', 'Medium', 'High'],
+                datasets: [{ data: [mental.LOW, mental.MEDIUM, mental.HIGH], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+            },
+            options: { maintainAspectRatio: false }
         });
     }
 
     window.exportToCSV = () => {
-        if (allData.length === 0) return;
-        let csv = "Nama,ID,Kursus,Markah,Gred\n";
-        allData.forEach(r => {
-            csv += `"${r.studentName}","${r.studentID}","${r.course || r.subjectCode}",${r.totalMark},"${r.grade}"\n`;
+        let csv = "Nama,ID,Markah,Gred,Stres,Risiko Mental\n";
+        allDataCombined.forEach(r => {
+            csv += `"${r.studentName}","${r.studentID}",${r.totalMark},"${r.grade}",${r.stress},"${r.mentalLabel}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `EduGuard_Daftar_Pelajar.csv`;
+        a.download = `EduGuard_Holistik_Report.csv`;
         a.click();
     };
 
-    window.handleLogout = () => {
-        if(confirm("Log keluar?")) signOut(auth).then(() => window.location.href = "index.html");
-    };
+    window.handleLogout = () => { if(confirm("Keluar?")) signOut(auth).then(() => window.location.href = "index.html"); };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
