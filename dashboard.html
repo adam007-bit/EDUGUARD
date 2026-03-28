@@ -34,9 +34,6 @@
         }
         .table tbody td { padding: 18px 16px; border-color: #f1f5f9; }
         
-        /* Baris Kritikal (Risiko Tinggi + Gagal) */
-        .row-critical { background-color: #fff1f2 !important; }
-        
         .btn-logout { border-radius: 10px; font-weight: 600; transition: 0.2s; }
         .btn-export { border-radius: 10px; font-weight: 600; background: #4361ee; color: white; border: none; }
     </style>
@@ -61,7 +58,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">Selamat Datang, <span id="rpsNameDisplay" class="text-primary">...</span></h4>
-            <p class="text-muted mb-0">Panel Pemantauan Rakan Pembimbing Siswa (RPS).</p>
+            <p class="text-muted mb-0">Panel Pemantauan Pelajar Berdaftar.</p>
         </div>
         <button onclick="exportToCSV()" class="btn btn-export shadow-sm px-4 py-2">
             <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export CSV
@@ -83,10 +80,10 @@
         <div class="col-md-4">
             <div class="card stat-card p-3 shadow-sm">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="icon-box bg-success-subtle text-success me-3"><i class="bi bi-check-circle"></i></div>
                     <div>
-                        <h6 class="text-danger small fw-bold mb-0">RISIKO TINGGI</h6>
-                        <h3 id="highRiskCount" class="text-danger fw-bold mb-0">0</h3>
+                        <h6 class="text-success small fw-bold mb-0">STATUS AKTIF</h6>
+                        <h3 id="activeStatus" class="text-success fw-bold mb-0">AKTIF</h3>
                     </div>
                 </div>
             </div>
@@ -100,31 +97,24 @@
                     <tr>
                         <th class="ps-4">Profil Pelajar</th>
                         <th>Kursus & Subjek</th>
-                        <th class="text-center">Stres (AI)</th>
-                        <th class="text-center">Status Risiko</th>
+                        <th class="text-center">Status Pendaftaran</th>
                         <th class="text-center">Markah (%)</th>
                         <th class="text-center">Gred Akademik</th>
                         <th class="text-end pe-4">Tindakan</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="7" class="text-center p-5 text-muted">Mencari data dari sistem EduGuard...</td></tr>
+                    <tr><td colspan="6" class="text-center p-5 text-muted">Mencari data pendaftaran dari sistem...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card main-card p-4">
-                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill me-2"></i>Analisis Risiko Mental</h6>
-                <div style="height: 250px;"><canvas id="riskChart"></canvas></div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card main-card p-4">
-                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Taburan Gred Akademik</h6>
-                <div style="height: 250px;"><canvas id="gradeChart"></canvas></div>
+                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Taburan Gred Akademik (Berdasarkan Pendaftaran)</h6>
+                <div style="height: 300px;"><canvas id="gradeChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -134,7 +124,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -150,9 +140,7 @@
     const auth = getAuth(app);
 
     let allData = [];
-    let riskChartInstance = null;
     let gradeChartInstance = null;
-    let isInitialLoad = true;
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -173,111 +161,100 @@
     }
 
     function loadSupervisorDashboard(svEmail) {
-        const qMarks = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
+        // Terus ambil data dari course_registrations
+        const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
         
-        onSnapshot(qMarks, (marksSnap) => {
-            const marksMap = new Map();
-            marksSnap.forEach(doc => marksMap.set(doc.data().studentID, doc.data()));
-
-            const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail), orderBy("timestamp", "desc"));
-            onSnapshot(qAssess, (assessSnap) => {
-                renderDashboard(assessSnap, marksMap);
-                isInitialLoad = false;
-            });
+        onSnapshot(qReg, (snap) => {
+            renderDashboard(snap);
         });
     }
 
-    function renderDashboard(snap, marksMap) {
+    function renderDashboard(snap) {
         const tbody = document.getElementById('dashTable');
         tbody.innerHTML = '';
         allData = [];
-        let highRisk = 0;
-        let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
         let grades = { A: 0, B: 0, C: 0, GAGAL: 0 };
 
         if (snap.empty) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar aktif.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-5 text-muted">Tiada rekod pelajar berdaftar di bawah seliaan anda.</td></tr>';
+            document.getElementById('totalCount').innerText = "0";
             return;
         }
 
         snap.forEach(doc => {
-            const s = doc.data();
-            const academic = marksMap.get(s.studentID) || {};
-            allData.push({ ...s, ...academic });
+            const data = doc.data();
+            allData.push(data);
 
-            if (s.risk === 'HIGH') {
-                highRisk++;
-                counts.HIGH++;
-            } else if (s.risk === 'MEDIUM') counts.MEDIUM++;
-            else counts.LOW++;
-
-            const g = (academic.grade || "").toUpperCase();
+            const g = (data.grade || "").toUpperCase();
             if (['A', 'B', 'C'].includes(g)) grades[g]++;
-            else if (g !== "") grades.GAGAL++;
-
-            // Highlight baris jika risiko tinggi & gagal
-            const isCritical = (s.risk === 'HIGH' && (g === 'F' || g === 'G' || g === 'GAGAL'));
+            else if (g !== "" && g !== "-") grades.GAGAL++;
 
             tbody.innerHTML += `
-                <tr class="animate__animated animate__fadeIn ${isCritical ? 'row-critical' : ''}">
+                <tr class="animate__animated animate__fadeIn">
                     <td class="ps-4">
-                        <div class="fw-bold">${s.studentName}</div>
-                        <small class="text-muted">${s.studentID}</small>
+                        <div class="fw-bold">${data.studentName || 'N/A'}</div>
+                        <small class="text-muted">${data.studentID || '-'}</small>
                     </td>
-                    <td><span class="badge bg-light text-primary border">${s.course || academic.course || '-'}</span></td>
-                    <td class="text-center">${s.stress}/5</td>
-                    <td class="text-center">
-                        <span class="badge ${s.risk === 'HIGH' ? 'bg-danger' : (s.risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success')}">
-                            ${s.risk}
+                    <td>
+                        <span class="badge bg-light text-primary border">
+                            ${data.course || data.subjectCode || '-'}
                         </span>
                     </td>
-                    <td class="text-center">${academic.totalMark || '0'}%</td>
-                    <td class="text-center fw-bold text-primary">${academic.grade || '-'}</td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Buka Profil: ${s.studentID}')"><i class="bi bi-eye"></i></button>
+                    <td class="text-center">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
+                            <i class="bi bi-person-check me-1"></i> Berdaftar
+                        </span>
                     </td>
+                    <td class="text-center">${data.totalMark || '0'}%</td>
+                    <td class="text-center fw-bold text-primary">${data.grade || '-'}</td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Buka Profil: ${data.studentID}')">
+                            <i class="bi bi-eye"></i>
+                        </td>
                 </tr>`;
         });
 
         document.getElementById('totalCount').innerText = snap.size;
-        document.getElementById('highRiskCount').innerText = highRisk;
-        updateCharts(counts, grades);
+        updateCharts(grades);
     }
 
-    function updateCharts(riskData, gradeData) {
-        const ctxRisk = document.getElementById('riskChart').getContext('2d');
+    function updateCharts(gradeData) {
         const ctxGrade = document.getElementById('gradeChart').getContext('2d');
-
-        if (riskChartInstance) riskChartInstance.destroy();
         if (gradeChartInstance) gradeChartInstance.destroy();
-
-        riskChartInstance = new Chart(ctxRisk, {
-            type: 'doughnut',
-            data: {
-                labels: ['High', 'Medium', 'Low'],
-                datasets: [{ data: [riskData.HIGH, riskData.MEDIUM, riskData.LOW], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }]
-            },
-            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
 
         gradeChartInstance = new Chart(ctxGrade, {
             type: 'bar',
             data: {
                 labels: ['A', 'B', 'C', 'Gagal'],
-                datasets: [{ label: 'Pelajar', data: [gradeData.A, gradeData.B, gradeData.C, gradeData.GAGAL], backgroundColor: '#4361ee', borderRadius: 8 }]
+                datasets: [{ 
+                    label: 'Bilangan Pelajar', 
+                    data: [gradeData.A, gradeData.B, gradeData.C, gradeData.GAGAL], 
+                    backgroundColor: '#4361ee', 
+                    borderRadius: 8 
+                }]
             },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            options: { 
+                maintainAspectRatio: false, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 } 
+                    } 
+                } 
+            }
         });
     }
 
     window.exportToCSV = () => {
         if (allData.length === 0) return;
-        let csv = "Nama,ID,Kursus,Stress,Risiko,Markah,Gred\n";
-        allData.forEach(r => csv += `"${r.studentName}","${r.studentID}","${r.course}",${r.stress},"${r.risk}","${r.totalMark}","${r.grade}"\n`);
+        let csv = "Nama,ID,Kursus,Markah,Gred\n";
+        allData.forEach(r => {
+            csv += `"${r.studentName}","${r.studentID}","${r.course || r.subjectCode}",${r.totalMark},"${r.grade}"\n`;
+        });
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `EduGuard_Report.csv`;
+        a.download = `EduGuard_Daftar_Pelajar.csv`;
         a.click();
     };
 
