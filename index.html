@@ -116,56 +116,11 @@
     </div>
 </div>
 
-<script>
-    let isLoginMode = true;
-    let currentRole = 'supervisor';
-
-    // 1. Toggle Mata (Password)
-    const btnToggle = document.getElementById('btnTogglePassword');
-    const passInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-
-    btnToggle.addEventListener('click', () => {
-        const isText = passInput.type === 'text';
-        passInput.type = isText ? 'password' : 'text';
-        eyeIcon.classList.toggle('bi-eye');
-        eyeIcon.classList.toggle('bi-eye-slash');
-    });
-
-    // 2. Tukar Role
-    window.switchRole = function(role) {
-        currentRole = role;
-        document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${role}`).classList.add('active');
-        updateUI();
-    };
-
-    // 3. Tukar Login/Daftar
-    document.getElementById('toggleAuthLink').addEventListener('click', () => {
-        isLoginMode = !isLoginMode;
-        updateUI();
-    });
-
-    function updateUI() {
-        const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
-        document.getElementById('authTitle').innerText = (isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[currentRole];
-        document.getElementById('authBtn').innerText = isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
-        document.getElementById('nameField').style.display = isLoginMode ? 'none' : 'block';
-        document.getElementById('toggleText').innerText = isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
-        document.getElementById('toggleAuthLink').innerText = isLoginMode ? 'Daftar Sini' : 'Log Masuk';
-    }
-
-    // 4. Handle Submit (Logic SweetAlert)
-    document.getElementById('authForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // --- LOGIK FIREBASE ANDA DI SINI (auth.js) ---
-        <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    // Gunakan config yang sama seperti Dashboard anda
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
         authDomain: "eduguard-ai-2742b.firebaseapp.com",
@@ -179,6 +134,44 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Variables for Mode & Role
+    window.isLoginMode = true;
+    window.currentRole = 'supervisor';
+
+    // 1. Toggle Lihat Kata Laluan
+    document.getElementById('btnTogglePassword').addEventListener('click', () => {
+        const passInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const isText = passInput.type === 'text';
+        passInput.type = isText ? 'password' : 'text';
+        eyeIcon.classList.toggle('bi-eye');
+        eyeIcon.classList.toggle('bi-eye-slash');
+    });
+
+    // 2. Tukar Role (Fungsi Global)
+    window.switchRole = function(role) {
+        window.currentRole = role;
+        document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${role}`).classList.add('active');
+        updateUI();
+    };
+
+    // 3. Tukar Antara Login & Daftar
+    document.getElementById('toggleAuthLink').addEventListener('click', () => {
+        window.isLoginMode = !window.isLoginMode;
+        updateUI();
+    });
+
+    function updateUI() {
+        const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
+        document.getElementById('authTitle').innerText = (window.isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[window.currentRole];
+        document.getElementById('authBtn').innerText = window.isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
+        document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
+        document.getElementById('toggleText').innerText = window.isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
+        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? 'Daftar Sini' : 'Log Masuk';
+    }
+
+    // 4. Handle Form Submission
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -186,50 +179,55 @@
         const password = document.getElementById('password').value;
         const fullName = document.getElementById('fullName').value;
 
-        // Tunjukkan loading
         Swal.fire({ title: 'Sila Tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            if (isLoginMode) {
-                // --- LOGIK LOG MASUK ---
+            if (window.isLoginMode) {
+                // PROSES LOG MASUK
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Semak peranan (role) dalam Firestore
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    // Halakan ke dashboard berdasarkan role
+                    // Pastikan user masuk mengikut role yang betul
                     if (userData.role === 'supervisor') window.location.href = "supervisor_dashboard.html";
                     else if (userData.role === 'student') window.location.href = "student_portal.html";
                     else window.location.href = "host_panel.html";
+                } else {
+                    Swal.fire('Ralat', 'Data profil tidak dijumpai.', 'error');
                 }
             } else {
-                // --- LOGIK DAFTAR ---
+                // PROSES DAFTAR
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Simpan profil ke Firestore
                 await setDoc(doc(db, "users", user.uid), {
                     name: fullName,
                     email: email,
-                    role: currentRole, // Diambil dari variable global di script HTML anda
+                    role: window.currentRole,
                     createdAt: new Date().toISOString()
                 });
 
                 Swal.fire('Berjaya!', 'Akaun anda telah dicipta.', 'success').then(() => {
-                    location.reload(); // Kembali ke skrin log masuk
+                    window.isLoginMode = true;
+                    updateUI();
                 });
             }
         } catch (error) {
+            console.error(error);
             let errorMsg = "Berlaku ralat teknikal.";
-            if (error.code === 'auth/user-not-found') {
-                // Mencetuskan SweetAlert yang anda buat tadi untuk tanya "Nak daftar?"
+            
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                 triggerRegistrationPrompt();
                 return;
             } else if (error.code === 'auth/wrong-password') {
                 errorMsg = "Kata laluan salah!";
+            } else if (error.code === 'auth/email-already-in-use') {
+                errorMsg = "Emel ini sudah berdaftar.";
+            } else if (error.code === 'auth/weak-password') {
+                errorMsg = "Kata laluan terlalu lemah (min. 6 aksara).";
             }
             
             Swal.fire('Ralat', errorMsg, 'error');
@@ -239,40 +237,21 @@
     function triggerRegistrationPrompt() {
         Swal.fire({
             title: 'Akaun Tidak Ditemui',
-            text: "Emel anda belum berdaftar. Adakah anda ingin mendaftar akaun baru?",
+            text: "Emel/Kredential tidak sah. Adakah anda ingin mendaftar akaun baru?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Ya, Daftar Sini'
+            confirmButtonColor: '#4361ee',
+            confirmButtonText: 'Ya, Daftar Sini',
+            cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                isLoginMode = false;
-                updateUI(); // Fungsi dari script asal anda
-                Swal.close();
+                window.isLoginMode = false;
+                updateUI();
             }
         });
     }
 </script>
-        // Contoh simulasi jika user tidak dijumpai:
-        const userFound = false; 
 
-        if (isLoginMode && !userFound) {
-            Swal.fire({
-                title: 'Akaun Tidak Ditemui',
-                text: "Emel anda belum berdaftar. Adakah anda ingin mendaftar akaun baru?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#4361ee',
-                confirmButtonText: 'Ya, Daftar Sini',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    isLoginMode = false;
-                    updateUI();
-                }
-            });
-        }
-    });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
