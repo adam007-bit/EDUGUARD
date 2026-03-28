@@ -50,6 +50,19 @@
             background: linear-gradient(135deg, #1e293b, #334155); 
             color: white; padding: 110px 0 70px 0; 
             border-radius: 0 0 50px 50px;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
         }
 
         .header-info {
@@ -95,10 +108,10 @@
 
 <div id="verifySection" class="container">
     <div class="row justify-content-center w-100 mx-0">
-        <div class="verify-card text-center animate__animated animate__fadeIn">
+        <div class="verify-card text-center">
             <h3 class="fw-bold mb-2">Portal Pelajar</h3>
             <p class="text-muted small mb-4">Sila masukkan ID anda untuk akses sistem.</p>
-            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="ST123">
+            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="ID/EMAIL">
             <button class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="verifyStudent()">
                 LOG MASUK <i class="bi bi-box-arrow-in-right ms-2"></i>
             </button>
@@ -108,11 +121,11 @@
 
 <div id="mainPortal" class="d-none">
     <div class="student-header text-center">
+        <button class="logout-btn" onclick="logout()"><i class="bi bi-power me-1"></i> Keluar</button>
         <div class="container">
             <h1 class="fw-bold mb-3"><span id="userDisplayName">-</span></h1>
             <div class="header-info d-inline-block">
                 <span><i class="bi bi-hash me-1"></i> <span id="userDisplayID">ID</span></span>
-                <span class="ms-3"><i class="bi bi-person-badge me-1"></i> <span id="userDisplaySV">SV</span></span>
             </div>
         </div>
     </div>
@@ -156,7 +169,7 @@
                                     <option value="">Memuatkan SV...</option>
                                 </select>
                             </div>
-                            <button id="btnReg" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow" onclick="registerNewCourse()">
+                            <button class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow" onclick="registerNewCourse()">
                                 SAHKAN PENDAFTARAN
                             </button>
                         </div>
@@ -169,7 +182,7 @@
                     <div class="col-md-8">
                         <div class="portal-card">
                             <h5 class="fw-bold text-center">Ujian Kesejahteraan Minda (DASS-Lite)</h5>
-                            <p class="text-muted text-center small mb-4">Sila jawab dengan jujur untuk membantu SV memantau kesejahteraan anda.</p>
+                            <p class="text-muted text-center small mb-4">Sila jawab dengan jujur untuk pemantauan SV.</p>
                             
                             <form id="assessmentForm">
                                 <div class="q-box">
@@ -181,47 +194,6 @@
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="3"><label class="form-check-label">Sangat Kerap</label></div>
                                     </div>
                                 </div>
-
-                                <div class="q-box">
-                                    <label class="fw-bold small mb-3 text-primary">2. Adakah anda merasa tertekan dengan tugasan akademik (projek/exam)?</label>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="0" required><label class="form-check-label">Tiada</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="1"><label class="form-check-label">Jarang</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="2"><label class="form-check-label">Kerap</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="3"><label class="form-check-label">Sangat Kerap</label></div>
-                                    </div>
-                                </div>
-
-                                <div class="q-box">
-                                    <label class="fw-bold small mb-3 text-primary">3. Adakah anda hilang minat untuk bergaul atau melakukan hobi?</label>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="0" required><label class="form-check-label">Tidak</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="1"><label class="form-check-label">Sedikit</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="2"><label class="form-check-label">Banyak</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="3"><label class="form-check-label">Sangat Banyak</label></div>
-                                    </div>
-                                </div>
-
-                                <div class="q-box">
-                                    <label class="fw-bold small mb-3 text-primary">4. Adakah anda mengalami gangguan tidur (insomnia/berlebihan)?</label>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="0" required><label class="form-check-label">Tiada</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="1"><label class="form-check-label">1-2 Hari</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="2"><label class="form-check-label">3-4 Hari</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="3"><label class="form-check-label">Hampir Setiap Hari</label></div>
-                                    </div>
-                                </div>
-
-                                <div class="q-box border-0">
-                                    <label class="fw-bold small mb-3 text-primary">5. Adakah anda rasa bimbang tentang masa depan anda secara melampau?</label>
-                                    <div class="d-flex justify-content-between mt-2">
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="0" required><label class="form-check-label">Tiada</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="1"><label class="form-check-label">Jarang</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="2"><label class="form-check-label">Kerap</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="3"><label class="form-check-label">Sangat Kerap</label></div>
-                                    </div>
-                                </div>
-
                                 <button type="button" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow" onclick="submitAssessment()">
                                     HANTAR PENILAIAN <i class="bi bi-heart-pulse-fill ms-2"></i>
                                 </button>
@@ -250,112 +222,76 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let activeStudent = null;
-window.verifyStudent = async function() {
-    const idInput = document.getElementById('verifyID').value.trim();
-    if(!idInput) return Swal.fire('Info', 'Sila masukkan ID Pelajar!', 'info');
 
-    Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
+    window.verifyStudent = async function() {
+        const idInput = document.getElementById('verifyID').value.trim();
+        if(!idInput) return Swal.fire('Info', 'Sila masukkan ID atau Email!', 'info');
 
-    try {
-        // SEMAK DALAM KOLEKSI "users" (Sebab di sini data pendaftaran asal disimpan)
-        // Kita cari dokumen di mana field "role" adalah "student" DAN (ini bergantung pada cara anda simpan ID)
-        // Jika anda simpan ID dalam field 'email' atau 'name', sesuaikan query di bawah:
-        
-        const q = query(collection(db, "users"), where("role", "==", "student"));
-        const snap = await getDocs(q);
-        
-        let foundUser = null;
-        
-        // Cari user yang mempunyai ID yang sepadan (Sama ada guna Email atau Custom ID)
-        snap.forEach(doc => {
-            const data = doc.data();
-            // Jika anda menggunakan Email sebagai ID untuk login pelajar
-            if(data.email === idInput || data.name.includes(idInput)) {
-                foundUser = {
-                    uid: doc.id,
-                    studentID: idInput, // Simpan ID yang dimasukkan
-                    studentName: data.name,
-                    email: data.email
-                };
-            }
-        });
+        Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
 
-        if(!foundUser) {
-            return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai atau anda bukan berdaftar sebagai Pelajar!', 'error');
-        }
+        try {
+            const q = query(collection(db, "users"), where("role", "==", "student"));
+            const snap = await getDocs(q);
+            let found = null;
 
-        // Set data pelajar yang aktif
-        activeStudent = foundUser;
-        
-        Swal.close();
-        
-        // Paparkan Portal
-        document.getElementById('verifySection').classList.add('d-none');
-        document.getElementById('mainPortal').classList.remove('d-none');
-        
-        // Kemaskini Paparan Header
-        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
-        
-        // Ambil data tambahan (Result & Materials)
-        loadResults(activeStudent.studentID); 
-        loadAutoMaterials(activeStudent.studentID); 
-        fetchSVList();
+            snap.forEach(d => {
+                const data = d.data();
+                if(data.email === idInput || (data.studentID && data.studentID === idInput)) {
+                    found = { uid: d.id, studentID: data.studentID || idInput, studentName: data.name, email: data.email };
+                }
+            });
 
-    } catch (e) { 
-        console.error(e);
-        Swal.fire('Ralat', 'Gangguan rangkaian atau ralat database!', 'error'); 
+            if(!found) return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai!', 'error');
+
+            activeStudent = found;
+            Swal.close();
+            document.getElementById('verifySection').classList.add('d-none');
+            document.getElementById('mainPortal').classList.remove('d-none');
+            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+
+            loadResults(activeStudent.studentID);
+            loadAutoMaterials(activeStudent.studentID);
+            fetchSVList();
+        } catch (e) { Swal.fire('Ralat', 'Database Offline', 'error'); }
     }
-}
+
+    window.logout = () => { location.reload(); }
+
     async function loadResults(id) {
         const list = document.getElementById('resultsList');
         const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
         const snap = await getDocs(q);
-        list.innerHTML = "";
-        
-        if(snap.empty) {
-            list.innerHTML = `<p class="text-center text-muted">Tiada subjek berdaftar.</p>`;
-            return;
-        }
-
+        list.innerHTML = snap.empty ? '<p class="text-center text-muted">Tiada subjek.</p>' : "";
         snap.forEach(d => {
             const data = d.data();
-            let gClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'GAGAL' ? 'bg-grade-g' : 'bg-light');
             list.innerHTML += `
                 <div class="portal-card d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="fw-bold mb-1">${data.course}</h6>
-                        <p class="small text-muted mb-0">Quiz: ${data.quiz || 0}% | Markah: ${data.totalMark || 0}%</p>
-                    </div>
-                    <div class="grade-circle ${gClass}">${data.grade || '-'}</div>
+                    <div><h6 class="fw-bold mb-1">${data.course}</h6><p class="small text-muted mb-0">Total: ${data.totalMark || 0}%</p></div>
+                    <div class="grade-circle ${data.grade === 'A' ? 'bg-grade-a' : 'bg-light'}">${data.grade || '-'}</div>
                 </div>`;
         });
     }
 
-    async function loadAutoMaterials(studentID) {
+    async function loadAutoMaterials(id) {
         const display = document.getElementById('materialsDisplay');
-        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", studentID));
+        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", id));
         const snapReg = await getDocs(qReg);
-        let regCourses = snapReg.docs.map(d => d.data().course);
+        let courses = snapReg.docs.map(d => d.data().course);
 
         const snapMat = await getDocs(collection(db, "materials"));
         display.innerHTML = "";
-        let found = false;
-
         snapMat.forEach(d => {
             const m = d.data();
-            if (regCourses.includes(m.course)) {
-                found = true;
+            if(courses.includes(m.course)) {
                 display.innerHTML += `
                     <div class="portal-card border-start border-4 border-primary">
                         <span class="badge bg-primary mb-2">${m.course}</span>
                         <h6 class="fw-bold mb-1">${m.title}</h6>
-                        <p class="small text-muted mb-2">${m.category || 'General'}</p>
-                        <div class="bg-light p-3 rounded-3 small text-dark">${m.content}</div>
+                        <div class="bg-light p-3 rounded-3 small mt-2">${m.content}</div>
                     </div>`;
             }
         });
-        if(!found) display.innerHTML = `<p class="text-center text-muted">Tiada bahan untuk subjek berdaftar anda.</p>`;
     }
 
     async function fetchSVList() {
@@ -365,88 +301,41 @@ window.verifyStudent = async function() {
         snap.forEach(doc => svSelect.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`);
     }
 
-    // LOGIK CEGAH DUPLICATE + SWEET ALERT
     window.registerNewCourse = async function() {
         const course = document.getElementById('newCourse').value;
         const svEmail = document.getElementById('newSupervisor').value;
-        
-        if(!svEmail) return Swal.fire('Info', 'Sila pilih Penyelia (SV)!', 'info');
+        if(!svEmail) return Swal.fire('Info', 'Sila pilih SV!', 'info');
 
         const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
-        
-        Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() });
-
         try {
-            // Semak jika dokumen sudah wujud (Duplicate check)
-            const docRef = doc(db, "course_registrations", regID);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                return Swal.fire('Gagal', `Anda sudah pun berdaftar untuk subjek ${course}!`, 'warning');
-            }
-
-            // Jika belum ada, baru daftar
-            await setDoc(docRef, {
-                studentID: activeStudent.studentID, 
-                studentName: activeStudent.studentName,
-                course: course, 
-                semester: "Semester 1", 
-                supervisorEmail: svEmail,
-                quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", 
-                status: "Normal", 
-                timestamp: serverTimestamp()
+            await setDoc(doc(db, "course_registrations", regID), {
+                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
+                course: course, supervisorEmail: svEmail, grade: "-", totalMark: 0, timestamp: serverTimestamp()
             });
-
-            Swal.fire('Berjaya!', `Subjek ${course} telah didaftarkan.`, 'success');
+            Swal.fire('Berjaya!', 'Subjek didaftarkan.', 'success');
             loadResults(activeStudent.studentID);
-            loadAutoMaterials(activeStudent.studentID);
-        } catch (e) { 
-            Swal.fire('Ralat', 'Gagal mendaftar subjek.', 'error'); 
-        }
+        } catch (e) { Swal.fire('Ralat', 'Gagal daftar.', 'error'); }
     }
 
     window.submitAssessment = async function() {
         const form = document.getElementById('assessmentForm');
         const formData = new FormData(form);
-        let score = 0; let answered = 0;
+        let score = 0;
+        for (let i = 1; i <= 5; i++) score += parseInt(formData.get(`q${i}`) || 0);
 
-        for (let i = 1; i <= 5; i++) {
-            const val = formData.get(`q${i}`);
-            if (val !== null) { score += parseInt(val); answered++; }
-        }
+        // Cari SV rujukan
+        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", activeStudent.studentID));
+        const snap = await getDocs(qReg);
+        let svEmail = snap.empty ? "umum@eduguard.ai" : snap.docs[0].data().supervisorEmail;
 
-        if (answered < 5) return Swal.fire('Info', 'Sila jawab semua soalan!', 'info');
-
-        let risk = score >= 11 ? "TINGGI" : (score >= 6 ? "SEDERHANA" : "RENDAH");
-        let color = score >= 11 ? "#d63031" : (score >= 6 ? "#fdcb6e" : "#00b894");
-
-        Swal.fire({
-            title: 'Hantar Penilaian?',
-            text: "Data ini akan dihantar kepada Penyelia anda.",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, hantar!'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await addDoc(collection(db, "assessments"), {
-                        studentID: activeStudent.studentID,
-                        studentName: activeStudent.studentName,
-                        supervisorEmail: activeStudent.supervisorEmail,
-                        stress: score,
-                        risk: risk,
-                        timestamp: serverTimestamp()
-                    });
-                    
-                    Swal.fire({
-                        title: 'Berjaya!',
-                        html: `Tahap Risiko Minda: <b style="color:${color}">${risk}</b>`,
-                        icon: 'success'
-                    });
-                    form.reset();
-                } catch (e) { Swal.fire('Ralat', 'Gagal hantar data.', 'error'); }
-            }
-        });
+        try {
+            await addDoc(collection(db, "assessments"), {
+                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
+                supervisorEmail: svEmail, stress: score, risk: score >= 11 ? "TINGGI" : "RENDAH", timestamp: serverTimestamp()
+            });
+            Swal.fire('Berjaya!', 'Data dihantar.', 'success');
+            form.reset();
+        } catch (e) { Swal.fire('Ralat', 'Gagal.', 'error'); }
     }
 </script>
 
