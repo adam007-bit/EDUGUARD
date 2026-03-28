@@ -192,9 +192,9 @@
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     // Pastikan user masuk mengikut role yang betul
-                    if (userData.role === 'supervisor') window.location.href = "supervisor_dashboard.html";
-                    else if (userData.role === 'student') window.location.href = "student_portal.html";
-                    else window.location.href = "host_panel.html";
+                    if (userData.role === 'supervisor') window.location.href = "dashboard.html";
+                    else if (userData.role === 'student') window.location.href = "student-view.html";
+                    else window.location.href = "host.html";
                 } else {
                     Swal.fire('Ralat', 'Data profil tidak dijumpai.', 'error');
                 }
