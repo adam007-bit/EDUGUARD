@@ -3,85 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard - Host Panel</title>
+    <title>EduGuard | Host Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --bg-body: #f8fafc;
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+        }
+
+        /* Hero Header */
+        .host-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 40px 0;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Card Styling */
+        .glass-card {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-weight: 700;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Controls */
+        .form-select, .form-control {
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .form-select:focus, .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 8px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-dark {
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            background: #1e293b;
+        }
+
+        /* Table Design */
+        .table {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .table thead {
+            background-color: #f1f5f9;
+        }
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 15px;
+        }
+
+        /* Grade Badge Colors */
+        .badge-a { background-color: #dcfce7; color: #166534; }
+        .badge-fail { background-color: #fee2e2; color: #991b1b; }
+
+        /* Edit Form Overlay */
+        #hostForm {
+            border-left: 5px solid var(--primary-color);
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
-    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-cpu-fill"></i> Host Control Panel</h2>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">Pengurusan Markah Pelajar</h5>
-            <div class="row g-2 mt-3">
-                <div class="col-md-8">
-                    <select id="courseSelect" class="form-select">
-                        <option value="">-- Pilih Subjek --</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="AI Solutions">AI Solutions</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-primary w-100" onclick="searchBySubject()">
-                        <i class="bi bi-search"></i> Cari Pelajar
-                    </button>
-                </div>
-            </div>
-            <div id="searchResults" class="mt-4"></div>
-        </div>
+<div class="host-header text-center">
+    <div class="container">
+        <h1 class="fw-bold mb-1"><i class="bi bi-cpu-fill text-info"></i> Host Control Panel</h1>
+        <p class="opacity-75">Urus prestasi pelajar dan bahan rujukan EduGuard AI</p>
     </div>
+</div>
 
-    <form id="hostForm" class="card shadow-sm p-4 mb-4 border-primary" style="display:none;">
-        <h5 class="fw-bold border-bottom pb-2 mb-3">Kemasukan Markah: <span id="displayStudentName" class="text-primary"></span></h5>
-        <div class="row g-3">
-            <input type="hidden" id="svEmail">
-            <div class="col-md-4">
-                <label class="form-label small">Quiz (20%)</label>
-                <input type="number" id="quiz" class="form-control" max="100" required>
+<div class="container py-2">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card glass-card p-4 mb-4">
+                <h5 class="card-title mb-4"><i class="bi bi-award text-primary"></i> Pengurusan Markah Pelajar</h5>
+                <div class="row g-2">
+                    <div class="col-md-9">
+                        <select id="courseSelect" class="form-select shadow-sm">
+                            <option value="">-- Pilih Subjek Untuk Dinilai --</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                            <option value="IoT Systems">IoT Systems</option>
+                            <option value="AI Solutions">AI Solutions</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="searchBySubject()">
+                            <i class="bi bi-search"></i> Cari
+                        </button>
+                    </div>
+                </div>
+
+                <div id="searchResults" class="mt-4">
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-1 opacity-25"></i>
+                        <p>Pilih subjek dan klik cari untuk memulakan penilaian.</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label small">Test (30%)</label>
-                <input type="number" id="test" class="form-control" max="100" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label small">Midterm (50%)</label>
-                <input type="number" id="midterm" class="form-control" max="100" required>
-            </div>
-            <div class="col-12 mt-4 text-end">
-                <button type="button" class="btn btn-secondary me-2" onclick="this.parentElement.parentElement.parentElement.style.display='none'">Batal</button>
-                <button type="submit" class="btn btn-success px-4">Simpan & Hantar ke Dashboard</button>
-            </div>
+
+            <form id="hostForm" class="card glass-card p-4 mb-4 border-primary shadow-lg" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                    <h5 class="fw-bold mb-0">Input Markah: <span id="displayStudentName" class="text-primary"></span></h5>
+                    <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
+                </div>
+                <div class="row g-3">
+                    <input type="hidden" id="svEmail">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">Quiz (20%)</label>
+                        <input type="number" id="quiz" class="form-control" placeholder="0-100" max="100">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">Test (30%)</label>
+                        <input type="number" id="test" class="form-control" placeholder="0-100" max="100">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">Midterm (50%)</label>
+                        <input type="number" id="midterm" class="form-control" placeholder="0-100" max="100">
+                    </div>
+                    <div class="col-12 mt-4 d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-light px-4" onclick="document.getElementById('hostForm').style.display='none'">Batal</button>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-cloud-arrow-up me-2"></i>Kemaskini & Hantar
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title fw-bold">Muat Naik Bahan Pembelajaran</h5>
-            <div class="row g-3 mt-2">
-                <div class="col-md-6">
-                    <input type="text" id="postTitle" class="form-control" placeholder="Tajuk Bahan">
-                </div>
-                <div class="col-md-3">
-                    <select id="postCourse" class="form-select">
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select id="postCategory" class="form-select">
-                        <option value="Lecture">Lecture</option>
-                        <option value="Lab">Lab</option>
-                        <option value="Assignment">Assignment</option>
-                    </select>
-                </div>
-                <div class="col-12">
-                    <textarea id="postContent" class="form-control" rows="3" placeholder="Kandungan/Link Bahan"></textarea>
-                </div>
-                <div class="col-12 text-end">
-                    <button class="btn btn-dark w-100" onclick="uploadMaterial()">Hantar Bahan</button>
+        <div class="col-lg-4">
+            <div class="card glass-card p-4 h-100">
+                <h5 class="card-title mb-4"><i class="bi bi-file-earmark-arrow-up text-success"></i> Muat Naik Bahan</h5>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Tajuk Bahan</label>
+                        <input type="text" id="postTitle" class="form-control" placeholder="Contoh: Nota Minggu 1">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Subjek</label>
+                        <select id="postCourse" class="form-select">
+                            <option value="Software Engineering">Software Engineering</option>
+                            <option value="IoT Systems">IoT Systems</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Kategori</label>
+                        <select id="postCategory" class="form-select">
+                            <option value="Lecture">Lecture</option>
+                            <option value="Lab">Lab</option>
+                            <option value="Tarikh Penting">Tarikh Penting</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Kandungan / Link</label>
+                        <textarea id="postContent" class="form-control" rows="4" placeholder="Masukkan link nota atau pengumuman..."></textarea>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()">
+                            <i class="bi bi-send-fill me-2"></i> Hantar Makluman
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -106,38 +239,44 @@
 
     let currentEditDocId = null;
 
-    // --- CARI PELAJAR ---
     window.searchBySubject = async function() {
         const selectedCourse = document.getElementById('courseSelect').value;
         const resultsArea = document.getElementById('searchResults');
-        if (!selectedCourse) return alert("Pilih subjek!");
+        if (!selectedCourse) return;
 
-        resultsArea.innerHTML = "Memuatkan...";
+        resultsArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>`;
 
         try {
             const q = query(collection(db, "course_registrations"), where("course", "==", selectedCourse));
             const snap = await getDocs(q);
 
             if (snap.empty) {
-                resultsArea.innerHTML = "Tiada pelajar.";
+                resultsArea.innerHTML = `<div class="alert alert-warning border-0 shadow-sm">Tiada pelajar berdaftar untuk subjek ini.</div>`;
                 return;
             }
 
-            let html = `<table class="table table-sm"><thead><tr><th>Nama</th><th>ID</th><th>Gred</th><th>Aksi</th></tr></thead><tbody>`;
+            let html = `<table class="table table-hover align-middle">
+                        <thead><tr><th>Nama Pelajar</th><th>ID</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
+                        <tbody>`;
             snap.forEach(d => {
                 const data = d.data();
+                const gredClass = data.grade === 'A' ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-fail' : 'bg-light text-dark');
                 html += `<tr>
-                    <td>${data.studentName}</td>
-                    <td>${data.studentID}</td>
-                    <td><span class="badge bg-info">${data.grade || '-'}</span></td>
-                    <td><button class="btn btn-sm btn-primary" onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0}, '${data.supervisorEmail||''}')">Edit</button></td>
+                    <td><div class="fw-bold">${data.studentName}</div></td>
+                    <td><code class="text-muted">${data.studentID}</code></td>
+                    <td class="text-center"><span class="badge ${gredClass} p-2 px-3 rounded-pill">${data.grade || '-'}</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" 
+                            onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0}, '${data.supervisorEmail||''}')">
+                            <i class="bi bi-pencil-square"></i> Skor
+                        </button>
+                    </td>
                 </tr>`;
             });
             resultsArea.innerHTML = html + "</tbody></table>";
-        } catch (e) { alert(e.message); }
+        } catch (e) { alert("Ralat: " + e.message); }
     };
 
-    // --- PERSEDIAAN EDIT ---
     window.prepareEdit = (id, name, q, t, m, email) => {
         currentEditDocId = id;
         document.getElementById('displayStudentName').innerText = name;
@@ -146,15 +285,14 @@
         document.getElementById('midterm').value = m;
         document.getElementById('svEmail').value = email;
         document.getElementById('hostForm').style.display = 'block';
+        window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 100, behavior: 'smooth' });
     };
 
-    // --- SIMPAN MARKAH ---
     document.getElementById('hostForm').onsubmit = async (e) => {
         e.preventDefault();
         const quiz = Number(document.getElementById('quiz').value);
         const test = Number(document.getElementById('test').value);
         const midterm = Number(document.getElementById('midterm').value);
-        const svEmail = document.getElementById('svEmail').value;
 
         const totalMark = (quiz * 0.2) + (test * 0.3) + (midterm * 0.5);
         let grade = totalMark >= 80 ? "A" : totalMark >= 60 ? "B" : totalMark >= 40 ? "C" : "GAGAL";
@@ -164,25 +302,30 @@
                 quiz, test, midterm, totalMark: totalMark.toFixed(2), grade,
                 status: "Marked", lastUpdated: serverTimestamp()
             });
-            alert("Markah dikemaskini!");
+            alert("✅ Markah Berjaya Disimpan!");
             searchBySubject();
             document.getElementById('hostForm').style.display = 'none';
         } catch (e) { alert(e.message); }
     };
 
-    // --- UPLOAD MATERIAL ---
     window.uploadMaterial = async () => {
         const title = document.getElementById('postTitle').value;
         const content = document.getElementById('postContent').value;
-        if(!title) return;
+        if(!title || !content) return alert("Sila lengkapkan tajuk dan kandungan bahan!");
 
-        await addDoc(collection(db, "materials"), {
-            title, content, course: document.getElementById('postCourse').value,
-            category: document.getElementById('postCategory').value,
-            datePosted: serverTimestamp()
-        });
-        alert("Bahan Berjaya Dihantar!");
+        try {
+            await addDoc(collection(db, "materials"), {
+                title, content, course: document.getElementById('postCourse').value,
+                category: document.getElementById('postCategory').value,
+                datePosted: serverTimestamp()
+            });
+            alert("🚀 Bahan Berjaya Dihantar!");
+            document.getElementById('postTitle').value = "";
+            document.getElementById('postContent').value = "";
+        } catch (e) { alert(e.message); }
     };
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
