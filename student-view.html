@@ -4,53 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGuard AI | Dashboard Pelajar</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
-        .header-box { background: #1e293b; color: white; padding: 45px 0; border-radius: 0 0 30px 30px; margin-bottom: 30px; }
-        .course-card { background: white; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; transition: 0.3s; height: 100%; }
-        .course-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .grade-circle { width: 60px; height: 60px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; margin-bottom: 10px; }
-        .logout-btn { border-radius: 12px; font-weight: 600; }
+        :root { --p-blue: #4361ee; --bg-light: #f8fafc; }
+        body { background: var(--bg-light); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        
+        /* Navigation & Header */
+        .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
+        .header-box { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 50px 0; border-radius: 0 0 40px 40px; margin-bottom: 40px; }
+        
+        /* Cards & UI */
+        .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; }
+        .glass-card:hover { transform: translateY(-5px); }
+        .material-card { border-left: 5px solid var(--p-blue); background: #ffffff; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #edf2f7; }
+        .grade-circle { width: 55px; height: 55px; background: #eff6ff; color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+        
+        .section-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; }
+        .section-title i { color: var(--p-blue); margin-right: 12px; font-size: 1.3rem; }
+        .badge-status { font-size: 0.7rem; padding: 5px 12px; border-radius: 50px; }
     </style>
 </head>
 <body>
 
 <nav class="navbar nav-custom">
-    <div class="container d-flex justify-content-between">
+    <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand fw-bold text-primary"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</span>
-        <button class="btn btn-outline-danger btn-sm logout-btn px-3" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i> Keluar</button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm rounded-pill px-4 fw-600 shadow-sm" onclick="window.location.href='register_course.html'">
+                <i class="bi bi-plus-lg me-1"></i> Daftar Kursus
+            </button>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
     </div>
 </nav>
 
-<div class="header-box text-center">
+<div class="header-box text-center shadow-sm">
     <div class="container">
         <h2 class="fw-bold mb-1">Selamat Datang, <span id="studentNameDisplay" class="text-warning">...</span></h2>
-        <p class="opacity-50 small mb-0">No. ID: <span id="studentIDDisplay">...</span></p>
+        <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
     </div>
 </div>
 
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h5 class="fw-bold"><i class="bi bi-grid-1x2-fill me-2 text-primary"></i>Status Pengajian</h5>
+<div class="container pb-5">
+    <div class="row g-4">
+        
+        <div class="col-lg-7">
+            <h5 class="section-title"><i class="bi bi-grid-fill"></i> Ringkasan Akademik</h5>
+            <div id="courseList">
+                <div class="text-center py-5 text-muted"><div class="spinner-border text-primary mb-2 text-sm"></div></div>
+            </div>
+
+            <h5 class="section-title mt-5"><i class="bi bi-heart-pulse-fill"></i> Saringan Stress Pelajar</h5>
+            <div class="glass-card">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-light p-3 rounded-4 me-3 text-primary"><i class="bi bi-clipboard2-pulse fs-4"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Status Kesihatan Mental</h6>
+                        <p class="text-muted small mb-0">Keputusan akan dihantar terus kepada Penyelia (SV).</p>
+                    </div>
+                </div>
+                <div id="stressResultArea" class="mb-4 d-none p-3 bg-light rounded-3 border">
+                    <small class="text-muted d-block mb-1">Analisis Terakhir:</small>
+                    <h5 id="stressLevelLabel" class="fw-bold mb-0 text-primary">...</h5>
+                </div>
+                <button class="btn btn-dark w-100 fw-bold py-3 rounded-4 shadow-sm" id="btnPsiko" onclick="openPsiko()">
+                    <i class="bi bi-pencil-square me-2"></i> MULA SARINGAN SEKARANG
+                </button>
+            </div>
         </div>
-    </div>
-    
-    <div id="courseList" class="row g-4">
-        <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted small">Memuatkan maklumat anda...</p>
+
+        <div class="col-lg-5">
+            <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> Bahan & Nota Kursus</h5>
+            <div id="materialList">
+                <div class="text-center py-5 bg-white rounded-4 border border-dashed">
+                    <p class="small text-muted">Memuatkan bahan...</p>
+                </div>
+            </div>
         </div>
+
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -60,65 +104,166 @@
         messagingSenderId: "96233022148",
         appId: "1:96233022148:web:1f903d72b3f79690409f91" 
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
     const activeID = sessionStorage.getItem("activeUser");
 
-    // Keselamatan: Jika tiada sesi, tendang balik ke login
-    if (!activeID) {
-        window.location.href = "index.html";
+    if (!activeID) window.location.href = "index.html";
+
+    let currentUserData = null;
+
+    async function initDashboard() {
+        try {
+            const uSnap = await getDoc(doc(db, "users", activeID));
+            if (uSnap.exists()) {
+                currentUserData = uSnap.data();
+                document.getElementById('studentNameDisplay').innerText = currentUserData.name;
+                document.getElementById('studentIDDisplay').innerText = activeID;
+                
+                if(currentUserData.psikoStatus === 'done') {
+                    document.getElementById('stressResultArea').classList.remove('d-none');
+                    document.getElementById('stressLevelLabel').innerText = currentUserData.stressLevel || "Selesai";
+                    document.getElementById('btnPsiko').innerText = "ULANG SARINGAN";
+                    document.getElementById('btnPsiko').className = "btn btn-outline-dark w-100 fw-bold py-2 rounded-4";
+                }
+            }
+            loadAcademicData();
+        } catch (e) { console.error("Init Error:", e); }
     }
 
-    async function loadDashboard() {
-        const listContainer = document.getElementById('courseList');
-        try {
-            // 1. Ambil Nama User
-            const userSnap = await getDoc(doc(db, "users", activeID));
-            if (userSnap.exists()) {
-                document.getElementById('studentNameDisplay').innerText = userSnap.data().name;
-                document.getElementById('studentIDDisplay').innerText = activeID;
-            }
+    async function loadAcademicData() {
+        const cContainer = document.getElementById('courseList');
+        const mContainer = document.getElementById('materialList');
+        
+        const qC = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
+        const snapC = await getDocs(qC);
 
-            // 2. Ambil Data Kursus
-            const q = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
-            const snap = await getDocs(q);
+        if (snapC.empty) {
+            cContainer.innerHTML = `<div class="alert alert-warning rounded-4 border-0 p-4 small">Tiada kursus berdaftar.</div>`;
+            return;
+        }
+
+        cContainer.innerHTML = '';
+        mContainer.innerHTML = '';
+        let userCourses = [];
+
+        snapC.forEach(d => {
+            const data = d.data();
+            userCourses.push(data.course);
             
-            listContainer.innerHTML = '';
-            if (snap.empty) {
-                listContainer.innerHTML = '<div class="col-12 text-center text-muted">Tiada data kursus ditemui.</div>';
-                return;
-            }
-
-            snap.forEach((doc) => {
-                const data = doc.data();
-                listContainer.innerHTML += `
-                    <div class="col-md-6">
-                        <div class="course-card d-flex align-items-center justify-content-between">
-                            <div>
-                                <h5 class="fw-bold mb-1">${data.course}</h5>
-                                <p class="small text-muted mb-3"><i class="bi bi-person-badge me-1"></i> Penyelia: ${data.supervisorEmail}</p>
-                                <span class="badge ${data.status === 'Pending' ? 'bg-warning' : 'bg-success'} rounded-pill px-3 py-2">
-                                    Status: ${data.status}
-                                </span>
-                            </div>
-                            <div class="text-center">
-                                <div class="grade-circle mx-auto">${data.grade}</div>
-                                <div class="fw-bold text-primary">${data.totalMark}%</div>
-                                <div class="small text-muted">Jumlah Markah</div>
-                            </div>
+            cContainer.innerHTML += `
+                <div class="glass-card mb-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <span class="badge badge-status ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'}">
+                            ${data.status}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center border-start ps-3">
+                        <div class="text-end me-3">
+                            <div class="fw-bold text-primary" style="font-size: 1.1rem;">${data.totalMark || 0}%</div>
+                            <small class="text-muted" style="font-size: 0.6rem;">MARKAH</small>
                         </div>
+                        <div class="grade-circle shadow-sm">${data.grade || '-'}</div>
+                    </div>
+                </div>`;
+        });
+
+        // MUAT BAHAN
+        const qM = query(collection(db, "materials"), where("course", "in", userCourses));
+        const snapM = await getDocs(qM);
+        
+        if (!snapM.empty) {
+            mContainer.innerHTML = '';
+            snapM.forEach(doc => {
+                const m = doc.data();
+                mContainer.innerHTML += `
+                    <div class="material-card shadow-sm">
+                        <span class="badge bg-primary-subtle text-primary mb-2" style="font-size: 0.6rem;">${m.category}</span>
+                        <h6 class="fw-bold mb-1">${m.title}</h6>
+                        <p class="text-muted mb-3" style="font-size: 0.75rem;">Subjek: <b>${m.course}</b></p>
+                        <a href="${m.content}" target="_blank" class="btn btn-sm btn-primary w-100 rounded-pill py-2">Buka Bahan</a>
                     </div>`;
             });
-        } catch (e) { listContainer.innerHTML = '<p class="text-danger">Gagal memuatkan data dari Firebase.</p>'; }
+        }
     }
 
-    window.logout = () => {
-        sessionStorage.clear();
-        window.location.href = "index.html";
+    // FUNGSI SARINGAN STRESS (Dihantar ke SV & Profil)
+    window.openPsiko = () => {
+        Swal.fire({
+            title: 'Saringan Stress Pelajar',
+            html: `
+                <div class="text-start px-2" style="font-size: 0.85rem;">
+                    <p class="text-muted small mb-4">Pilih skala 1 (Rendah) hingga 5 (Tinggi).</p>
+                    
+                    <label class="fw-bold mb-1">1. Adakah tugasan akademik terasa sangat membebankan?</label>
+                    <input type="range" class="form-range mb-3" min="1" max="5" id="s1" value="3">
+
+                    <label class="fw-bold mb-1">2. Adakah anda tidur kurang 5 jam kerana siapkan kerja?</label>
+                    <input type="range" class="form-range mb-3" min="1" max="5" id="s2" value="3">
+
+                    <label class="fw-bold mb-1">3. Adakah anda rasa cemas memikirkan tarikh akhir?</label>
+                    <input type="range" class="form-range mb-3" min="1" max="5" id="s3" value="3">
+
+                    <label class="fw-bold mb-1">4. Adakah anda merasa hilang minat terhadap hobi/sosial?</label>
+                    <input type="range" class="form-range mb-3" min="1" max="5" id="s4" value="3">
+                </div>
+            `,
+            confirmButtonText: 'Hantar Jawapan',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            preConfirm: () => {
+                const s1 = parseInt(document.getElementById('s1').value);
+                const s2 = parseInt(document.getElementById('s2').value);
+                const s3 = parseInt(document.getElementById('s3').value);
+                const s4 = parseInt(document.getElementById('s4').value);
+                return s1 + s2 + s3 + s4; // Jumlah skor (Max 20)
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const totalScore = result.value;
+                const riskLevel = totalScore >= 16 ? "HIGH" : (totalScore >= 10 ? "MEDIUM" : "LOW");
+                
+                Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+
+                try {
+                    // 1. Kemaskini Profil User
+                    await updateDoc(doc(db, "users", activeID), { 
+                        psikoStatus: 'done',
+                        stressScore: totalScore,
+                        stressLevel: riskLevel,
+                        lastAssessment: new Date().toISOString()
+                    });
+
+                    // 2. Hantar ke Koleksi Assessments (Untuk SV Dashboard)
+                    // SV akan cari data berdasarkan supervisorEmail
+                    await setDoc(doc(db, "assessments", activeID), {
+                        studentID: activeID,
+                        studentName: currentUserData.name,
+                        stress: totalScore,
+                        risk: riskLevel,
+                        lastUpdated: serverTimestamp(),
+                        supervisorEmail: currentUserData.supervisorEmail || "tiada" 
+                    });
+
+                    Swal.fire({
+                        icon: riskLevel === 'HIGH' ? 'warning' : 'success',
+                        title: 'Data Dihantar',
+                        text: `Status anda: ${riskLevel}. Terima kasih.`,
+                    }).then(() => location.reload());
+
+                } catch (e) { 
+                    console.error(e);
+                    Swal.fire('Ralat', 'Gagal hubungi pelayan.', 'error'); 
+                }
+            }
+        });
     };
 
-    loadDashboard();
+    window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
+    
+    initDashboard();
 </script>
 </body>
 </html>
