@@ -3,213 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Host Control Panel</title>
-    
+    <title>EduGuard AI | Dashboard Pelajar</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --bg-body: #f8fafc;
-        }
-
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
-        }
-
-        .host-header {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: white;
-            padding: 60px 0 80px 0;
-            border-radius: 0 0 40px 40px;
-            margin-bottom: -50px;
-        }
-
-        .glass-card {
-            background: white;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card {
-            border-top: 4px solid var(--primary-color);
-        }
-
-        .progress { background-color: #e2e8f0; border-radius: 10px; }
-        
-        .badge-a { background-color: #dcfce7; color: #166534; }
-        .badge-fail { background-color: #fee2e2; color: #991b1b; }
-
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-radius: 12px;
-            padding: 12px 25px;
-            font-weight: 600;
-        }
-
-        #hostForm {
-            border-left: 6px solid var(--primary-color);
-            display: none;
-        }
-
-        .table thead th {
-            background: #f1f5f9;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            padding: 15px;
-        }
-        
-        /* Efek hover pada baris jadual */
-        .table tbody tr:hover {
-            background-color: #f8fafc;
-        }
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
+        .header-box { background: #1e293b; color: white; padding: 40px 0; border-radius: 0 0 30px 30px; margin-bottom: 30px; }
+        .course-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; transition: 0.3s; margin-bottom: 15px; }
+        .material-card { border-left: 5px solid #4361ee; background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .grade-circle { width: 50px; height: 50px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .section-title { font-weight: 700; color: #334155; margin-bottom: 20px; display: flex; align-items: center; }
+        .section-title i { margin-right: 10px; color: #4361ee; }
     </style>
 </head>
 <body>
 
-<div class="host-header text-center">
-    <div class="container animate__animated animate__fadeInDown">
-        <h1 class="fw-bold mb-2"><i class="bi bi-cpu-fill text-info"></i> Host Control Panel</h1>
-        <p class="opacity-75">Sistem Pengurusan Gred & Bahan Pembelajaran AI</p>
+<nav class="navbar nav-custom">
+    <div class="container d-flex justify-content-between">
+        <span class="navbar-brand fw-bold text-primary"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</span>
+        <div>
+            <button class="btn btn-primary btn-sm rounded-pill px-3 me-2" onclick="window.location.href='register_course.html'">
+                <i class="bi bi-plus-circle me-1"></i> Daftar Kursus
+            </button>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()">Keluar</button>
+        </div>
+    </div>
+</nav>
+
+<div class="header-box text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Hai, <span id="studentNameDisplay" class="text-warning">...</span></h2>
+        <p class="opacity-50 small mb-0">No. ID: <span id="studentIDDisplay">...</span></p>
     </div>
 </div>
 
-<div class="container mb-5">
-    <div class="row g-3 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-primary h-100">
-                <small class="text-muted fw-bold">PURATA SKOR</small>
-                <h2 class="fw-bold mb-0 text-primary" id="statAvg">0%</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-success h-100">
-                <small class="text-muted fw-bold">LULUS</small>
-                <h2 class="fw-bold mb-0 text-success" id="statPass">0</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-danger h-100">
-                <small class="text-muted fw-bold">GAGAL</small>
-                <h2 class="fw-bold mb-0 text-danger" id="statFail">0</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-warning h-100">
-                <small class="text-muted fw-bold">PENDING</small>
-                <h2 class="fw-bold mb-0 text-warning" id="statPending">0</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card glass-card p-4 mb-4 border-0">
-                <h5 class="fw-bold mb-4"><i class="bi bi-people me-2 text-primary"></i> Pengurusan Prestasi Pelajar</h5>
-                <div class="row g-2">
-                    <div class="col-md-9">
-                        <select id="courseSelect" class="form-select shadow-sm">
-                            <option value="">-- Pilih Subjek --</option>
-                            <option value="Software Engineering">Software Engineering</option>
-                            <option value="IoT Systems">IoT Systems</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                            <option value="AI Solutions">AI Solutions</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100 shadow-sm" onclick="searchBySubject()">
-                            <i class="bi bi-search me-1"></i> Cari
-                        </button>
-                    </div>
-                </div>
-
-                <div id="searchResults" class="mt-4">
-                    <div class="text-center py-5 text-muted">
-                        <i class="bi bi-clipboard-data fs-1 opacity-25"></i>
-                        <p>Pilih subjek dan tekan butang cari.</p>
-                    </div>
-                </div>
+<div class="container pb-5">
+    <div class="row">
+        <div class="col-lg-7">
+            <h5 class="section-title"><i class="bi bi-journal-text"></i> Kursus Terdaftar & Gred</h5>
+            <div id="courseList">
+                <div class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div></div>
             </div>
 
-            <form id="hostForm" class="card glass-card p-4 mb-4 shadow-lg animate__animated animate__fadeIn">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Penilaian: <span id="displayStudentName" class="text-primary"></span></h5>
-                    <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
-                </div>
-                <div class="row g-3">
-                    <input type="hidden" id="currentDocId">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Quiz (20%)</label>
-                        <input type="number" id="quiz" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Test (30%)</label>
-                        <input type="number" id="test" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Midterm (50%)</label>
-                        <input type="number" id="midterm" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-3">
-                        <div>
-                            <span class="text-muted small">Ramalan Gred: </span>
-                            <span id="liveGradeText" class="fw-bold text-primary">-</span>
-                        </div>
-                        <button type="submit" class="btn btn-primary px-5">
-                            <i class="bi bi-save me-2"></i> Sahkan & Simpan
-                        </button>
-                    </div>
-                </div>
-            </form>
+            <h5 class="section-title mt-5"><i class="bi bi-brain"></i> Penilaian Psikometrik (Self-Assessment)</h5>
+            <div class="card border-0 shadow-sm p-4 rounded-4">
+                <p class="small text-muted">Sila lengkapkan penilaian ini untuk membantu kami memahami gaya pembelajaran anda.</p>
+                <div id="psychometricStatus" class="alert alert-info py-2 small">Memeriksa status penilaian...</div>
+                <button class="btn btn-dark w-100 fw-bold py-2" id="btnPsiko" onclick="openPsiko()">Mula Penilaian</button>
+            </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card glass-card p-4 border-0 h-100">
-                <h5 class="fw-bold mb-4"><i class="bi bi-cloud-arrow-up me-2 text-success"></i> Muat Naik Bahan</h5>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Tajuk Bahan</label>
-                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Nota Minggu 1">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Subjek</label>
-                    <select id="postCourse" class="form-select">
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                        <option value="AI Solutions">AI Solutions</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Kategori</label>
-                    <select id="postCategory" class="form-select">
-                        <option value="Lecture">Lecture</option>
-                        <option value="Lab">Lab</option>
-                        <option value="Nota">Nota</option>
-                        <option value="Pengumuman">Pengumuman</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label small fw-bold">Link/Isi Kandungan</label>
-                    <textarea id="postContent" class="form-control" rows="5" placeholder="Masukkan link Drive atau maklumat..."></textarea>
-                </div>
-                <button class="btn btn-dark w-100 py-3 shadow-sm fw-bold" onclick="uploadMaterial()">
-                    <i class="bi bi-send me-2"></i> Publish Sekarang
-                </button>
+        <div class="col-lg-5">
+            <h5 class="section-title"><i class="bi bi-cloud-download"></i> Bahan Pembelajaran</h5>
+            <div id="materialList">
+                <div class="text-center py-4 text-muted small">Mencari bahan untuk subjek anda...</div>
             </div>
         </div>
     </div>
@@ -217,153 +67,133 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const firebaseConfig = {
+    const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
         authDomain: "eduguard-ai-2742b.firebaseapp.com",
         projectId: "eduguard-ai-2742b",
         storageBucket: "eduguard-ai-2742b.firebasestorage.app",
         messagingSenderId: "96233022148",
-        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const activeID = sessionStorage.getItem("activeUser");
 
-    // Fungsi LIVE GRADE semasa menaip
-    window.liveGrade = () => {
-        const q = Number(document.getElementById('quiz').value) || 0;
-        const t = Number(document.getElementById('test').value) || 0;
-        const m = Number(document.getElementById('midterm').value) || 0;
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "GAGAL" : "-");
-        document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
-    };
+    if (!activeID) window.location.href = "index.html";
 
-    window.searchBySubject = async function() {
-        const selected = document.getElementById('courseSelect').value;
-        const resArea = document.getElementById('searchResults');
-        if (!selected) return;
-
-        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Sedang memuatkan data...</p></div>`;
-
+    async function initDashboard() {
         try {
-            const q = query(collection(db, "course_registrations"), where("course", "==", selected));
-            const snap = await getDocs(q);
-
-            if (snap.empty) {
-                resArea.innerHTML = `<div class="alert alert-light border text-center p-5">
-                                        <i class="bi bi-emoji-frown fs-2 d-block mb-2 text-muted"></i>
-                                        Tiada pelajar berdaftar untuk subjek ini.
-                                     </div>`;
-                updateStats(0, 0, 0, 0);
-                return;
+            // 1. Profil User
+            const uSnap = await getDoc(doc(db, "users", activeID));
+            if (uSnap.exists()) {
+                document.getElementById('studentNameDisplay').innerText = uSnap.data().name;
+                document.getElementById('studentIDDisplay').innerText = activeID;
+                
+                // Cek status psikometrik
+                if(uSnap.data().psikoStatus === 'done') {
+                    document.getElementById('psychometricStatus').className = "alert alert-success py-2 small";
+                    document.getElementById('psychometricStatus').innerText = "✅ Penilaian telah disiapkan.";
+                    document.getElementById('btnPsiko').innerText = "Lihat Keputusan";
+                }
             }
 
-            let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
-            let html = `<div class="table-responsive animate__animated animate__fadeIn">
-                        <table class="table align-middle">
-                        <thead><tr><th>Pelajar</th><th class="text-center">Prestasi</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
-                        <tbody>`;
+            // 2. Kursus & Bahan
+            loadCoursesAndMaterials();
 
-            snap.forEach(d => {
-                const data = d.data();
-                const mark = parseFloat(data.totalMark) || 0;
-                total++;
-
-                if(!data.grade) pending++;
-                else if(data.grade === 'GAGAL') fail++;
-                else { pass++; sumMarks += mark; }
-
-                const barColor = mark >= 80 ? 'bg-success' : (mark >= 40 ? 'bg-primary' : 'bg-danger');
-
-                html += `<tr>
-                    <td>
-                        <div class="fw-bold text-dark">${data.studentName}</div>
-                        <small class="text-muted text-uppercase" style="font-size: 0.7rem;">ID: ${data.studentID}</small>
-                    </td>
-                    <td style="width: 150px;">
-                        <div class="progress" style="height: 6px; margin-bottom: 4px;">
-                            <div class="progress-bar ${barColor}" style="width: ${mark}%"></div>
-                        </div>
-                        <small class="text-muted" style="font-size: 10px;">${mark}% Berjaya</small>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge ${mark >= 80 ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-fail' : 'bg-light text-dark')} p-2 px-3 rounded-pill">
-                            ${data.grade || 'PENDING'}
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" 
-                            onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
-                            <i class="bi bi-pencil-square me-1"></i> Skor
-                        </button>
-                    </td>
-                </tr>`;
-            });
-
-            resArea.innerHTML = html + "</tbody></table></div>";
-            updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
-
-        } catch (e) { Swal.fire('Ralat', e.message, 'error'); }
-    };
-
-    function updateStats(avg, p, f, pen) {
-        document.getElementById('statAvg').innerText = avg + "%";
-        document.getElementById('statPass').innerText = p;
-        document.getElementById('statFail').innerText = f;
-        document.getElementById('statPending').innerText = pen;
+        } catch (e) { console.error(e); }
     }
 
-    window.prepareEdit = (id, name, q, t, m) => {
-        document.getElementById('currentDocId').value = id;
-        document.getElementById('displayStudentName').innerText = name;
-        document.getElementById('quiz').value = q;
-        document.getElementById('test').value = t;
-        document.getElementById('midterm').value = m;
-        document.getElementById('hostForm').style.display = 'block';
-        liveGrade(); // Kira gred awal
-        window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 50, behavior: 'smooth' });
+    async function loadCoursesAndMaterials() {
+        const cContainer = document.getElementById('courseList');
+        const mContainer = document.getElementById('materialList');
+        
+        const qC = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
+        const snapC = await getDocs(qC);
+
+        if (snapC.empty) {
+            cContainer.innerHTML = '<div class="alert alert-warning small">Anda belum mendaftar mana-mana kursus.</div>';
+            return;
+        }
+
+        cContainer.innerHTML = '';
+        mContainer.innerHTML = '';
+        let registeredCourses = [];
+
+        snapC.forEach(d => {
+            const data = d.data();
+            registeredCourses.push(data.course); // Simpan senarai subjek yang didaftar
+            
+            cContainer.innerHTML += `
+                <div class="course-card d-flex align-items-center justify-content-between shadow-sm">
+                    <div>
+                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'} rounded-pill" style="font-size: 0.6rem;">${data.status}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="text-end me-3">
+                            <div class="fw-bold text-primary small">${data.totalMark || 0}%</div>
+                        </div>
+                        <div class="grade-circle">${data.grade || '-'}</div>
+                    </div>
+                </div>`;
+        });
+
+        // 3. Muat turun Bahan (Hanya yang relevan dengan subjek pelajar)
+        if (registeredCourses.length > 0) {
+            const qM = query(collection(db, "materials"), where("course", "in", registeredCourses));
+            const snapM = await getDocs(qM);
+            
+            if (snapM.empty) {
+                mContainer.innerHTML = '<p class="text-muted small">Tiada bahan untuk subjek anda buat masa ini.</p>';
+            } else {
+                snapM.forEach(doc => {
+                    const m = doc.data();
+                    mContainer.innerHTML += `
+                        <div class="material-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 text-primary">${m.title}</h6>
+                                <span class="badge bg-light text-dark border small" style="font-size: 0.6rem;">${m.category}</span>
+                            </div>
+                            <p class="small text-muted mb-2" style="font-size: 0.75rem;">Subjek: ${m.course}</p>
+                            <a href="${m.content}" target="_blank" class="btn btn-sm btn-outline-primary w-100">Buka Bahan <i class="bi bi-box-arrow-up-right ms-1"></i></a>
+                        </div>`;
+                });
+            }
+        }
+    }
+
+    window.openPsiko = () => {
+        Swal.fire({
+            title: 'Penilaian Psikometrik',
+            html: `
+                <div class="text-start small">
+                    <p><b>1. Saya suka belajar secara visual (gambar/video).</b><br>
+                    <input type="radio" name="q1" value="1"> Ya <input type="radio" name="q1" value="0"> Tidak</p>
+                    <p><b>2. Saya lebih suka belajar dalam kumpulan.</b><br>
+                    <input type="radio" name="q2" value="1"> Ya <input type="radio" name="q2" value="0"> Tidak</p>
+                    <p><b>3. Saya selesa dengan subjek pengiraan/logik.</b><br>
+                    <input type="radio" name="q3" value="1"> Ya <input type="radio" name="q3" value="0"> Tidak</p>
+                </div>
+            `,
+            confirmButtonText: 'Hantar Jawapan',
+            preConfirm: () => {
+                // Sini anda boleh tambah logik simpan ke Firestore jika perlu
+                return true;
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                // Update status di Firestore
+                const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+                await updateDoc(doc(db, "users", activeID), { psikoStatus: 'done' });
+                Swal.fire('Terima Kasih!', 'Jawapan anda telah direkodkan.', 'success').then(()=>location.reload());
+            }
+        });
     };
 
-    document.getElementById('hostForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const q = Number(document.getElementById('quiz').value);
-        const t = Number(document.getElementById('test').value);
-        const m = Number(document.getElementById('midterm').value);
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "GAGAL";
-
-        try {
-            await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
-                quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
-                status: "Marked", lastUpdated: serverTimestamp()
-            });
-            Swal.fire({ title: 'Tersimpan!', text: 'Prestasi pelajar berjaya dikemaskini.', icon: 'success', timer: 2000, showConfirmButton: false });
-            searchBySubject();
-            document.getElementById('hostForm').style.display = 'none';
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
-    };
-
-    window.uploadMaterial = async () => {
-        const title = document.getElementById('postTitle').value;
-        const content = document.getElementById('postContent').value;
-        if(!title || !content) return Swal.fire('Info', 'Sila isi tajuk dan link bahan!', 'info');
-
-        try {
-            await addDoc(collection(db, "materials"), {
-                title, content, course: document.getElementById('postCourse').value,
-                category: document.getElementById('postCategory').value,
-                datePosted: serverTimestamp()
-            });
-            Swal.fire('Berjaya!', 'Bahan telah diterbitkan ke dashboard pelajar.', 'success');
-            document.getElementById('postTitle').value = "";
-            document.getElementById('postContent').value = "";
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
-    };
+    window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
+    initDashboard();
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
