@@ -3,81 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Dashboard Pelajar</title>
+    <title>EduGuard AI | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
-        :root {
-            --primary: #4361ee;
-            --bg: #f8fafc;
-        }
-        body { 
-            background-color: var(--bg); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #1e293b;
-        }
-        .navbar { background: white; border-bottom: 1px solid #e2e8f0; }
-        .welcome-section {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: white;
-            padding: 60px 0;
-            border-radius: 0 0 40px 40px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: white;
-            border: none;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .stat-card:hover { transform: translateY(-5px); }
-        .grade-badge {
-            width: 50px; height: 50px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 12px; font-weight: 800; font-size: 1.2rem;
-        }
-        .bg-pending { background: #fef3c7; color: #92400e; }
-        .bg-complete { background: #dcfce7; color: #166534; }
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; }
+        .header-box { background: #1e293b; color: white; padding: 40px 0; border-radius: 0 0 30px 30px; }
+        .course-card { background: white; border-radius: 18px; padding: 20px; border: 1px solid #e2e8f0; transition: 0.3s; }
+        .course-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .grade-circle { width: 55px; height: 55px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<nav class="navbar sticky-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</a>
-        <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logout()">
-            <i class="bi bi-power me-1"></i> Keluar
-        </button>
-    </div>
+<nav class="navbar nav-custom px-3">
+    <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</a>
+    <button class="btn btn-light btn-sm rounded-pill border" onclick="logout()">Log Keluar</button>
 </nav>
 
-<div class="welcome-section text-center">
+<div class="header-box text-center">
     <div class="container">
-        <h2 class="fw-bold mb-1">Selamat Datang, <span id="studentName">...</span></h2>
-        <p class="text-white-50 small">ID: <span id="studentID">...</span></p>
+        <h3 class="fw-bold mb-1">Hai, <span id="studentNameDisplay">...</span></h3>
+        <p class="small text-white-50">Log Masuk Sebagai: <span id="studentIDDisplay">...</span></p>
     </div>
 </div>
 
-<div class="container mb-5">
-    <div class="row g-4">
-        <div class="col-12">
-            <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2"></i>Kursus Anda</h5>
-            <div id="courseContainer" class="row g-3">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
-            </div>
+<div class="container mt-4">
+    <h6 class="fw-bold text-secondary mb-3 px-1 text-uppercase small">Maklumat Pengajian</h6>
+    <div id="courseList" class="row g-3">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary opacity-50"></div>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -91,62 +56,62 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Ambil data dari localStorage
-    const currentID = localStorage.getItem("currentStudentID");
-    const currentName = localStorage.getItem("currentStudentName");
+    // Ambil ID dari sesi aktif
+    const activeID = sessionStorage.getItem("activeUser");
 
-    if (!currentID) {
+    if (!activeID) {
         window.location.href = "index.html";
     }
 
-    document.getElementById('studentName').innerText = currentName;
-    document.getElementById('studentID').innerText = currentID;
-
-    async function loadStudentCourses() {
-        const container = document.getElementById('courseContainer');
+    async function initializeDashboard() {
+        const list = document.getElementById('courseList');
         try {
-            const q = query(collection(db, "course_registrations"), where("studentID", "==", currentID));
-            const snap = await getDocs(q);
+            // 1. Ambil Nama Pelajar dari 'users'
+            const userSnap = await getDoc(doc(db, "users", activeID));
+            if (userSnap.exists()) {
+                document.getElementById('studentNameDisplay').innerText = userSnap.data().name;
+                document.getElementById('studentIDDisplay').innerText = activeID;
+            }
 
-            if (snap.empty) {
-                container.innerHTML = '<div class="col-12"><div class="stat-card text-center text-muted">Tiada kursus terdaftar.</div></div>';
+            // 2. Ambil Kursus dari 'course_registrations'
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
+            const querySnapshot = await getDocs(q);
+            
+            list.innerHTML = '';
+            if (querySnapshot.empty) {
+                list.innerHTML = '<div class="col-12 text-center text-muted">Tiada kursus terdaftar.</div>';
                 return;
             }
 
-            container.innerHTML = '';
-            snap.forEach(doc => {
+            querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                container.innerHTML += `
+                list.innerHTML += `
                     <div class="col-md-6">
-                        <div class="stat-card d-flex justify-content-between align-items-center">
+                        <div class="course-card d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="badge bg-primary mb-2">${data.semester}</span>
+                                <span class="badge bg-soft-primary text-primary border border-primary-subtle mb-2" style="font-size: 0.6rem;">${data.semester}</span>
                                 <h6 class="fw-bold mb-1">${data.course}</h6>
-                                <p class="small text-muted mb-0"><i class="bi bi-person-badge me-1"></i> SV: ${data.supervisorEmail}</p>
+                                <p class="small text-muted mb-0"><i class="bi bi-envelope me-1"></i> SV: ${data.supervisorEmail}</p>
                             </div>
-                            <div class="text-center">
-                                <div class="grade-badge ${data.grade === '-' ? 'bg-pending' : 'bg-complete'} mb-1">
-                                    ${data.grade}
-                                </div>
-                                <div style="font-size: 0.7rem; font-weight: bold;">MARK: ${data.totalMark}%</div>
+                            <div class="text-end">
+                                <div class="grade-circle mx-auto mb-1">${data.grade}</div>
+                                <div class="fw-bold small">${data.totalMark}%</div>
                             </div>
                         </div>
                     </div>
                 `;
             });
         } catch (e) {
-            console.error(e);
-            container.innerHTML = '<p class="text-danger text-center">Gagal memuatkan data.</p>';
+            list.innerHTML = '<p class="text-danger text-center">Gagal memuatkan data.</p>';
         }
     }
 
     window.logout = () => {
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = "index.html";
     };
 
-    loadStudentCourses();
+    initializeDashboard();
 </script>
-
 </body>
 </html>
