@@ -19,77 +19,44 @@
             flex-direction: column;
         }
 
-        .navbar {
-            background: white !important;
-            padding: 15px 0;
-        }
+        .navbar { background: white !important; padding: 15px 0; }
 
         .main-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
         }
 
         .auth-card { 
-            border: none; 
-            border-radius: 24px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
-            overflow: hidden; 
-            background: white; 
-            width: 100%; 
-            max-width: 450px; 
+            border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+            overflow: hidden; background: white; width: 100%; max-width: 450px; 
         }
 
         .auth-header { 
-            background: linear-gradient(135deg, #4361ee, #4cc9f0); 
-            color: white; 
-            padding: 40px 30px; 
-            text-align: center; 
+            background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; 
+            padding: 40px 30px; text-align: center; 
         }
 
         .role-selector .btn { 
-            border-radius: 12px; 
-            font-weight: 600; 
-            flex: 1; 
-            border: 1px solid #e2e8f0;
-            color: #64748b;
+            border-radius: 12px; font-weight: 600; flex: 1; 
+            border: 1px solid #e2e8f0; color: #64748b;
         }
 
-        .role-selector .btn.active {
-            background: #4361ee;
-            border-color: #4361ee;
-            color: white;
-        }
+        .role-selector .btn.active { background: #4361ee; border-color: #4361ee; color: white; }
 
-        .form-control, .form-select { 
-            border-radius: 12px; 
-            padding: 12px; 
-            border: 1px solid #e2e8f0; 
-            background-color: #f8fafc;
+        .form-control { 
+            border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc;
         }
 
         .btn-primary { 
-            border-radius: 12px; 
-            padding: 14px; 
-            font-weight: 700; 
-            background: #4361ee; 
-            border: none; 
-            transition: 0.3s;
+            border-radius: 12px; padding: 14px; font-weight: 700; 
+            background: #4361ee; border: none; transition: 0.3s;
         }
 
         .input-group-text { 
-            border-radius: 0 12px 12px 0; 
-            background: #f8fafc; 
-            cursor: pointer; 
-            border: 1px solid #e2e8f0;
-            border-left: none;
+            border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; 
+            border: 1px solid #e2e8f0; border-left: none;
         }
 
-        .password-input { 
-            border-radius: 12px 0 0 12px !important; 
-        }
+        .password-input { border-radius: 12px 0 0 12px !important; }
     </style>
 </head>
 <body>
@@ -107,7 +74,7 @@
         <div class="auth-header">
             <i class="bi bi-person-circle fs-1 mb-2 d-block"></i>
             <h3 class="fw-bold mb-1" id="authTitle">Log Masuk RPS</h3>
-            <p class="small mb-0 opacity-75" id="authSub">Sila masukkan butiran log masuk anda.</p>
+            <p class="small mb-0 opacity-75">Sila masukkan butiran akaun anda.</p>
         </div>
 
         <div class="p-4">
@@ -128,30 +95,13 @@
                     <input type="email" id="email" class="form-control" placeholder="contoh@emel.com" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-semibold small mb-2" id="passLabel">Kata Laluan</label>
+                <div class="mb-4">
+                    <label class="fw-semibold small mb-2">Kata Laluan</label>
                     <div class="input-group">
                         <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
                         <span class="input-group-text" id="btnTogglePassword">
                             <i class="bi bi-eye" id="eyeIcon"></i>
                         </span>
-                    </div>
-                </div>
-
-                <div id="studentExtraFields" style="display: none;">
-                    <div class="mb-3">
-                        <label class="fw-semibold small mb-2">Pilih Kursus</label>
-                        <select id="courseSelect" class="form-select">
-                            <option value="Software Engineering">Software Engineering</option>
-                            <option value="IoT Systems">IoT Systems</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="fw-semibold small mb-2">Pilih RPS (Supervisor)</label>
-                        <select id="supervisorSelect" class="form-select">
-                            <option value="">-- Sila Pilih RPS --</option>
-                        </select>
                     </div>
                 </div>
 
@@ -170,93 +120,63 @@
     let isLoginMode = true;
     let currentRole = 'supervisor';
 
-    // 1. Fungsi Toggle Mata (Password Visibility)
-    const btnTogglePassword = document.getElementById('btnTogglePassword');
-    const passwordInput = document.getElementById('password');
+    // 1. Toggle Mata (Password)
+    const btnToggle = document.getElementById('btnTogglePassword');
+    const passInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eyeIcon');
 
-    btnTogglePassword.addEventListener('click', () => {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
+    btnToggle.addEventListener('click', () => {
+        const isText = passInput.type === 'text';
+        passInput.type = isText ? 'password' : 'text';
         eyeIcon.classList.toggle('bi-eye');
         eyeIcon.classList.toggle('bi-eye-slash');
     });
 
-    // 2. Fungsi Tukar Peranan (RPS/Pelajar/Host)
+    // 2. Tukar Role
     window.switchRole = function(role) {
         currentRole = role;
         document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`btn-${role}`).classList.add('active');
-        
-        const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
-        document.getElementById('authTitle').innerText = (isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[role];
-        
-        updateFormUI();
+        updateUI();
     };
 
-    // 3. Fungsi Tukar Log Masuk <-> Daftar
-    const toggleAuthLink = document.getElementById('toggleAuthLink');
-    toggleAuthLink.addEventListener('click', toggleMode);
-
-    function toggleMode() {
+    // 3. Tukar Login/Daftar
+    document.getElementById('toggleAuthLink').addEventListener('click', () => {
         isLoginMode = !isLoginMode;
-        updateFormUI();
-    }
+        updateUI();
+    });
 
-    function updateFormUI() {
+    function updateUI() {
         const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
         document.getElementById('authTitle').innerText = (isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[currentRole];
         document.getElementById('authBtn').innerText = isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
+        document.getElementById('nameField').style.display = isLoginMode ? 'none' : 'block';
         document.getElementById('toggleText').innerText = isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
         document.getElementById('toggleAuthLink').innerText = isLoginMode ? 'Daftar Sini' : 'Log Masuk';
-        
-        // Tunjukkan field Nama jika Daftar
-        document.getElementById('nameField').style.display = isLoginMode ? 'none' : 'block';
-        
-        // Field tambahan jika Pelajar mendaftar
-        if (!isLoginMode && currentRole === 'student') {
-            document.getElementById('studentExtraFields').style.display = 'block';
-        } else {
-            document.getElementById('studentExtraFields').style.display = 'none';
-        }
     }
 
-    // 4. Logik Submit Form (Simulasi Integration)
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
+    // 4. Handle Submit (Logic SweetAlert)
+    document.getElementById('authForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
-        
-        if (isLoginMode) {
-            // SIMULASI: Anggap akaun ini tiada dalam database
-            // Dalam auth.js sebenar, anda akan guna try-catch dengan Firebase
-            const userExists = false; // Contoh logic gaga;
+        // --- LOGIK FIREBASE ANDA DI SINI (auth.js) ---
+        // Contoh simulasi jika user tidak dijumpai:
+        const userFound = false; 
 
-            if (!userExists) {
-                Swal.fire({
-                    title: 'Akaun Tidak Ditemui',
-                    text: "Emel anda belum berdaftar dalam sistem kami. Adakah anda ingin mendaftar sekarang?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#4361ee',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Daftar Sekarang',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        toggleMode(); // Tukar ke mode daftar
-                    }
-                });
-            }
-        } else {
-            // Simulasi Berjaya Daftar
+        if (isLoginMode && !userFound) {
             Swal.fire({
-                title: 'Berjaya!',
-                text: 'Akaun anda telah didaftarkan. Sila log masuk.',
-                icon: 'success',
-                confirmButtonColor: '#4361ee'
-            }).then(() => {
-                toggleMode();
+                title: 'Akaun Tidak Ditemui',
+                text: "Emel anda belum berdaftar. Adakah anda ingin mendaftar akaun baru?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4361ee',
+                confirmButtonText: 'Ya, Daftar Sini',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    isLoginMode = false;
+                    updateUI();
+                }
             });
         }
     });
