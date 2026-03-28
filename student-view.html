@@ -14,13 +14,18 @@
     <style>
         :root { --p-blue: #4361ee; --bg-light: #f8fafc; }
         body { background: var(--bg-light); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        
         .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
         .header-box { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 50px 0; border-radius: 0 0 40px 40px; margin-bottom: 40px; }
+        
         .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; }
+        .glass-card:hover { transform: translateY(-5px); }
         .material-card { border-left: 5px solid var(--p-blue); background: #ffffff; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #edf2f7; }
         .grade-circle { width: 55px; height: 55px; background: #eff6ff; color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; }
+        
         .section-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; }
-        .section-title i { color: var(--p-blue); margin-right: 12px; }
+        .section-title i { color: var(--p-blue); margin-right: 12px; font-size: 1.3rem; }
+        .badge-status { font-size: 0.7rem; padding: 5px 12px; border-radius: 50px; }
         .text-critical { color: #ef4444; }
         .text-medium { color: #f59e0b; }
         .text-normal { color: #10b981; }
@@ -32,8 +37,12 @@
     <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand fw-bold text-primary"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</span>
         <div class="d-flex gap-2">
-            <button class="btn btn-primary btn-sm rounded-pill px-4" onclick="window.location.href='register_course.html'">Daftar Kursus</button>
-            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()"><i class="bi bi-box-arrow-right"></i></button>
+            <button class="btn btn-primary btn-sm rounded-pill px-4 fw-600 shadow-sm" onclick="window.location.href='register_course.html'">
+                <i class="bi bi-plus-lg me-1"></i> Daftar Kursus
+            </button>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
         </div>
     </div>
 </nav>
@@ -41,26 +50,287 @@
 <div class="header-box text-center shadow-sm">
     <div class="container animate__animated animate__fadeIn">
         <h2 class="fw-bold mb-1">Selamat Datang, <span id="studentNameDisplay" class="text-warning">...</span></h2>
-        <p class="opacity-75 small mb-0">ID: <span id="studentIDDisplay">...</span></p>
+        <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
     </div>
 </div>
 
 <div class="container pb-5">
     <div class="row g-4">
+        
         <div class="col-lg-7">
             <h5 class="section-title"><i class="bi bi-grid-fill"></i> Ringkasan Akademik</h5>
             <div id="courseList">
-                <div class="text-center py-5 text-muted"><div class="spinner-border text-primary spinner-border-sm"></div></div>
+                <div class="text-center py-5 text-muted"><div class="spinner-border text-primary mb-2 spinner-border-sm"></div><br>Memuatkan data...</div>
             </div>
 
             <h5 class="section-title mt-5"><i class="bi bi-heart-pulse-fill"></i> Saringan Emosi AI</h5>
             <div class="glass-card animate__animated animate__fadeInUp">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="bg-light p-3 rounded-4 me-3 text-primary"><i class="bi bi-clipboard2-pulse fs-4"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Analisis Kesejahteraan</h6>
+                        <p class="text-muted small mb-0">AI akan menganalisis teks anda untuk mengenal pasti tahap tekanan.</p>
+                    </div>
+                </div>
                 <div id="stressResultArea" class="mb-4 d-none p-3 bg-light rounded-4 border border-dashed">
+                    <small class="text-muted d-block mb-1">Keputusan Terakhir:</small>
                     <h5 id="stressLevelLabel" class="fw-bold mb-0">...</h5>
                 </div>
-                <button class="btn btn-dark w-100 fw-bold py-3 rounded-4" id="btnPsiko" onclick="openPsiko()">MULA ANALISIS AI</button>
+                <button class="btn btn-dark w-100 fw-bold py-3 rounded-4 shadow-sm" id="btnPsiko" onclick="openPsiko()">
+                    <i class="bi bi-robot me-2"></i> MULA ANALISIS AI
+                </button>
             </div>
         </div>
+
+        <div class="col-lg-5">
+            <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> Bahan & Nota</h5>
+            <div id="materialList">
+                <div class="text-center py-5 bg-white rounded-4 border border-dashed">
+                    <p class="small text-muted mb-0">Daftar kursus untuk mengakses bahan.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { 
+        getFirestore, doc, getDoc, updateDoc, setDoc, 
+        collection, query, where, getDocs, serverTimestamp,
+        onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const activeID = sessionStorage.getItem("activeUser");
+
+    if (!activeID) window.location.href = "index.html";
+
+    let currentUserData = null;
+
+    // --- FUNGSI NOTIFIKASI REAL-TIME (LIVE) ---
+    function listenToNotifications() {
+        const qNotify = query(
+            collection(db, "notifications"), 
+            where("studentID", "==", activeID),
+            where("status", "==", "unread")
+        );
+        
+        onSnapshot(qNotify, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const msg = change.doc.data();
+                    Swal.fire({
+                        title: '📧 Pesanan Kaunselor',
+                        text: msg.message,
+                        icon: 'info',
+                        confirmButtonText: 'Saya Faham',
+                        confirmButtonColor: '#4361ee',
+                        footer: `Dihantar pada: ${msg.timestamp?.toDate().toLocaleString('ms-MY')}`
+                    }).then(async () => {
+                        await updateDoc(doc(db, "notifications", change.doc.id), {
+                            status: "read"
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    async function initDashboard() {
+        try {
+            const uSnap = await getDoc(doc(db, "users", activeID));
+            if (uSnap.exists()) {
+                currentUserData = uSnap.data();
+                document.getElementById('studentNameDisplay').innerText = currentUserData.name;
+                document.getElementById('studentIDDisplay').innerText = activeID;
+                
+                if(currentUserData.psikoStatus === 'done') {
+                    const resArea = document.getElementById('stressResultArea');
+                    const label = document.getElementById('stressLevelLabel');
+                    resArea.classList.remove('d-none');
+                    label.innerText = `TAHAP: ${currentUserData.stressLevel}`;
+                    label.className = `fw-bold mb-0 text-${currentUserData.stressLevel.toLowerCase()}`;
+                    
+                    document.getElementById('btnPsiko').innerText = "KEMASKINI ANALISIS";
+                    document.getElementById('btnPsiko').className = "btn btn-outline-dark w-100 fw-bold py-2 rounded-4";
+                }
+            }
+            loadAcademicData();
+            listenToNotifications(); // Aktifkan live listener
+        } catch (e) { console.error("Init Error:", e); }
+    }
+
+    async function loadAcademicData() {
+        const cContainer = document.getElementById('courseList');
+        const mContainer = document.getElementById('materialList');
+        
+        const qC = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
+        const snapC = await getDocs(qC);
+
+        if (snapC.empty) {
+            cContainer.innerHTML = `<div class="alert alert-warning rounded-4 border-0 p-4 small text-center">Tiada kursus didaftarkan.</div>`;
+            return;
+        }
+
+        cContainer.innerHTML = '';
+        let userCourses = [];
+
+        snapC.forEach(d => {
+            const data = d.data();
+            userCourses.push(data.course);
+            
+            cContainer.innerHTML += `
+                <div class="glass-card mb-3 d-flex align-items-center justify-content-between animate__animated animate__fadeInLeft">
+                    <div>
+                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <span class="badge badge-status ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'}">
+                            ${data.status}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center border-start ps-3">
+                        <div class="text-end me-3">
+                            <div class="fw-bold text-primary" style="font-size: 1.1rem;">${data.totalMark || 0}%</div>
+                            <small class="text-muted" style="font-size: 0.6rem;">MARKAH</small>
+                        </div>
+                        <div class="grade-circle shadow-sm">${data.grade || '-'}</div>
+                    </div>
+                </div>`;
+        });
+
+        if (userCourses.length > 0) {
+            const qM = query(collection(db, "materials"), where("course", "in", userCourses.slice(0, 10)));
+            const snapM = await getDocs(qM);
+            
+            mContainer.innerHTML = '';
+            if (snapM.empty) {
+                mContainer.innerHTML = `<div class="text-center py-5 text-muted small">Tiada bahan pembelajaran buat masa ini.</div>`;
+            } else {
+                snapM.forEach(doc => {
+                    const m = doc.data();
+                    mContainer.innerHTML += `
+                        <div class="material-card shadow-sm animate__animated animate__fadeInRight">
+                            <span class="badge bg-primary-subtle text-primary mb-2" style="font-size: 0.6rem;">${m.category}</span>
+                            <h6 class="fw-bold mb-1">${m.title}</h6>
+                            <p class="text-muted mb-3" style="font-size: 0.75rem;">Subjek: <b>${m.course}</b></p>
+                            <a href="${m.content}" target="_blank" class="btn btn-sm btn-primary w-100 rounded-pill py-2">Buka Nota</a>
+                        </div>`;
+                });
+            }
+        }
+    }
+
+    window.openPsiko = async () => {
+        const questions = [
+            { q: "Adakah anda merasa tertekan dengan jumlah tugasan/projek sekarang?", weight: 2 },
+            { q: "Adakah anda merasa sukar untuk tidur kerana memikirkan pelajaran?", weight: 2 },
+            { q: "Adakah anda merasa hilang minat atau motivasi dalam subjek yang diambil?", weight: 2 },
+            { q: "Adakah anda merasa bimbang akan gagal dalam peperiksaan akan datang?", weight: 2 },
+            { q: "Adakah anda merasa tiada tempat untuk mengadu masalah akademik anda?", weight: 2 }
+        ];
+
+        let totalScore = 0;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const { value: answer } = await Swal.fire({
+                title: `Soalan ${i + 1}/5`,
+                text: questions[i].q,
+                icon: 'question',
+                input: 'radio',
+                inputOptions: {
+                    '0': 'Tidak Pernah',
+                    '1': 'Jarang-jarang',
+                    '2': 'Kerap',
+                    '3': 'Sangat Kerap'
+                },
+                inputValidator: (value) => {
+                    if (!value) return 'Sila pilih satu jawapan!';
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#4361ee'
+            });
+
+            if (answer) {
+                totalScore += parseInt(answer);
+            } else {
+                return;
+            }
+        }
+
+        const analysis = analyzeStressWithAI(totalScore);
+
+        Swal.fire({ 
+            title: 'Menilai Keputusan...', 
+            didOpen: () => Swal.showLoading() 
+        });
+
+        try {
+            const assessmentData = {
+                studentID: activeID,
+                studentName: currentUserData.name,
+                score: totalScore,
+                riskLevel: analysis.level,
+                aiAdvice: analysis.advice,
+                timestamp: serverTimestamp(),
+                supervisorEmail: currentUserData.supervisorEmail || "tiada"
+            };
+
+            await setDoc(doc(db, "assessments", activeID), assessmentData);
+            await updateDoc(doc(db, "users", activeID), { 
+                psikoStatus: 'done',
+                stressLevel: analysis.level 
+            });
+
+            Swal.fire({
+                icon: analysis.icon,
+                title: `Analisis AI: ${analysis.level}`,
+                text: analysis.advice,
+                confirmButtonText: 'Faham'
+            }).then(() => location.reload());
+
+        } catch (e) {
+            Swal.fire('Ralat', 'Gagal memproses data.', 'error');
+        }
+    };
+
+    function analyzeStressWithAI(score) {
+        if (score >= 11) {
+            return {
+                level: 'CRITICAL',
+                icon: 'error',
+                advice: 'Tahap tekanan anda sangat tinggi (Skor: ' + score + '/15). Kami telah menghantar makluman kepada kaunselor untuk sesi bantuan segera.'
+            };
+        } else if (score >= 6) {
+            return {
+                level: 'MEDIUM',
+                icon: 'warning',
+                advice: 'Anda berada di tahap amaran (Skor: ' + score + '/15). Cuba uruskan masa dengan lebih baik atau berbincang dengan rakan sekuliah.'
+            };
+        } else {
+            return {
+                level: 'NORMAL',
+                icon: 'success',
+                advice: 'Tahap kesejahteraan anda baik (Skor: ' + score + '/15). Teruskan fokus dan kekalkan momentum positif ini!'
+            };
+        }
+    }
+
+    window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
+    initDashboard();
+</script>
+</body>
+</html>        </div>
 
         <div class="col-lg-5">
             <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> Bahan & Nota</h5>
