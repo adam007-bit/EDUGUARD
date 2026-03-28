@@ -250,32 +250,63 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let activeStudent = null;
+window.verifyStudent = async function() {
+    const idInput = document.getElementById('verifyID').value.trim();
+    if(!idInput) return Swal.fire('Info', 'Sila masukkan ID Pelajar!', 'info');
 
-    window.verifyStudent = async function() {
-        const id = document.getElementById('verifyID').value.trim();
-        if(!id) return Swal.fire('Info', 'Sila masukkan ID Pelajar!', 'info');
+    Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
 
-        Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
+    try {
+        // SEMAK DALAM KOLEKSI "users" (Sebab di sini data pendaftaran asal disimpan)
+        // Kita cari dokumen di mana field "role" adalah "student" DAN (ini bergantung pada cara anda simpan ID)
+        // Jika anda simpan ID dalam field 'email' atau 'name', sesuaikan query di bawah:
+        
+        const q = query(collection(db, "users"), where("role", "==", "student"));
+        const snap = await getDocs(q);
+        
+        let foundUser = null;
+        
+        // Cari user yang mempunyai ID yang sepadan (Sama ada guna Email atau Custom ID)
+        snap.forEach(doc => {
+            const data = doc.data();
+            // Jika anda menggunakan Email sebagai ID untuk login pelajar
+            if(data.email === idInput || data.name.includes(idInput)) {
+                foundUser = {
+                    uid: doc.id,
+                    studentID: idInput, // Simpan ID yang dimasukkan
+                    studentName: data.name,
+                    email: data.email
+                };
+            }
+        });
 
-        try {
-            const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
-            const snap = await getDocs(q);
-            if(snap.empty) return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai!', 'error');
+        if(!foundUser) {
+            return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai atau anda bukan berdaftar sebagai Pelajar!', 'error');
+        }
 
-            activeStudent = snap.docs[0].data();
-            Swal.close();
-            
-            document.getElementById('verifySection').classList.add('d-none');
-            document.getElementById('mainPortal').classList.remove('d-none');
-            
-            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
-            document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
+        // Set data pelajar yang aktif
+        activeStudent = foundUser;
+        
+        Swal.close();
+        
+        // Paparkan Portal
+        document.getElementById('verifySection').classList.add('d-none');
+        document.getElementById('mainPortal').classList.remove('d-none');
+        
+        // Kemaskini Paparan Header
+        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+        
+        // Ambil data tambahan (Result & Materials)
+        loadResults(activeStudent.studentID); 
+        loadAutoMaterials(activeStudent.studentID); 
+        fetchSVList();
 
-            loadResults(id); loadAutoMaterials(id); fetchSVList();
-        } catch (e) { Swal.fire('Ralat', 'Gangguan rangkaian!', 'error'); }
+    } catch (e) { 
+        console.error(e);
+        Swal.fire('Ralat', 'Gangguan rangkaian atau ralat database!', 'error'); 
     }
-
+}
     async function loadResults(id) {
         const list = document.getElementById('resultsList');
         const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
