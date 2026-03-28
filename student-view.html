@@ -2,109 +2,249 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content=device-width, initial-scale=1.0">
-    <title>Dashboard Supervisor | EduGuard AI</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGuard AI | Portal Pelajar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
-        body {
-            background: linear-gradient(135deg, #dbeafe, #e0f2fe);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        :root {
+            --primary-neon: #4361ee;
+            --accent-neon: #4cc9f0;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
         }
 
-        .dash-card {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-
-        .alert-high {
-            background:#fee2e2 !important;
-            color: #b91c1c !important;
-            font-weight:700;
+        body { 
+            background: var(--bg-gradient); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            min-height: 100vh;
+            color: #1e293b;
         }
 
         .navbar {
-            background: rgba(255,255,255,0.75);
             backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Verification Screen - Simplified */
+        #verifySection { height: 100vh; display: flex; align-items: center; }
+        
+        .verify-card {
+            max-width: 450px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            padding: 50px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        .verify-input {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            text-align: center;
+            letter-spacing: 2px;
+            border-radius: 16px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            transition: 0.3s;
+        }
+
+        .verify-input:focus {
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            background: #fff;
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.3);
+            color: white;
+        }
+
+        /* Student Header */
+        .student-header { 
+            background: linear-gradient(135deg, #1e293b, #334155); 
+            color: white; 
+            padding: 110px 0 70px 0; 
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header-info {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            gap: 15px;
+        }
+
+        /* Portal Cards */
+        .portal-card { 
+            border: none; 
+            border-radius: 24px; 
+            padding: 25px; 
+            background: white; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02); 
+            transition: 0.3s; 
+            border: 1px solid #f1f5f9;
+        }
+
+        .portal-card:hover { transform: translateY(-5px); }
+
+        .grade-circle { 
+            width: 55px; height: 55px; border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; font-size: 1.2rem;
+        }
+
+        .bg-grade-a { background: #dcfce7; color: #166534; }
+        .bg-grade-g { background: #fee2e2; color: #991b1b; }
+
+        /* Navigation */
+        .nav-pills {
+            background: #fff;
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        .nav-pills .nav-link { 
+            border-radius: 15px; font-weight: 700; color: #64748b; 
+            padding: 12px 20px; font-size: 0.9rem;
+        }
+
+        .nav-pills .nav-link.active { 
+            background: var(--primary-neon); color: white; 
+        }
+
+        .badge-val { 
+            background: var(--primary-neon); color: white; 
+            padding: 3px 10px; border-radius: 8px; font-family: 'JetBrains Mono';
         }
     </style>
 </head>
-
 <body>
 
-<nav class="navbar px-4 py-3 shadow-sm mb-4">
-    <h4 class="m-0 fw-bold text-primary">
-        <i class="bi bi-speedometer2 me-2"></i> Dashboard Supervisor
-    </h4>
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">
+            <i class="bi bi-shield-check-fill me-2"></i>EduGuard <span class="text-warning">AI</span>
+        </a>
+    </div>
 </nav>
 
-<div class="container">
-
-    <!-- Statistik -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="dash-card">
-                <h6 class="text-muted">Jumlah Pelajar</h6>
-                <h2 id="countStudents" class="fw-bold">0</h2>
+<div id="verifySection" class="container">
+    <div class="row justify-content-center w-100 mx-0">
+        <div class="verify-card text-center">
+            <h3 class="fw-bold mb-2">Portal Pelajar</h3>
+            <p class="text-muted small mb-4">Sila masukkan ID anda untuk mengakses sistem.</p>
+            
+            <div class="mb-4 text-start">
+                <label class="form-label small fw-bold text-secondary px-1">ID PELAJAR</label>
+                <input type="text" id="verifyID" class="form-control verify-input" placeholder="CONTOH: ST123">
             </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="dash-card">
-                <h6 class="text-muted">Stress Tinggi (4–5)</h6>
-                <h2 id="countHighStress" class="fw-bold text-danger">0</h2>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="dash-card">
-                <h6 class="text-muted">Beban Kerja Tinggi (4–5)</h6>
-                <h2 id="countHighLoad" class="fw-bold text-warning">0</h2>
-            </div>
+            
+            <button class="btn btn-verify w-100" onclick="verifyStudent()">
+                LOG MASUK SISTEM <i class="bi bi-box-arrow-in-right ms-2"></i>
+            </button>
         </div>
     </div>
-
-    <!-- Graph -->
-    <div class="dash-card mb-4">
-        <h5 class="fw-bold mb-3">Graf Purata Kesejahteraan Pelajar</h5>
-        <canvas id="wellnessChart" height="100"></canvas>
-    </div>
-
-    <!-- Table Real-time -->
-    <div class="dash-card">
-        <h5 class="fw-bold mb-3">Laporan Real-Time</h5>
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nama</th>
-                    <th>ID</th>
-                    <th>Stress</th>
-                    <th>Beban</th>
-                    <th>Masa</th>
-                </tr>
-            </thead>
-            <tbody id="assessmentTableBody"></tbody>
-        </table>
-    </div>
-
 </div>
 
-<audio id="notifAudio">
-    <source src="https://notificationsounds.com/storage/sounds/file-sounds-1231-pristine.mp3" type="audio/mp3">
-</audio>
+<div id="mainPortal" class="d-none">
+    <div class="student-header text-center">
+        <div class="container">
+            <h1 class="fw-bold mb-3"><span id="userDisplayName">-</span></h1>
+            <div class="header-info">
+                <span><i class="bi bi-hash me-1"></i> <span id="userDisplayID">ID</span></span>
+                <span><i class="bi bi-person-badge me-1"></i> <span id="userDisplaySV">SV</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center mb-5">
+            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-results">Keputusan</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-materials">Bahan</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-register">Daftar</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-assessment">Status</button></li>
+            </ul>
+        </div>
+
+        <div class="tab-content pb-5">
+            <div class="tab-pane fade show active" id="content-results">
+                <div class="row justify-content-center">
+                    <div class="col-md-8" id="resultsList"></div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-materials">
+                <div class="row justify-content-center"><div class="col-md-8" id="materialsDisplay"></div></div>
+            </div>
+
+            <div class="tab-pane fade" id="content-register">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="portal-card">
+                            <h5 class="fw-bold mb-4">Pendaftaran Kursus Baru</h5>
+                            <div class="mb-3"><label class="form-label small fw-bold">DOMAIN</label><select id="newCourse" class="form-select"><option value="Software Engineering">Software Engineering</option><option value="IoT Systems">IoT Systems</option><option value="Data Analytics">Data Analytics</option></select></div>
+                            <div class="mb-3"><label class="form-label small fw-bold">SEMESTER</label><select id="newSemester" class="form-select"><option value="Semester 1">Semester 1</option><option value="Semester 2">Semester 2</option></select></div>
+                            <div class="mb-4"><label class="form-label small fw-bold">PENYELIA</label><select id="newSupervisor" class="form-select"><option value="">Memuatkan...</option></select></div>
+                            <button class="btn btn-primary w-100 py-3 fw-bold rounded-3" onclick="registerNewCourse()">DAFTAR SEKARANG</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-assessment">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="portal-card">
+                            <h5 class="fw-bold mb-4">Analisis Kesejahteraan</h5>
+                            <div class="mb-4"><div class="d-flex justify-content-between mb-2"><label class="small fw-bold">STRESS</label><span id="stressVal" class="badge-val">3</span></div><input type="range" class="form-range" min="1" max="5" id="stress" value="3" oninput="document.getElementById('stressVal').innerText=this.value"></div>
+                            <div class="mb-4"><div class="d-flex justify-content-between mb-2"><label class="small fw-bold">BEBAN KERJA</label><span id="loadVal" class="badge-val">3</span></div><input type="range" class="form-range" min="1" max="5" id="load" value="3" oninput="document.getElementById('loadVal').innerText=this.value"></div>
+                            <button class="btn btn-dark w-100 py-3 fw-bold rounded-3" onclick="submitAssessment()">HANTAR STATUS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="announcementModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius: 20px;">
+            <div class="modal-header bg-warning border-0 p-3"><h6 class="modal-title fw-bold">Peringatan Penting</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-4" id="modalAlertContent"></div>
+        </div>
+    </div>
+</div>
 
 <script type="module">
-    // FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { 
-        getFirestore, collection, query, where, orderBy, onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -117,95 +257,116 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    let activeStudent = null;
 
-    // Supervisor login (auto set dulu)
-    let supervisorEmail = "sv@example.com";
-    sessionStorage.setItem("svEmail", supervisorEmail);
+    window.verifyStudent = async function() {
+        const id = document.getElementById('verifyID').value.trim();
+        if(!id) return alert("Sila masukkan ID!");
 
-    // UI elements
-    const tableBody = document.getElementById("assessmentTableBody");
-    const audioNotif = document.getElementById("notifAudio");
+        try {
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+            const snap = await getDocs(q);
+            if(snap.empty) return alert("ID tidak sah!");
 
-    const countStudents = document.getElementById("countStudents");
-    const countHighStress = document.getElementById("countHighStress");
-    const countHighLoad = document.getElementById("countHighLoad");
+            activeStudent = snap.docs[0].data();
+            document.getElementById('verifySection').classList.add('d-none');
+            document.getElementById('mainPortal').classList.remove('d-none');
+            
+            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+            document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
 
-    // Chart Setup
-    const ctx = document.getElementById("wellnessChart");
-    const wellnessChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: "Stress",
-                data: [],
-                borderWidth: 3
-            },{
-                label: "Beban Kerja",
-                data: [],
-                borderWidth: 3
-            }]
-        }
-    });
+            loadResults(id); loadAutoMaterials(id); fetchSVList();
+        } catch (e) { console.error(e); }
+    }
 
-    // REAL-TIME LISTENER
-    let firstLoad = true;
-    const q = query(
-        collection(db, "assessments"),
-        where("supervisorEmail", "==", supervisorEmail),
-        orderBy("timestamp", "desc")
-    );
-
-    onSnapshot(q, (snapshot) => {
-
-        // Play sound when NEW DATA arrives
-        if (!firstLoad) audioNotif.play();
-        firstLoad = false;
-
-        tableBody.innerHTML = "";
-
-        let stressHigh = 0;
-        let loadHigh = 0;
-        let studentSet = new Set();
-
-        let stressAvgArray = [];
-        let loadAvgArray = [];
-        let labelsArray = [];
-
-        snapshot.forEach((doc) => {
-            const d = doc.data();
-
-            studentSet.add(d.studentID);
-
-            if (d.stress >= 4) stressHigh++;
-            if (d.load >= 4) loadHigh++;
-
-            stressAvgArray.push(d.stress);
-            loadAvgArray.push(d.load);
-            labelsArray.push(d.timestamp.toDate().toLocaleTimeString());
-
-            tableBody.innerHTML += `
-                <tr class="${d.stress >= 4 ? 'alert-high' : ''}">
-                    <td>${d.studentName}</td>
-                    <td>${d.studentID}</td>
-                    <td>${d.stress}</td>
-                    <td>${d.load}</td>
-                    <td>${d.timestamp.toDate().toLocaleString()}</td>
-                </tr>
-            `;
+    async function loadResults(id) {
+        const list = document.getElementById('resultsList');
+        const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+        const snap = await getDocs(q);
+        list.innerHTML = "";
+        snap.forEach(doc => {
+            const data = doc.data();
+            let gradeClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'G' ? 'bg-grade-g' : 'bg-light');
+            list.innerHTML += `
+                <div class="portal-card mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <p class="small text-muted mb-0">${data.semester} | Quiz: ${data.quiz}%</p>
+                    </div>
+                    <div class="grade-circle ${gradeClass}">${data.grade || '-'}</div>
+                </div>`;
         });
+    }
 
-        countStudents.innerText = studentSet.size;
-        countHighStress.innerText = stressHigh;
-        countHighLoad.innerText = loadHigh;
+    async function loadAutoMaterials(studentID) {
+        const display = document.getElementById('materialsDisplay');
+        const qReg = query(collection(db, "course_registrations"), where("studentID", "==", studentID));
+        const snapReg = await getDocs(qReg);
+        let registeredCourses = snapReg.docs.map(doc => doc.data().course);
 
-        // Update chart
-        wellnessChart.data.labels = labelsArray.reverse();
-        wellnessChart.data.datasets[0].data = stressAvgArray.reverse();
-        wellnessChart.data.datasets[1].data = loadAvgArray.reverse();
-        wellnessChart.update();
-    });
+        const snapMat = await getDocs(collection(db, "materials"));
+        display.innerHTML = "";
+        let alertHTML = "";
+
+        snapMat.forEach(doc => {
+            const m = doc.data();
+            if (registeredCourses.includes(m.course)) {
+                display.innerHTML += `
+                    <div class="portal-card mb-3 border-start border-4 ${m.category === 'Tarikh Penting' ? 'border-warning' : 'border-primary'}">
+                        <span class="badge ${m.category === 'Tarikh Penting' ? 'bg-warning text-dark' : 'bg-primary-subtle text-primary'} mb-2">${m.category}</span>
+                        <h6 class="fw-bold mb-1">${m.title}</h6>
+                        <p class="small text-muted mb-0">${m.content}</p>
+                    </div>`;
+                if (m.category === 'Tarikh Penting') {
+                    alertHTML += `<div class="p-2 mb-2 bg-light rounded small border-start border-warning border-3"><strong>${m.course}</strong>: ${m.title}</div>`;
+                }
+            }
+        });
+        if (alertHTML) {
+            document.getElementById('modalAlertContent').innerHTML = alertHTML;
+            new bootstrap.Modal(document.getElementById('announcementModal')).show();
+        }
+    }
+
+    async function fetchSVList() {
+        const svSelect = document.getElementById('newSupervisor');
+        const snap = await getDocs(query(collection(db, "users"), where("role", "==", "supervisor")));
+        svSelect.innerHTML = '<option value="">-- Pilih --</option>';
+        snap.forEach(doc => {
+            const sv = doc.data();
+            svSelect.innerHTML += `<option value="${sv.email}">${sv.name}</option>`;
+        });
+    }
+
+    window.registerNewCourse = async function() {
+        const course = document.getElementById('newCourse').value;
+        const svEmail = document.getElementById('newSupervisor').value;
+        const semester = document.getElementById('newSemester').value;
+        if(!svEmail) return alert("Pilih SV!");
+        const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
+        try {
+            await setDoc(doc(db, "course_registrations", regID), {
+                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
+                course: course, semester: semester, supervisorEmail: svEmail,
+                quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", status: "Normal", timestamp: serverTimestamp()
+            });
+            alert("Pendaftaran Berjaya!"); loadResults(activeStudent.studentID);
+        } catch (e) { alert("Gagal."); }
+    }
+
+    window.submitAssessment = async function() {
+        const s = parseInt(document.getElementById('stress').value);
+        const l = parseInt(document.getElementById('load').value);
+        try {
+            await addDoc(collection(db, "assessments"), {
+                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
+                supervisorEmail: activeStudent.supervisorEmail, stress: s, load: l, timestamp: serverTimestamp()
+            });
+            alert("Status Dihantar!");
+        } catch (e) { alert("Gagal."); }
+    }
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+</html>   
