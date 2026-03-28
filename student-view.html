@@ -139,7 +139,7 @@
                                 <div class="d-flex justify-content-between"><label>Beban Belajar</label><span id="loadVal" class="badge-val">3</span></div>
                                 <input type="range" class="form-range" min="1" max="5" id="load" value="3" oninput="document.getElementById('loadVal').innerText=this.value">
                             </div>
-                            <button class="btn btn-primary w-100 py-3 fw-bold" onclick="submitAssessment()">Hantar Penilaian</button>
+                            <button class="btn btn-primary w-100 py-3 fw-bold" onclick="submitAssessment()">Hantar Penilaian Tambahan</button>
                         </div>
                     </div>
                 </div>
@@ -222,7 +222,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="fw-bold mb-1">${data.course}</h6>
-                            <p class="small text-muted mb-0">Quiz: ${data.quiz}% | Test: ${data.test}%</p>
+                            <p class="small text-muted mb-0">Quiz: ${data.quiz || 0}% | Test: ${data.test || 0}%</p>
                         </div>
                         <div class="grade-circle ${gradeClass} shadow-sm">${data.grade || '-'}</div>
                     </div>
@@ -230,7 +230,7 @@
         });
     }
 
-    // --- 3. LOAD BAHAN (AUTO FILTER) ---
+    // --- 3. LOAD BAHAN ---
     async function loadAutoMaterials(studentID) {
         const display = document.getElementById('materialsDisplay');
         display.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-primary spinner-border-sm"></div></div>';
@@ -280,7 +280,7 @@
         } catch (e) { console.error(e); }
     }
 
-    // --- 4. LAIN-LAIN FUNGSI (SV & DAFTAR) ---
+    // --- 4. DAFTAR KURSUS (HANTAR TERUS KE SV) ---
     async function fetchSVList() {
         const svSelect = document.getElementById('newSupervisor');
         const snap = await getDocs(query(collection(db, "users"), where("role", "==", "supervisor")));
@@ -294,28 +294,62 @@
     window.registerNewCourse = async function() {
         const course = document.getElementById('newCourse').value;
         const svEmail = document.getElementById('newSupervisor').value;
+        const semester = document.getElementById('newSemester').value;
+
         if(!svEmail) return alert("Pilih SV!");
+
         const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
+
         try {
+            // 1. Simpan Pendaftaran
             await setDoc(doc(db, "course_registrations", regID), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                course: course, supervisorEmail: svEmail, grade: "-", status: "Normal", timestamp: serverTimestamp()
+                studentID: activeStudent.studentID,
+                studentName: activeStudent.studentName,
+                course: course,
+                semester: semester,
+                supervisorEmail: svEmail,
+                quiz: 0, test: 0, midterm: 0, totalMark: 0,
+                grade: "-",
+                status: "Normal",
+                timestamp: serverTimestamp()
             });
-            alert("Berjaya!");
+
+            // 2. AUTO-HANTAR KE SV (Tanpa isi borang)
+            await addDoc(collection(db, "assessments"), {
+                studentID: activeStudent.studentID,
+                studentName: activeStudent.studentName,
+                supervisorEmail: svEmail,
+                course: course,
+                stress: 1, 
+                load: 1,  
+                risk: "LOW", 
+                timestamp: serverTimestamp()
+            });
+
+            alert(`✅ Berjaya! Nama anda kini tersenarai di Dashboard SV: ${svEmail}`);
             loadResults(activeStudent.studentID);
             loadAutoMaterials(activeStudent.studentID);
-        } catch (e) { alert("Ralat."); }
+            
+            const tabTrigger = new bootstrap.Tab(document.querySelector('button[data-bs-target="#content-results"]'));
+            tabTrigger.show();
+
+        } catch (e) { alert("Ralat pendaftaran."); }
     }
 
+    // --- 5. HANTAR PENILAIAN MANUAL (JIKA PERLU) ---
     window.submitAssessment = async function() {
         const s = parseInt(document.getElementById('stress').value);
         const l = parseInt(document.getElementById('load').value);
         try {
             await addDoc(collection(db, "assessments"), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                supervisorEmail: activeStudent.supervisorEmail, stress: s, load: l, timestamp: serverTimestamp()
+                studentID: activeStudent.studentID,
+                studentName: activeStudent.studentName,
+                supervisorEmail: activeStudent.supervisorEmail,
+                stress: s,
+                load: l,
+                timestamp: serverTimestamp()
             });
-            alert("Hantar!");
+            alert("Penilaian tambahan dihantar!");
         } catch (e) { alert("Gagal."); }
     }
 </script>
