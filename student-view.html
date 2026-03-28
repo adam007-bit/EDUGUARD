@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         :root {
             --primary-neon: #4361ee;
@@ -30,7 +32,6 @@
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
-        /* Verification Screen */
         #verifySection { height: 100vh; display: flex; align-items: center; }
         .verify-card {
             max-width: 450px; width: 100%;
@@ -45,7 +46,6 @@
             border-radius: 16px; padding: 15px; border: 2px solid #e2e8f0;
         }
 
-        /* Student Header */
         .student-header { 
             background: linear-gradient(135deg, #1e293b, #334155); 
             color: white; padding: 110px 0 70px 0; 
@@ -57,12 +57,14 @@
             padding: 8px 20px; border-radius: 12px; font-size: 0.85rem;
         }
 
-        /* Portal Cards */
         .portal-card { 
             border: none; border-radius: 24px; padding: 25px; 
             background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.02); 
             margin-bottom: 20px; border: 1px solid #f1f5f9;
+            transition: transform 0.2s;
         }
+        
+        .portal-card:hover { transform: translateY(-5px); }
 
         .grade-circle { 
             width: 55px; height: 55px; border-radius: 16px; 
@@ -73,14 +75,12 @@
         .bg-grade-a { background: #dcfce7; color: #166534; }
         .bg-grade-g { background: #fee2e2; color: #991b1b; }
 
-        /* Navigation Pills */
-        .nav-pills { background: #fff; padding: 8px; border-radius: 20px; }
-        .nav-pills .nav-link { border-radius: 15px; font-weight: 700; color: #64748b; }
+        .nav-pills { background: #fff; padding: 8px; border-radius: 20px; display: inline-flex; }
+        .nav-pills .nav-link { border-radius: 15px; font-weight: 700; color: #64748b; padding: 10px 20px; }
         .nav-pills .nav-link.active { background: var(--primary-neon); color: white; }
 
-        /* Assessment Styling */
         .q-box { border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
-        .form-check-label { font-size: 0.8rem; cursor: pointer; }
+        .form-check-label { font-size: 0.85rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -95,11 +95,11 @@
 
 <div id="verifySection" class="container">
     <div class="row justify-content-center w-100 mx-0">
-        <div class="verify-card text-center">
+        <div class="verify-card text-center animate__animated animate__fadeIn">
             <h3 class="fw-bold mb-2">Portal Pelajar</h3>
-            <p class="text-muted small mb-4">Sila masukkan ID untuk akses.</p>
-            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="CONTOH: ST123">
-            <button class="btn btn-primary w-100 py-3 fw-bold rounded-4" onclick="verifyStudent()">
+            <p class="text-muted small mb-4">Sila masukkan ID anda untuk akses sistem.</p>
+            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="ST123">
+            <button class="btn btn-primary w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="verifyStudent()">
                 LOG MASUK <i class="bi bi-box-arrow-in-right ms-2"></i>
             </button>
         </div>
@@ -110,7 +110,7 @@
     <div class="student-header text-center">
         <div class="container">
             <h1 class="fw-bold mb-3"><span id="userDisplayName">-</span></h1>
-            <div class="header-info">
+            <div class="header-info d-inline-block">
                 <span><i class="bi bi-hash me-1"></i> <span id="userDisplayID">ID</span></span>
                 <span class="ms-3"><i class="bi bi-person-badge me-1"></i> <span id="userDisplaySV">SV</span></span>
             </div>
@@ -118,7 +118,7 @@
     </div>
 
     <div class="container mt-4">
-        <div class="d-flex justify-content-center mb-5">
+        <div class="text-center mb-5">
             <ul class="nav nav-pills shadow-sm" id="pills-tab">
                 <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-results">Keputusan</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-materials">Bahan</button></li>
@@ -140,14 +140,25 @@
                 <div class="row justify-content-center">
                     <div class="col-md-7">
                         <div class="portal-card">
-                            <h5 class="fw-bold mb-4">Daftar Kursus</h5>
-                            <div class="mb-3"><label class="small fw-bold">DOMAIN</label>
-                                <select id="newCourse" class="form-select">
-                                    <option>Software Engineering</option><option>IoT Systems</option><option>Data Analytics</option>
+                            <h5 class="fw-bold mb-4"><i class="bi bi-plus-circle me-2 text-primary"></i>Daftar Kursus Baru</h5>
+                            <div class="mb-3">
+                                <label class="small fw-bold text-muted mb-2">PILIH SUBJEK</label>
+                                <select id="newCourse" class="form-select py-3 rounded-3">
+                                    <option value="Software Engineering">Software Engineering</option>
+                                    <option value="IoT Systems">IoT Systems</option>
+                                    <option value="Data Analytics">Data Analytics</option>
+                                    <option value="AI Solutions">AI Solutions</option>
                                 </select>
                             </div>
-                            <div class="mb-3"><label class="small fw-bold">PENYELIA</label><select id="newSupervisor" class="form-select"><option value="">Memuatkan...</option></select></div>
-                            <button class="btn btn-primary w-100 py-3 fw-bold rounded-3" onclick="registerNewCourse()">DAFTAR SEKARANG</button>
+                            <div class="mb-4">
+                                <label class="small fw-bold text-muted mb-2">PILIH PENYELIA (SV)</label>
+                                <select id="newSupervisor" class="form-select py-3 rounded-3">
+                                    <option value="">Memuatkan SV...</option>
+                                </select>
+                            </div>
+                            <button id="btnReg" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow" onclick="registerNewCourse()">
+                                SAHKAN PENDAFTARAN
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -157,12 +168,12 @@
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <div class="portal-card">
-                            <h5 class="fw-bold text-center">Penilaian Kesejahteraan Diri</h5>
-                            <p class="text-muted text-center small mb-4">Maklumat ini sulit dan dihantar terus kepada Penyelia anda.</p>
+                            <h5 class="fw-bold text-center">Ujian Kesejahteraan Minda (DASS-Lite)</h5>
+                            <p class="text-muted text-center small mb-4">Sila jawab dengan jujur untuk membantu SV memantau kesejahteraan anda.</p>
                             
                             <form id="assessmentForm">
                                 <div class="q-box">
-                                    <label class="fw-bold small mb-2 text-primary">1. Berapa kerap anda rasa tidak mampu mengawal perkara penting dalam hidup?</label>
+                                    <label class="fw-bold small mb-3 text-primary">1. Berapa kerap anda rasa tidak mampu mengawal perkara penting dalam hidup?</label>
                                     <div class="d-flex justify-content-between mt-2">
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="0" required><label class="form-check-label">Tiada</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="1"><label class="form-check-label">Jarang</label></div>
@@ -172,7 +183,7 @@
                                 </div>
 
                                 <div class="q-box">
-                                    <label class="fw-bold small mb-2 text-primary">2. Adakah anda merasa tertekan dengan tugasan akademik (assignment/projek)?</label>
+                                    <label class="fw-bold small mb-3 text-primary">2. Adakah anda merasa tertekan dengan tugasan akademik (projek/exam)?</label>
                                     <div class="d-flex justify-content-between mt-2">
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="0" required><label class="form-check-label">Tiada</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="1"><label class="form-check-label">Jarang</label></div>
@@ -182,17 +193,17 @@
                                 </div>
 
                                 <div class="q-box">
-                                    <label class="fw-bold small mb-2 text-primary">3. Adakah anda hilang minat untuk bergaul atau melakukan hobi?</label>
+                                    <label class="fw-bold small mb-3 text-primary">3. Adakah anda hilang minat untuk bergaul atau melakukan hobi?</label>
                                     <div class="d-flex justify-content-between mt-2">
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="0" required><label class="form-check-label">Tidak</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="1"><label class="form-check-label">Sedikit</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="2"><label class="form-check-label">Banyak</label></div>
-                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="3"><label class="form-check-label">Hampir Selalu</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="3"><label class="form-check-label">Sangat Banyak</label></div>
                                     </div>
                                 </div>
 
                                 <div class="q-box">
-                                    <label class="fw-bold small mb-2 text-primary">4. Adakah anda mengalami gangguan tidur (susah tidur/tidur berlebihan)?</label>
+                                    <label class="fw-bold small mb-3 text-primary">4. Adakah anda mengalami gangguan tidur (insomnia/berlebihan)?</label>
                                     <div class="d-flex justify-content-between mt-2">
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="0" required><label class="form-check-label">Tiada</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="1"><label class="form-check-label">1-2 Hari</label></div>
@@ -202,7 +213,7 @@
                                 </div>
 
                                 <div class="q-box border-0">
-                                    <label class="fw-bold small mb-2 text-primary">5. Adakah anda rasa bimbang/gelisah tentang masa depan anda?</label>
+                                    <label class="fw-bold small mb-3 text-primary">5. Adakah anda rasa bimbang tentang masa depan anda secara melampau?</label>
                                     <div class="d-flex justify-content-between mt-2">
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="0" required><label class="form-check-label">Tiada</label></div>
                                         <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="1"><label class="form-check-label">Jarang</label></div>
@@ -225,7 +236,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, getDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -242,21 +253,27 @@
 
     window.verifyStudent = async function() {
         const id = document.getElementById('verifyID').value.trim();
-        if(!id) return alert("Sila masukkan ID!");
+        if(!id) return Swal.fire('Info', 'Sila masukkan ID Pelajar!', 'info');
 
-        const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
-        const snap = await getDocs(q);
-        if(snap.empty) return alert("ID tidak sah!");
+        Swal.fire({ title: 'Menyemak ID...', didOpen: () => Swal.showLoading() });
 
-        activeStudent = snap.docs[0].data();
-        document.getElementById('verifySection').classList.add('d-none');
-        document.getElementById('mainPortal').classList.remove('d-none');
-        
-        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
-        document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
+        try {
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+            const snap = await getDocs(q);
+            if(snap.empty) return Swal.fire('Ralat', 'ID Pelajar tidak dijumpai!', 'error');
 
-        loadResults(id); loadAutoMaterials(id); fetchSVList();
+            activeStudent = snap.docs[0].data();
+            Swal.close();
+            
+            document.getElementById('verifySection').classList.add('d-none');
+            document.getElementById('mainPortal').classList.remove('d-none');
+            
+            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+            document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
+
+            loadResults(id); loadAutoMaterials(id); fetchSVList();
+        } catch (e) { Swal.fire('Ralat', 'Gangguan rangkaian!', 'error'); }
     }
 
     async function loadResults(id) {
@@ -264,12 +281,21 @@
         const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
         const snap = await getDocs(q);
         list.innerHTML = "";
-        snap.forEach(doc => {
-            const data = doc.data();
-            let gClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'G' ? 'bg-grade-g' : 'bg-light');
+        
+        if(snap.empty) {
+            list.innerHTML = `<p class="text-center text-muted">Tiada subjek berdaftar.</p>`;
+            return;
+        }
+
+        snap.forEach(d => {
+            const data = d.data();
+            let gClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'GAGAL' ? 'bg-grade-g' : 'bg-light');
             list.innerHTML += `
                 <div class="portal-card d-flex justify-content-between align-items-center">
-                    <div><h6 class="fw-bold mb-1">${data.course}</h6><p class="small text-muted mb-0">Quiz: ${data.quiz}% | Markah: ${data.totalMark}%</p></div>
+                    <div>
+                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <p class="small text-muted mb-0">Quiz: ${data.quiz || 0}% | Markah: ${data.totalMark || 0}%</p>
+                    </div>
                     <div class="grade-circle ${gClass}">${data.grade || '-'}</div>
                 </div>`;
         });
@@ -279,20 +305,26 @@
         const display = document.getElementById('materialsDisplay');
         const qReg = query(collection(db, "course_registrations"), where("studentID", "==", studentID));
         const snapReg = await getDocs(qReg);
-        let regCourses = snapReg.docs.map(doc => doc.data().course);
+        let regCourses = snapReg.docs.map(d => d.data().course);
 
         const snapMat = await getDocs(collection(db, "materials"));
         display.innerHTML = "";
-        snapMat.forEach(doc => {
-            const m = doc.data();
+        let found = false;
+
+        snapMat.forEach(d => {
+            const m = d.data();
             if (regCourses.includes(m.course)) {
+                found = true;
                 display.innerHTML += `
                     <div class="portal-card border-start border-4 border-primary">
+                        <span class="badge bg-primary mb-2">${m.course}</span>
                         <h6 class="fw-bold mb-1">${m.title}</h6>
-                        <p class="small text-muted mb-0">${m.content}</p>
+                        <p class="small text-muted mb-2">${m.category || 'General'}</p>
+                        <div class="bg-light p-3 rounded-3 small text-dark">${m.content}</div>
                     </div>`;
             }
         });
+        if(!found) display.innerHTML = `<p class="text-center text-muted">Tiada bahan untuk subjek berdaftar anda.</p>`;
     }
 
     async function fetchSVList() {
@@ -302,22 +334,46 @@
         snap.forEach(doc => svSelect.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`);
     }
 
+    // LOGIK CEGAH DUPLICATE + SWEET ALERT
     window.registerNewCourse = async function() {
         const course = document.getElementById('newCourse').value;
         const svEmail = document.getElementById('newSupervisor').value;
-        if(!svEmail) return alert("Pilih SV!");
+        
+        if(!svEmail) return Swal.fire('Info', 'Sila pilih Penyelia (SV)!', 'info');
+
         const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
+        
+        Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() });
+
         try {
-            await setDoc(doc(db, "course_registrations", regID), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                course: course, semester: "Semester 1", supervisorEmail: svEmail,
-                quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", status: "Normal", timestamp: serverTimestamp()
+            // Semak jika dokumen sudah wujud (Duplicate check)
+            const docRef = doc(db, "course_registrations", regID);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return Swal.fire('Gagal', `Anda sudah pun berdaftar untuk subjek ${course}!`, 'warning');
+            }
+
+            // Jika belum ada, baru daftar
+            await setDoc(docRef, {
+                studentID: activeStudent.studentID, 
+                studentName: activeStudent.studentName,
+                course: course, 
+                semester: "Semester 1", 
+                supervisorEmail: svEmail,
+                quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", 
+                status: "Normal", 
+                timestamp: serverTimestamp()
             });
-            alert("Berjaya!"); loadResults(activeStudent.studentID);
-        } catch (e) { alert("Gagal."); }
+
+            Swal.fire('Berjaya!', `Subjek ${course} telah didaftarkan.`, 'success');
+            loadResults(activeStudent.studentID);
+            loadAutoMaterials(activeStudent.studentID);
+        } catch (e) { 
+            Swal.fire('Ralat', 'Gagal mendaftar subjek.', 'error'); 
+        }
     }
 
-    // NEW DIAGNOSTIC ASSESSMENT LOGIC
     window.submitAssessment = async function() {
         const form = document.getElementById('assessmentForm');
         const formData = new FormData(form);
@@ -328,24 +384,41 @@
             if (val !== null) { score += parseInt(val); answered++; }
         }
 
-        if (answered < 5) return alert("Sila jawab semua 5 soalan!");
+        if (answered < 5) return Swal.fire('Info', 'Sila jawab semua soalan!', 'info');
 
-        let risk = score >= 11 ? "HIGH" : (score >= 6 ? "MEDIUM" : "LOW");
+        let risk = score >= 11 ? "TINGGI" : (score >= 6 ? "SEDERHANA" : "RENDAH");
+        let color = score >= 11 ? "#d63031" : (score >= 6 ? "#fdcb6e" : "#00b894");
 
-        try {
-            await addDoc(collection(db, "assessments"), {
-                studentID: activeStudent.studentID,
-                studentName: activeStudent.studentName,
-                supervisorEmail: activeStudent.supervisorEmail,
-                stress: score, // Disimpan sebagai 'stress' untuk dashboard SV
-                risk: risk,
-                timestamp: serverTimestamp()
-            });
-            alert(`Berjaya! Tahap Risiko: ${risk}. Data telah dihantar ke SV.`);
-            form.reset();
-        } catch (e) { alert("Gagal hantar."); }
+        Swal.fire({
+            title: 'Hantar Penilaian?',
+            text: "Data ini akan dihantar kepada Penyelia anda.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hantar!'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await addDoc(collection(db, "assessments"), {
+                        studentID: activeStudent.studentID,
+                        studentName: activeStudent.studentName,
+                        supervisorEmail: activeStudent.supervisorEmail,
+                        stress: score,
+                        risk: risk,
+                        timestamp: serverTimestamp()
+                    });
+                    
+                    Swal.fire({
+                        title: 'Berjaya!',
+                        html: `Tahap Risiko Minda: <b style="color:${color}">${risk}</b>`,
+                        icon: 'success'
+                    });
+                    form.reset();
+                } catch (e) { Swal.fire('Ralat', 'Gagal hantar data.', 'error'); }
+            }
+        });
     }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
