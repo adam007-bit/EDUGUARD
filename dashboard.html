@@ -3,194 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Supervisor Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>EduGuard AI | Dashboard RPS</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        :root {
-            --primary-neon: #4361ee;
-            --accent-neon: #4cc9f0;
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --glass-card: rgba(255, 255, 255, 0.9);
+        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
+        .navbar-brand { color: #4361ee !important; font-weight: 700; font-size: 1.4rem; }
+        
+        .stat-card { 
+            border: none; border-radius: 16px; background: #ffffff; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; 
         }
-
-        body { 
-            background: var(--bg-gradient); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            min-height: 100vh;
-            color: #1e293b;
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        
+        .icon-box { 
+            width: 48px; height: 48px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; 
         }
-
-        /* Top Navigation */
-        .navbar {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding: 15px 0;
+        
+        .main-card { border: none; border-radius: 20px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        
+        .table thead th { 
+            background: #f8fafc; border-top: none; padding: 16px; 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; 
         }
-
-        /* SV Header Section */
-        .sv-header { 
-            background: linear-gradient(135deg, #1e293b, #334155); 
-            color: white; 
-            padding: 120px 0 60px 0; 
-            border-radius: 0 0 40px 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .sv-info-badge {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 6px 15px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Dashboard Cards */
-        .stat-card {
-            background: white;
-            border-radius: 24px;
-            padding: 25px;
-            border: none;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
-            transition: 0.3s;
-        }
-
-        .stat-card:hover { transform: translateY(-5px); }
-
-        .icon-box {
-            width: 50px; height: 50px;
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        /* Student Table/List */
-        .student-list-card {
-            background: var(--glass-card);
-            backdrop-filter: blur(10px);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            padding: 30px;
-            margin-top: 30px;
-        }
-
-        .table thead th {
-            background: #f8fafc;
-            border: none;
-            color: #64748b;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 15px;
-        }
-
-        .table tbody td {
-            padding: 20px 15px;
-            vertical-align: middle;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .status-pill {
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .btn-action {
-            width: 35px; height: 35px;
-            border-radius: 10px;
-            display: inline-flex; align-items: center; justify-content: center;
-            border: none; transition: 0.2s;
-        }
-
-        .btn-logout {
-            color: #ef4444;
-            font-weight: 600;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
+        .table tbody td { padding: 18px 16px; border-color: #f1f5f9; }
+        
+        /* Baris Kritikal (Risiko Tinggi + Gagal) */
+        .row-critical { background-color: #fff1f2 !important; }
+        
+        .btn-logout { border-radius: 10px; font-weight: 600; transition: 0.2s; }
+        .btn-export { border-radius: 10px; font-weight: 600; background: #4361ee; color: white; border: none; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top">
+<nav class="navbar navbar-expand-lg sticky-top mb-4 py-3">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="#">
-            <i class="bi bi-shield-check-fill me-2"></i>EduGuard <span class="text-warning">AI</span>
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-shield-lock-fill"></i> EduGuard <span style="color: #f59e0b;">AI</span>
         </a>
-        <a href="index.html" class="btn-logout"><i class="bi bi-box-arrow-right me-1"></i> Log Keluar</a>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted d-none d-md-block small" id="svEmailDisplay">Memuatkan...</span>
+            <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm btn-logout px-3">
+                <i class="bi bi-box-arrow-right"></i> Log Keluar
+            </button>
+        </div>
     </div>
 </nav>
 
-<div class="sv-header">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-2">Selamat Datang, <span id="svName">Penyelia</span></h2>
-        <div class="d-flex justify-content-center gap-3">
-            <span class="sv-info-badge"><i class="bi bi-envelope me-1"></i> <span id="svEmailDisplay">-</span></span>
-            <span class="sv-info-badge"><i class="bi bi-person-badge me-1"></i> ROLE: RPS</span>
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">Selamat Datang, <span id="rpsNameDisplay" class="text-primary">...</span></h4>
+            <p class="text-muted mb-0">Panel Pemantauan Rakan Pembimbing Siswa (RPS).</p>
         </div>
-    </div>
-</div>
-
-<div class="container mt-n4">
-    <div class="row g-4 mt-2">
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="icon-box bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div>
-                <h6 class="text-muted small fw-bold">JUMLAH PELAJAR</h6>
-                <h2 class="fw-bold mb-0" id="totalStudents">0</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="icon-box bg-warning-subtle text-warning"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                <h6 class="text-muted small fw-bold">RISIKO TINGGI</h6>
-                <h2 class="fw-bold mb-0" id="atRiskCount">0</h2>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="icon-box bg-success-subtle text-success"><i class="bi bi-journal-check"></i></div>
-                <h6 class="text-muted small fw-bold">PENILAIAN SELESAI</h6>
-                <h2 class="fw-bold mb-0" id="completeAssess">0</h2>
-            </div>
-        </div>
+        <button onclick="exportToCSV()" class="btn btn-export shadow-sm px-4 py-2">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export CSV
+        </button>
     </div>
 
-    <div class="student-list-card">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold mb-0">Senarai Pelajar di bawah RPS</h5>
-            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="refreshData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-primary-subtle text-primary me-3"><i class="bi bi-people"></i></div>
+                    <div>
+                        <h6 class="text-muted small fw-bold mb-0">JUMLAH PELAJAR</h6>
+                        <h3 id="totalCount" class="fw-bold mb-0">0</h3>
+                    </div>
+                </div>
+            </div>
         </div>
+        <div class="col-md-4">
+            <div class="card stat-card p-3 shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div>
+                        <h6 class="text-danger small fw-bold mb-0">RISIKO TINGGI</h6>
+                        <h3 id="highRiskCount" class="text-danger fw-bold mb-0">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card main-card overflow-hidden mb-4">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>Pelajar</th>
-                        <th>Kursus</th>
-                        <th>Semester</th>
-                        <th>Status AI</th>
-                        <th>Tindakan</th>
+                        <th class="ps-4">Profil Pelajar</th>
+                        <th>Kursus & Subjek</th>
+                        <th class="text-center">Stres (AI)</th>
+                        <th class="text-center">Status Risiko</th>
+                        <th class="text-center">Markah (%)</th>
+                        <th class="text-center">Gred Akademik</th>
+                        <th class="text-end pe-4">Tindakan</th>
                     </tr>
                 </thead>
-                <tbody id="studentTableBody">
-                    </tbody>
+                <tbody id="dashTable">
+                    <tr><td colspan="7" class="text-center p-5 text-muted">Mencari data dari sistem EduGuard...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card main-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill me-2"></i>Analisis Risiko Mental</h6>
+                <div style="height: 250px;"><canvas id="riskChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card main-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Taburan Gred Akademik</h6>
+                <div style="height: 250px;"><canvas id="gradeChart"></canvas></div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const firebaseConfig = {
+    const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
         authDomain: "eduguard-ai-2742b.firebaseapp.com",
         projectId: "eduguard-ai-2742b",
@@ -201,71 +147,144 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    // Ambil data SV dari Session/LocalStorage
-    const currentSVEmail = localStorage.getItem("currentSVEmail") || "tiada";
-    const currentSVName = localStorage.getItem("currentSVName") || "Penyelia";
+    let allData = [];
+    let riskChartInstance = null;
+    let gradeChartInstance = null;
+    let isInitialLoad = true;
 
-    document.getElementById('svName').innerText = currentSVName;
-    document.getElementById('svEmailDisplay').innerText = currentSVEmail;
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('svEmailDisplay').innerText = user.email;
+            fetchRPSName(user.email);
+            loadSupervisorDashboard(user.email);
+        } else {
+            window.location.href = "index.html";
+        }
+    });
 
-    async function loadStudents() {
-        const tbody = document.getElementById('studentTableBody');
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Memuatkan data pelajar...</td></tr>';
-
-        try {
-            const q = query(collection(db, "course_registrations"), where("supervisorEmail", "==", currentSVEmail));
-            const snap = await getDocs(q);
-            
-            tbody.innerHTML = "";
-            let count = 0;
-            let risk = 0;
-
-            snap.forEach(doc => {
-                const data = doc.data();
-                count++;
-                
-                // Logik warna status (AI Analysis)
-                let statusClass = "bg-success-subtle text-success";
-                let statusText = "Stabil";
-                
-                if(data.status === "At Risk") {
-                    statusClass = "bg-danger-subtle text-danger";
-                    statusText = "Berisiko";
-                    risk++;
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="fw-bold">${data.studentName}</div>
-                            <div class="small text-muted">${data.studentID}</div>
-                        </td>
-                        <td><span class="badge bg-light text-dark border">${data.course}</span></td>
-                        <td class="small fw-semibold">${data.semester}</td>
-                        <td><span class="status-pill ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <button class="btn-action bg-primary text-white" onclick="viewProfile('${data.studentID}')" title="Lihat Profil">
-                                <i class="bi bi-eye-fill"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('totalStudents').innerText = count;
-            document.getElementById('atRiskCount').innerText = risk;
-
-        } catch (e) {
-            console.error(e);
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuatkan data.</td></tr>';
+    async function fetchRPSName(email) {
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            document.getElementById('rpsNameDisplay').innerText = snap.docs[0].data().name || "RPS";
         }
     }
 
-    window.refreshData = loadStudents;
-    loadStudents();
-</script>
+    function loadSupervisorDashboard(svEmail) {
+        const qMarks = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
+        
+        onSnapshot(qMarks, (marksSnap) => {
+            const marksMap = new Map();
+            marksSnap.forEach(doc => marksMap.set(doc.data().studentID, doc.data()));
 
+            const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail), orderBy("timestamp", "desc"));
+            onSnapshot(qAssess, (assessSnap) => {
+                renderDashboard(assessSnap, marksMap);
+                isInitialLoad = false;
+            });
+        });
+    }
+
+    function renderDashboard(snap, marksMap) {
+        const tbody = document.getElementById('dashTable');
+        tbody.innerHTML = '';
+        allData = [];
+        let highRisk = 0;
+        let counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+        let grades = { A: 0, B: 0, C: 0, GAGAL: 0 };
+
+        if (snap.empty) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tiada rekod pelajar aktif.</td></tr>';
+            return;
+        }
+
+        snap.forEach(doc => {
+            const s = doc.data();
+            const academic = marksMap.get(s.studentID) || {};
+            allData.push({ ...s, ...academic });
+
+            if (s.risk === 'HIGH') {
+                highRisk++;
+                counts.HIGH++;
+            } else if (s.risk === 'MEDIUM') counts.MEDIUM++;
+            else counts.LOW++;
+
+            const g = (academic.grade || "").toUpperCase();
+            if (['A', 'B', 'C'].includes(g)) grades[g]++;
+            else if (g !== "") grades.GAGAL++;
+
+            // Highlight baris jika risiko tinggi & gagal
+            const isCritical = (s.risk === 'HIGH' && (g === 'F' || g === 'G' || g === 'GAGAL'));
+
+            tbody.innerHTML += `
+                <tr class="animate__animated animate__fadeIn ${isCritical ? 'row-critical' : ''}">
+                    <td class="ps-4">
+                        <div class="fw-bold">${s.studentName}</div>
+                        <small class="text-muted">${s.studentID}</small>
+                    </td>
+                    <td><span class="badge bg-light text-primary border">${s.course || academic.course || '-'}</span></td>
+                    <td class="text-center">${s.stress}/5</td>
+                    <td class="text-center">
+                        <span class="badge ${s.risk === 'HIGH' ? 'bg-danger' : (s.risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success')}">
+                            ${s.risk}
+                        </span>
+                    </td>
+                    <td class="text-center">${academic.totalMark || '0'}%</td>
+                    <td class="text-center fw-bold text-primary">${academic.grade || '-'}</td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Buka Profil: ${s.studentID}')"><i class="bi bi-eye"></i></button>
+                    </td>
+                </tr>`;
+        });
+
+        document.getElementById('totalCount').innerText = snap.size;
+        document.getElementById('highRiskCount').innerText = highRisk;
+        updateCharts(counts, grades);
+    }
+
+    function updateCharts(riskData, gradeData) {
+        const ctxRisk = document.getElementById('riskChart').getContext('2d');
+        const ctxGrade = document.getElementById('gradeChart').getContext('2d');
+
+        if (riskChartInstance) riskChartInstance.destroy();
+        if (gradeChartInstance) gradeChartInstance.destroy();
+
+        riskChartInstance = new Chart(ctxRisk, {
+            type: 'doughnut',
+            data: {
+                labels: ['High', 'Medium', 'Low'],
+                datasets: [{ data: [riskData.HIGH, riskData.MEDIUM, riskData.LOW], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        gradeChartInstance = new Chart(ctxGrade, {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C', 'Gagal'],
+                datasets: [{ label: 'Pelajar', data: [gradeData.A, gradeData.B, gradeData.C, gradeData.GAGAL], backgroundColor: '#4361ee', borderRadius: 8 }]
+            },
+            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+
+    window.exportToCSV = () => {
+        if (allData.length === 0) return;
+        let csv = "Nama,ID,Kursus,Stress,Risiko,Markah,Gred\n";
+        allData.forEach(r => csv += `"${r.studentName}","${r.studentID}","${r.course}",${r.stress},"${r.risk}","${r.totalMark}","${r.grade}"\n`);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `EduGuard_Report.csv`;
+        a.click();
+    };
+
+    window.handleLogout = () => {
+        if(confirm("Log keluar?")) signOut(auth).then(() => window.location.href = "index.html");
+    };
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
