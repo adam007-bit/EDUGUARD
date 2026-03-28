@@ -3,178 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Cyber Registration</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>EduGuard AI | Konfigurasi Profil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root {
-            --primary-neon: #4361ee; /* Tukar ke Royal Blue yang lebih terang */
-            --accent-neon: #4cc9f0;
-            --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Latar belakang cerah */
-            --card-bg: rgba(255, 255, 255, 0.85); /* Glassmorphism putih */
-            --input-bg: #ffffff;
-        }
-
-        body { 
-            background: var(--bg-gradient); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1e293b;
-            padding: 20px;
-        }
-
-        /* Card dengan kesan Glassmorphism yang lebih cerah */
-        .reg-card { 
-            max-width: 500px; 
-            width: 100%;
-            background: var(--card-bg); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 28px; 
-            padding: 40px; 
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-        }
-
-        .brand-logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--primary-neon);
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .form-label { 
-            font-weight: 700; 
-            color: #475569; 
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 8px;
-        }
-
-        .form-control, .form-select {
-            border-radius: 14px;
-            padding: 12px 16px;
-            border: 1px solid #cbd5e1;
-            background-color: var(--input-bg);
-            color: #1e293b;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: #fff;
-            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
-            border-color: var(--primary-neon);
-            transform: translateY(-1px);
-        }
-
-        /* ID Token dengan gaya Tech */
-        .form-control[readonly] {
-            background-color: #f1f5f9;
-            border-color: #e2e8f0;
-            color: var(--primary-neon);
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            cursor: not-allowed;
-        }
-
-        /* Butang Neon Blue */
-        .btn-tech { 
-            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
-            color: #fff;
-            border: none; 
-            border-radius: 14px; 
-            padding: 16px; 
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
-        }
-
-        .btn-tech:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.3);
-            color: #fff;
-        }
-
-        .text-muted-custom {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        /* Spinner color */
-        .spinner-border {
-            width: 1.2rem;
-            height: 1.2rem;
-        }
+        :root { --primary: #4361ee; --accent: #4cc9f0; }
+        body { background: #f0f4f8; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .reg-card { max-width: 450px; width: 100%; background: white; border-radius: 24px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .btn-tech { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; transition: 0.3s; }
+        .btn-tech:hover { transform: translateY(-2px); opacity: 0.9; }
+        .form-control, .form-select { border-radius: 10px; padding: 12px; border: 1px solid #cbd5e1; }
     </style>
 </head>
 <body>
 
-<div class="container d-flex justify-content-center">
-    <div class="reg-card">
-        <div class="brand-logo">
-            <i class="bi bi-shield-lock-fill"></i> EDUGUARD <span style="color: #f59e0b;">AI</span>
-        </div>
-        
-        <p class="text-center text-muted-custom mb-4 small">LENGKAPKAN KONFIGURASI PROFIL</p>
-
-        <form id="courseRegForm">
-            <div class="mb-3">
-                <label class="form-label">System Token ID</label>
-                <input type="text" id="displayID" class="form-control" readonly>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-12">
-                    <label class="form-label">Pengajian</label>
-                    <select id="course" class="form-select" required>
-                        <option value="">-- PILIH Subjek --</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                    </select>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label">Semester</label>
-                    <select id="semester" class="form-select" required>
-                        <option value="">-- PILIH Semester --</option>
-                        <option value="Semester 1">Semester 1</option>
-                        <option value="Semester 2">Semester 2</option>
-                        <option value="Semester 3">Semester 3</option>
-                    </select>
-                </div>
-
-                <div class="col-12">
-                    <label class="form-label">Penyelia (RPS)</label>
-                    <select id="supervisor" class="form-select" required>
-                        <option value="">Mengakses data...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mt-5">
-                <button type="submit" id="submitBtn" class="btn btn-tech w-100">
-                    AKTIFKAN PROFIL <i class="bi bi-arrow-right-circle ms-2"></i>
-                </button>
-            </div>
-            
-            <div class="text-center mt-3">
-                <small style="color: #cbd5e1; font-size: 0.65rem; letter-spacing: 2px;">SECURE INTERFACE v2.0</small>
-            </div>
-        </form>
+<div class="reg-card">
+    <div class="text-center mb-4">
+        <h4 class="fw-bold text-primary"><i class="bi bi-shield-lock-fill"></i> EDUGUARD AI</h4>
+        <p class="small text-muted text-uppercase letter-spacing-1">Lengkapkan Pendaftaran Kursus</p>
     </div>
+
+    <form id="courseRegForm">
+        <div class="mb-3">
+            <label class="small fw-bold text-secondary">ID PELAJAR</label>
+            <input type="text" id="displayID" class="form-control bg-light fw-bold" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label class="small fw-bold text-secondary">PROGRAM PENGAJIAN</label>
+            <select id="course" class="form-select" required>
+                <option value="">-- PILIH KURSUS --</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="IoT Systems">IoT Systems</option>
+                <option value="Data Analytics">Data Analytics</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="small fw-bold text-secondary">SEMESTER SEMASA</label>
+            <select id="semester" class="form-select" required>
+                <option value="Semester 1">Semester 1</option>
+                <option value="Semester 2">Semester 2</option>
+                <option value="Semester 3">Semester 3</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="small fw-bold text-secondary">PENYELIA (RPS)</label>
+            <select id="supervisor" class="form-select" required>
+                <option value="">Memuatkan senarai SV...</option>
+            </select>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-tech mt-3">
+            AKTIFKAN PROFIL <i class="bi bi-arrow-right-short ms-1"></i>
+        </button>
+    </form>
 </div>
 
 <script type="module">
@@ -193,13 +80,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const tempID = localStorage.getItem("tempStudentID");
-    const tempName = localStorage.getItem("tempStudentName");
+    const tempID = sessionStorage.getItem("tempRegID");
+    const tempName = sessionStorage.getItem("tempRegName");
 
-    if (!tempID) {
-        window.location.href = "index.html";
-    }
-
+    if (!tempID) window.location.href = "index.html";
     document.getElementById('displayID').value = tempID;
 
     async function fetchSupervisors() {
@@ -212,67 +96,44 @@
                 const sv = doc.data();
                 svSelect.innerHTML += `<option value="${sv.email}">${sv.name.toUpperCase()}</option>`;
             });
-        } catch (e) {
-            svSelect.innerHTML = '<option value="">ERROR LOADING DATA</option>';
-        }
+        } catch (e) { svSelect.innerHTML = '<option>Ralat data</option>'; }
     }
     fetchSupervisors();
 
     document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>UPLOADING...';
-
         const course = document.getElementById('course').value;
         const sem = document.getElementById('semester').value;
         const svEmail = document.getElementById('supervisor').value;
 
-        const regID = `${tempID}_${course.replace(/\s+/g, '')}_${sem.replace(/\s+/g, '')}`;
+        try {
+            // 1. Simpan rekod kursus (CREATE)
+            await setDoc(doc(db, "course_registrations", `${tempID}_ACTIVE`), {
+                studentID: tempID,
+                studentName: tempName,
+                course: course,
+                semester: sem,
+                supervisorEmail: svEmail,
+                totalMark: 0,
+                grade: "-",
+                status: "Pending",
+                timestamp: serverTimestamp()
+            });
 
-   // CARI BAHAGIAN INI DALAM KOD ANDA DAN GANTIKAN:
+            // 2. Kemaskini status user di Firebase (UPDATE)
+            await updateDoc(doc(db, "users", tempID), {
+                registrationStatus: "complete",
+                enrolledCourse: course
+            });
 
-try {
-    // Simpan pendaftaran kursus
-    await setDoc(doc(db, "course_registrations", regID), {
-        studentID: tempID,
-        studentName: tempName,
-        course: course,
-        semester: sem,
-        supervisorEmail: svEmail,
-        totalMark: 0,
-        grade: "-",
-        status: "Pending",
-        timestamp: serverTimestamp()
-    });
+            Swal.fire('Berjaya!', 'Akaun anda telah diaktifkan.', 'success')
+                .then(() => {
+                    sessionStorage.setItem("activeUser", tempID);
+                    window.location.href = "student-view.html";
+                });
 
-    // KEMASKINI DI SINI: Tukar 'students' kepada 'users'
-    // Kita guna tempID sebagai ID dokumen (pastikan semasa daftar user, ID dokumen = Student ID)
-    const userRef = doc(db, "users", tempID); 
-    
-    await updateDoc(userRef, {
-        registrationStatus: "complete",
-        enrolledCourse: course // Tambahan: simpan subjek terus dalam profil user
-    });
-
-    // Simpan dalam session supaya portal tahu pelajar sudah login
-    localStorage.setItem("currentStudentID", tempID);
-    localStorage.setItem("currentStudentName", tempName);
-    
-    // Clear temp data
-    localStorage.removeItem("tempStudentID");
-    localStorage.removeItem("tempStudentName");
-
-    window.location.href = "student-view.html";
-
-} catch (error) {
-    console.error("Ralat Detail:", error);
-    alert("Ralat: " + error.message);
-    submitBtn.disabled = false;
-    submitBtn.innerText = "AKTIFKAN PROFIL";
-}
+        } catch (error) { Swal.fire('Ralat', error.message, 'error'); }
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
