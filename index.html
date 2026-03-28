@@ -11,51 +11,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        body { 
-            background: #f0f2f5; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-        }
-
+        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
         .navbar { background: white !important; padding: 15px 0; }
-
-        .main-wrapper {
-            flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-
-        .auth-card { 
-            border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
-            overflow: hidden; background: white; width: 100%; max-width: 450px; 
-        }
-
-        .auth-header { 
-            background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; 
-            padding: 40px 30px; text-align: center; 
-        }
-
-        .role-selector .btn { 
-            border-radius: 12px; font-weight: 600; flex: 1; 
-            border: 1px solid #e2e8f0; color: #64748b;
-        }
-
-        .role-selector .btn.active { background: #4361ee; border-color: #4361ee; color: white; }
-
-        .form-control { 
-            border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc;
-        }
-
-        .btn-primary { 
-            border-radius: 12px; padding: 14px; font-weight: 700; 
-            background: #4361ee; border: none; transition: 0.3s;
-        }
-
-        .input-group-text { 
-            border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; 
-            border: 1px solid #e2e8f0; border-left: none;
-        }
-
+        .main-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); overflow: hidden; background: white; width: 100%; max-width: 450px; }
+        .auth-header { background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; padding: 40px 30px; text-align: center; }
+        .role-selector .btn { border-radius: 12px; font-weight: 600; flex: 1; border: 1px solid #e2e8f0; color: #64748b; }
+        .role-selector .btn.active { background: #4361ee !important; border-color: #4361ee !important; color: white !important; }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc; }
+        .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; transition: 0.3s; }
+        .input-group-text { border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; border-left: none; }
         .password-input { border-radius: 12px 0 0 12px !important; }
     </style>
 </head>
@@ -117,6 +82,7 @@
 </div>
 
 <script type="module">
+    // Import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
@@ -134,56 +100,67 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Variables for Mode & Role
+    // Global state
     window.isLoginMode = true;
     window.currentRole = 'supervisor';
 
-    // 1. Toggle Lihat Kata Laluan
-    document.getElementById('btnTogglePassword').addEventListener('click', () => {
-        const passInput = document.getElementById('password');
-        const eyeIcon = document.getElementById('eyeIcon');
-        const isText = passInput.type === 'text';
-        passInput.type = isText ? 'password' : 'text';
-        eyeIcon.classList.toggle('bi-eye');
-        eyeIcon.classList.toggle('bi-eye-slash');
-    });
+    // A. Fungsi Update UI (Tajuk, Butang, Fields)
+    window.updateUI = function() {
+        const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
+        
+        // Kemaskini Teks
+        document.getElementById('authTitle').innerText = (window.isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[window.currentRole];
+        document.getElementById('authBtn').innerText = window.isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
+        
+        // Tunjuk/Sorok Field Nama
+        document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
+        document.getElementById('fullName').required = !window.isLoginMode;
+        
+        // Kemaskini Link Toggle
+        document.getElementById('toggleText').innerText = window.isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
+        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? 'Daftar Sini' : 'Log Masuk';
+    };
 
-    // 2. Tukar Role (Fungsi Global)
+    // B. Fungsi Tukar Role
     window.switchRole = function(role) {
         window.currentRole = role;
         document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`btn-${role}`).classList.add('active');
-        updateUI();
+        window.updateUI();
     };
 
-    // 3. Tukar Antara Login & Daftar
-    document.getElementById('toggleAuthLink').addEventListener('click', () => {
-        window.isLoginMode = !window.isLoginMode;
-        updateUI();
+    // C. Butang Toggle Mata (Lihat Password)
+    document.getElementById('btnTogglePassword').addEventListener('click', () => {
+        const passInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+            eyeIcon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            passInput.type = 'password';
+            eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
     });
 
-    function updateUI() {
-        const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
-        document.getElementById('authTitle').innerText = (window.isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[window.currentRole];
-        document.getElementById('authBtn').innerText = window.isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
-        document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
-        document.getElementById('toggleText').innerText = window.isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
-        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? 'Daftar Sini' : 'Log Masuk';
-    }
+    // D. Butang Tukar Mod (Login <-> Daftar)
+    document.getElementById('toggleAuthLink').addEventListener('click', () => {
+        window.isLoginMode = !window.isLoginMode;
+        window.updateUI();
+    });
 
-    // 4. Handle Form Submission
+    // E. Handle Submit Form
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const fullName = document.getElementById('fullName').value;
+        const fullName = document.getElementById('fullName').value.trim();
 
         Swal.fire({ title: 'Sila Tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
             if (window.isLoginMode) {
-                // PROSES LOG MASUK
+                // LOG MASUK
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
@@ -191,15 +168,17 @@
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    // Pastikan user masuk mengikut role yang betul
-                    if (userData.role === 'supervisor') window.location.href = "dashboard.html";
-                    else if (userData.role === 'student') window.location.href = "student-view.html";
-                    else window.location.href = "host.html";
+                    Swal.fire({ icon: 'success', title: 'Berjaya!', text: `Selamat datang, ${userData.name}`, timer: 1500, showConfirmButton: false })
+                    .then(() => {
+                        if (userData.role === 'supervisor') window.location.href = "dashboard.html";
+                        else if (userData.role === 'student') window.location.href = "student-view.html";
+                        else window.location.href = "host.html";
+                    });
                 } else {
-                    Swal.fire('Ralat', 'Data profil tidak dijumpai.', 'error');
+                    Swal.fire('Ralat', 'Profil anda tidak ditemui dalam database.', 'error');
                 }
             } else {
-                // PROSES DAFTAR
+                // DAFTAR AKAUN BARU
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
@@ -210,46 +189,43 @@
                     createdAt: new Date().toISOString()
                 });
 
-                Swal.fire('Berjaya!', 'Akaun anda telah dicipta.', 'success').then(() => {
+                Swal.fire('Berjaya!', 'Akaun anda telah didaftarkan. Sila log masuk.', 'success').then(() => {
                     window.isLoginMode = true;
-                    updateUI();
+                    window.updateUI();
                 });
             }
         } catch (error) {
-            console.error(error);
-            let errorMsg = "Berlaku ralat teknikal.";
-            
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+            let errorMsg = "Sila semak butiran anda.";
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
                 triggerRegistrationPrompt();
                 return;
-            } else if (error.code === 'auth/wrong-password') {
-                errorMsg = "Kata laluan salah!";
             } else if (error.code === 'auth/email-already-in-use') {
-                errorMsg = "Emel ini sudah berdaftar.";
+                errorMsg = "Emel ini sudah digunakan oleh akaun lain.";
             } else if (error.code === 'auth/weak-password') {
-                errorMsg = "Kata laluan terlalu lemah (min. 6 aksara).";
+                errorMsg = "Kata laluan mestilah sekurang-kurangnya 6 aksara.";
             }
-            
-            Swal.fire('Ralat', errorMsg, 'error');
+            Swal.fire('Gagal', errorMsg, 'error');
         }
     });
 
     function triggerRegistrationPrompt() {
         Swal.fire({
-            title: 'Akaun Tidak Ditemui',
-            text: "Emel/Kredential tidak sah. Adakah anda ingin mendaftar akaun baru?",
-            icon: 'warning',
+            title: 'Akaun Tiada',
+            text: "Kredential tidak sepadan. Ingin daftar akaun baru menggunakan emel ini?",
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#4361ee',
-            confirmButtonText: 'Ya, Daftar Sini',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Ya, Daftar Sekarang',
+            cancelButtonText: 'Cuba Lagi'
         }).then((result) => {
             if (result.isConfirmed) {
                 window.isLoginMode = false;
-                updateUI();
+                window.updateUI();
             }
         });
     }
+
+    // Jalankan updateUI sekali semasa mula-mula load
+    window.updateUI();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
