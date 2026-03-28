@@ -7,10 +7,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -75,6 +73,11 @@
             letter-spacing: 1px;
             padding: 15px;
         }
+        
+        /* Efek hover pada baris jadual */
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
     </style>
 </head>
 <body>
@@ -88,27 +91,27 @@
 
 <div class="container mb-5">
     <div class="row g-3 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-        <div class="col-md-3">
-            <div class="card glass-card p-3 text-center stat-card border-primary">
-                <small class="text-muted fw-bold">PURATA MARKAH</small>
+        <div class="col-md-3 col-6">
+            <div class="card glass-card p-3 text-center stat-card border-primary h-100">
+                <small class="text-muted fw-bold">PURATA SKOR</small>
                 <h2 class="fw-bold mb-0 text-primary" id="statAvg">0%</h2>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card glass-card p-3 text-center stat-card border-success">
-                <small class="text-muted fw-bold">LULUS (A-C)</small>
+        <div class="col-md-3 col-6">
+            <div class="card glass-card p-3 text-center stat-card border-success h-100">
+                <small class="text-muted fw-bold">LULUS</small>
                 <h2 class="fw-bold mb-0 text-success" id="statPass">0</h2>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card glass-card p-3 text-center stat-card border-danger">
+        <div class="col-md-3 col-6">
+            <div class="card glass-card p-3 text-center stat-card border-danger h-100">
                 <small class="text-muted fw-bold">GAGAL</small>
                 <h2 class="fw-bold mb-0 text-danger" id="statFail">0</h2>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card glass-card p-3 text-center stat-card border-warning">
-                <small class="text-muted fw-bold">MENUNGGU</small>
+        <div class="col-md-3 col-6">
+            <div class="card glass-card p-3 text-center stat-card border-warning h-100">
+                <small class="text-muted fw-bold">PENDING</small>
                 <h2 class="fw-bold mb-0 text-warning" id="statPending">0</h2>
             </div>
         </div>
@@ -117,19 +120,20 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card glass-card p-4 mb-4 border-0">
-                <h5 class="fw-bold mb-4"><i class="bi bi-search me-2 text-primary"></i> Cari Pelajar Berdaftar</h5>
+                <h5 class="fw-bold mb-4"><i class="bi bi-people me-2 text-primary"></i> Pengurusan Prestasi Pelajar</h5>
                 <div class="row g-2">
                     <div class="col-md-9">
                         <select id="courseSelect" class="form-select shadow-sm">
                             <option value="">-- Pilih Subjek --</option>
                             <option value="Software Engineering">Software Engineering</option>
                             <option value="IoT Systems">IoT Systems</option>
-                           <option value=">Data Analytics">Data Analytics</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="AI Solutions">AI Solutions</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <button class="btn btn-primary w-100 shadow-sm" onclick="searchBySubject()">
-                            <i class="bi bi-funnel-fill"></i> Tapis Data
+                            <i class="bi bi-search me-1"></i> Cari
                         </button>
                     </div>
                 </div>
@@ -137,33 +141,37 @@
                 <div id="searchResults" class="mt-4">
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-clipboard-data fs-1 opacity-25"></i>
-                        <p>Sila pilih subjek untuk memaparkan senarai pelajar.</p>
+                        <p>Pilih subjek dan tekan butang cari.</p>
                     </div>
                 </div>
             </div>
 
             <form id="hostForm" class="card glass-card p-4 mb-4 shadow-lg animate__animated animate__fadeIn">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Input Markah: <span id="displayStudentName" class="text-primary"></span></h5>
+                    <h5 class="fw-bold mb-0">Penilaian: <span id="displayStudentName" class="text-primary"></span></h5>
                     <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
                 </div>
                 <div class="row g-3">
                     <input type="hidden" id="currentDocId">
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">Quiz (20%)</label>
-                        <input type="number" id="quiz" class="form-control" placeholder="0-100">
+                        <input type="number" id="quiz" class="form-control" placeholder="0-100" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">Test (30%)</label>
-                        <input type="number" id="test" class="form-control" placeholder="0-100">
+                        <input type="number" id="test" class="form-control" placeholder="0-100" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">Midterm (50%)</label>
-                        <input type="number" id="midterm" class="form-control" placeholder="0-100">
+                        <input type="number" id="midterm" class="form-control" placeholder="0-100" oninput="liveGrade()">
                     </div>
-                    <div class="col-12 text-end">
-                        <button type="submit" class="btn btn-primary px-5 shadow">
-                            <i class="bi bi-check-circle-fill me-2"></i> Simpan Markah
+                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-3">
+                        <div>
+                            <span class="text-muted small">Ramalan Gred: </span>
+                            <span id="liveGradeText" class="fw-bold text-primary">-</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="bi bi-save me-2"></i> Sahkan & Simpan
                         </button>
                     </div>
                 </div>
@@ -171,18 +179,19 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card glass-card p-4 border-0">
-                <h5 class="fw-bold mb-4"><i class="bi bi-cloud-upload me-2 text-success"></i> Muat Naik Bahan</h5>
+            <div class="card glass-card p-4 border-0 h-100">
+                <h5 class="fw-bold mb-4"><i class="bi bi-cloud-arrow-up me-2 text-success"></i> Muat Naik Bahan</h5>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Tajuk Bahan</label>
-                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Nota Bab 1">
+                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Nota Minggu 1">
                 </div>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Subjek</label>
                     <select id="postCourse" class="form-select">
                         <option value="Software Engineering">Software Engineering</option>
                         <option value="IoT Systems">IoT Systems</option>
-                        <option value=">Data Analytics">Data Analytics</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                        <option value="AI Solutions">AI Solutions</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -191,14 +200,15 @@
                         <option value="Lecture">Lecture</option>
                         <option value="Lab">Lab</option>
                         <option value="Nota">Nota</option>
+                        <option value="Pengumuman">Pengumuman</option>
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label small fw-bold">Link/Kandungan</label>
-                    <textarea id="postContent" class="form-control" rows="4" placeholder="Link Google Drive atau info penting..."></textarea>
+                    <label class="form-label small fw-bold">Link/Isi Kandungan</label>
+                    <textarea id="postContent" class="form-control" rows="5" placeholder="Masukkan link Drive atau maklumat..."></textarea>
                 </div>
-                <button class="btn btn-dark w-100 py-3 shadow" onclick="uploadMaterial()">
-                    <i class="bi bi-send-fill me-2"></i> Publish Bahan
+                <button class="btn btn-dark w-100 py-3 shadow-sm fw-bold" onclick="uploadMaterial()">
+                    <i class="bi bi-send me-2"></i> Publish Sekarang
                 </button>
             </div>
         </div>
@@ -221,26 +231,39 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Fungsi LIVE GRADE semasa menaip
+    window.liveGrade = () => {
+        const q = Number(document.getElementById('quiz').value) || 0;
+        const t = Number(document.getElementById('test').value) || 0;
+        const m = Number(document.getElementById('midterm').value) || 0;
+        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "GAGAL" : "-");
+        document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
+    };
+
     window.searchBySubject = async function() {
         const selected = document.getElementById('courseSelect').value;
         const resArea = document.getElementById('searchResults');
         if (!selected) return;
 
-        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2">Menyusun Statistik...</p></div>`;
+        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Sedang memuatkan data...</p></div>`;
 
         try {
             const q = query(collection(db, "course_registrations"), where("course", "==", selected));
             const snap = await getDocs(q);
 
             if (snap.empty) {
-                resArea.innerHTML = `<div class="alert alert-info">Tiada rekod pelajar untuk subjek ini.</div>`;
+                resArea.innerHTML = `<div class="alert alert-light border text-center p-5">
+                                        <i class="bi bi-emoji-frown fs-2 d-block mb-2 text-muted"></i>
+                                        Tiada pelajar berdaftar untuk subjek ini.
+                                     </div>`;
                 updateStats(0, 0, 0, 0);
                 return;
             }
 
             let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
             let html = `<div class="table-responsive animate__animated animate__fadeIn">
-                        <table class="table table-hover align-middle">
+                        <table class="table align-middle">
                         <thead><tr><th>Pelajar</th><th class="text-center">Prestasi</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
                         <tbody>`;
 
@@ -258,13 +281,13 @@
                 html += `<tr>
                     <td>
                         <div class="fw-bold text-dark">${data.studentName}</div>
-                        <small class="text-muted text-uppercase">${data.studentID}</small>
+                        <small class="text-muted text-uppercase" style="font-size: 0.7rem;">ID: ${data.studentID}</small>
                     </td>
                     <td style="width: 150px;">
-                        <div class="progress" style="height: 6px;">
+                        <div class="progress" style="height: 6px; margin-bottom: 4px;">
                             <div class="progress-bar ${barColor}" style="width: ${mark}%"></div>
                         </div>
-                        <small style="font-size: 10px;">Skor: ${mark}%</small>
+                        <small class="text-muted" style="font-size: 10px;">${mark}% Berjaya</small>
                     </td>
                     <td class="text-center">
                         <span class="badge ${mark >= 80 ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-fail' : 'bg-light text-dark')} p-2 px-3 rounded-pill">
@@ -274,7 +297,7 @@
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" 
                             onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
-                            <i class="bi bi-pencil-square"></i> Skor
+                            <i class="bi bi-pencil-square me-1"></i> Skor
                         </button>
                     </td>
                 </tr>`;
@@ -283,7 +306,7 @@
             resArea.innerHTML = html + "</tbody></table></div>";
             updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
 
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        } catch (e) { Swal.fire('Ralat', e.message, 'error'); }
     };
 
     function updateStats(avg, p, f, pen) {
@@ -300,6 +323,7 @@
         document.getElementById('test').value = t;
         document.getElementById('midterm').value = m;
         document.getElementById('hostForm').style.display = 'block';
+        liveGrade(); // Kira gred awal
         window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 50, behavior: 'smooth' });
     };
 
@@ -316,7 +340,7 @@
                 quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
                 status: "Marked", lastUpdated: serverTimestamp()
             });
-            Swal.fire({ title: 'Berjaya!', text: 'Markah telah dikemaskini.', icon: 'success', timer: 2000, showConfirmButton: false });
+            Swal.fire({ title: 'Tersimpan!', text: 'Prestasi pelajar berjaya dikemaskini.', icon: 'success', timer: 2000, showConfirmButton: false });
             searchBySubject();
             document.getElementById('hostForm').style.display = 'none';
         } catch (e) { Swal.fire('Error', e.message, 'error'); }
@@ -325,7 +349,7 @@
     window.uploadMaterial = async () => {
         const title = document.getElementById('postTitle').value;
         const content = document.getElementById('postContent').value;
-        if(!title || !content) return Swal.fire('Info', 'Lengkapkan tajuk dan link!', 'info');
+        if(!title || !content) return Swal.fire('Info', 'Sila isi tajuk dan link bahan!', 'info');
 
         try {
             await addDoc(collection(db, "materials"), {
@@ -333,7 +357,7 @@
                 category: document.getElementById('postCategory').value,
                 datePosted: serverTimestamp()
             });
-            Swal.fire('Terbit!', 'Bahan pengajaran telah dimuat naik.', 'success');
+            Swal.fire('Berjaya!', 'Bahan telah diterbitkan ke dashboard pelajar.', 'success');
             document.getElementById('postTitle').value = "";
             document.getElementById('postContent').value = "";
         } catch (e) { Swal.fire('Error', e.message, 'error'); }
