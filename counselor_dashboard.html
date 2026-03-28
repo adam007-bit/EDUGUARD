@@ -13,22 +13,15 @@
     <style>
         :root { --p-navy: #1e293b; --p-blue: #4361ee; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        
-        /* Sidebar Design */
         .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; }
         .main-content { margin-left: 250px; padding: 40px; }
-        
-        /* Card & Table Design */
         .card-stats { border: none; border-radius: 24px; padding: 25px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; }
         .card-stats:hover { transform: translateY(-5px); }
         .critical-border { border-left: 8px solid var(--danger); }
         .warning-border { border-left: 8px solid var(--warning); }
-        
         .table-custom { background: white; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
         .thead-dark { background: #f1f5f9; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        
         .badge-risk { padding: 6px 14px; border-radius: 50px; font-weight: 700; font-size: 0.7rem; }
-        .search-box { border-radius: 15px; border: 1px solid #e2e8f0; padding: 12px 20px; background: white; }
     </style>
 </head>
 <body>
@@ -114,14 +107,12 @@
                 </tr>
             </thead>
             <tbody id="riskTableBody">
-                <tr><td colspan="5" class="text-center py-5">
-                    <div class="spinner-border text-primary spinner-border-sm me-2"></div> Memuatkan data...
-                </td></tr>
+                <tr><td colspan="5" class="text-center py-5">Memuatkan data...</td></tr>
             </tbody>
         </table>
     </div>
 
-    <h5 class="fw-bold mb-3"><i class="bi bi-journal-x text-primary me-2"></i>Senarai Pelajar Berisiko Gagal (D, E, G)</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-journal-x text-primary me-2"></i>Pelajar Berisiko Gagal</h5>
     <div class="table-custom shadow-sm">
         <table class="table table-hover align-middle mb-0">
             <thead class="thead-dark">
@@ -142,7 +133,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -159,24 +150,21 @@
     // Live Clock
     setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleString('ms-MY'); }, 1000);
 
+    // Load Data Function
     async function loadAllData() {
         try {
-            // --- 1. AMBIL DATA EMOSI ---
             const qStress = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
             const snapStress = await getDocs(qStress);
-            
             const riskTable = document.getElementById('riskTableBody');
             riskTable.innerHTML = '';
-            
             let cCount = 0, mCount = 0;
 
             if (snapStress.empty) {
-                riskTable.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">Tiada pelajar yang telah melakukan saringan.</td></tr>';
+                riskTable.innerHTML = '<tr><td colspan="5" class="text-center py-5">Tiada data.</td></tr>';
             }
 
             snapStress.forEach(doc => {
                 const data = doc.data();
-                // Kira statistik jika statusnya kritikal/sederhana
                 if(data.riskLevel === "CRITICAL") cCount++;
                 if(data.riskLevel === "MEDIUM") mCount++;
 
@@ -184,17 +172,13 @@
                     <tr>
                         <td class="ps-4 py-3">
                             <div class="fw-bold">${data.studentName}</div>
-                            <small class="text-muted"><i class="bi bi-person-badge"></i> ${data.studentID}</small>
+                            <small class="text-muted">${data.studentID}</small>
                         </td>
-                        <td><span class="fw-bold">${data.score}</span> <span class="text-muted">/15</span></td>
-                        <td>
-                            <span class="badge badge-risk ${data.riskLevel === 'CRITICAL' ? 'bg-danger' : data.riskLevel === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success'}">
-                                ${data.riskLevel}
-                            </span>
-                        </td>
-                        <td><small class="text-muted">${data.timestamp?.toDate().toLocaleDateString('ms-MY') || '-'}</small></td>
+                        <td><span class="fw-bold">${data.score}</span>/15</td>
+                        <td><span class="badge badge-risk ${data.riskLevel === 'CRITICAL' ? 'bg-danger' : 'bg-warning'}">${data.riskLevel}</span></td>
+                        <td><small>${data.timestamp?.toDate().toLocaleDateString('ms-MY') || '-'}</small></td>
                         <td class="text-center">
-                            <button class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="hubungiPelajar('${data.studentID}', '${data.studentName}')">
+                            <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="hubungiPelajar('${data.studentID}', '${data.studentName}')">
                                 <i class="bi bi-chat-dots me-1"></i> Intervensi
                             </button>
                         </td>
@@ -204,65 +188,56 @@
             document.getElementById('critCount').innerText = cCount;
             document.getElementById('medCount').innerText = mCount;
 
-            // --- 2. AMBIL DATA AKADEMIK (GAGAL) ---
             const qFail = query(collection(db, "course_registrations"), where("grade", "in", ["D", "E", "G"]));
             const snapFail = await getDocs(qFail);
             const failTable = document.getElementById('failTableBody');
             failTable.innerHTML = '';
-            
             document.getElementById('failCount').innerText = snapFail.size;
-
-            if(snapFail.empty) {
-                failTable.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted small">Tiada rekod pelajar gagal dikesan.</td></tr>';
-            }
 
             snapFail.forEach(doc => {
                 const d = doc.data();
-                failTable.innerHTML += `
-                    <tr>
-                        <td class="ps-4 fw-bold">${d.studentID}</td>
-                        <td>${d.course}</td>
-                        <td><span class="text-danger fw-bold">${d.grade}</span></td>
-                        <td>${d.totalMark}%</td>
-                        <td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 rounded-pill">TINDAKAN AKADEMIK</span></td>
-                    </tr>`;
+                failTable.innerHTML += `<tr><td class="ps-4">${d.studentID}</td><td>${d.course}</td><td class="text-danger fw-bold">${d.grade}</td><td>${d.totalMark}%</td><td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 rounded-pill">TINDAKAN</span></td></tr>`;
             });
 
-        } catch (e) { 
-            console.error("Ralat Firebase:", e); 
-            if(e.message.includes("index")) {
-                Swal.fire('Ralat Indeks', 'Sila bina Index di Firebase Console (Lihat Inspect Element Console untuk link).', 'error');
-            }
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // Fungsi Carian dalam Jadual
+    // Modal Hubungi Pelajar (Hantar Notifikasi)
+    window.hubungiPelajar = async (id, nama) => {
+        const { value: text } = await Swal.fire({
+            title: `Intervensi: ${nama}`,
+            input: 'textarea',
+            inputLabel: 'Mesej akan muncul di Dashboard Pelajar',
+            inputPlaceholder: 'Tulis pesanan anda di sini...',
+            showCancelButton: true,
+            confirmButtonText: 'Hantar Notifikasi',
+            confirmButtonColor: '#1e293b'
+        });
+
+        if (text) {
+            try {
+                await addDoc(collection(db, "notifications"), {
+                    studentID: id,
+                    message: text,
+                    sender: "Kaunselor EduGuard",
+                    status: "unread",
+                    timestamp: serverTimestamp()
+                });
+                Swal.fire('Dihantar!', 'Pelajar akan menerima mesej ini sebentar lagi.', 'success');
+            } catch (e) {
+                Swal.fire('Ralat', 'Gagal menghantar mesej.', 'error');
+            }
+        }
+    };
+
     window.filterTable = () => {
         const input = document.getElementById("searchInput").value.toUpperCase();
         const rows = document.getElementById("riskTableBody").getElementsByTagName("tr");
-        for (let row of rows) {
-            row.style.display = row.innerText.toUpperCase().includes(input) ? "" : "none";
-        }
-    }
-
-    window.hubungiPelajar = (id, nama) => {
-        Swal.fire({
-            title: `Intervensi: ${nama}`,
-            text: `ID: ${id}. Sila pilih tindakan susulan:`,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'Hantar Email',
-            cancelButtonText: 'Tutup'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `mailto:pelajar@sekolah.edu.my?subject=Sesi Kaunseling EduGuard AI - ${nama}`;
-            }
-        });
+        for (let row of rows) { row.style.display = row.innerText.toUpperCase().includes(input) ? "" : "none"; }
     }
 
     window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
-    
-    // Jalankan tarikan data
+    window.loadAllData = loadAllData;
     loadAllData();
 </script>
 </body>
