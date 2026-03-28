@@ -1,369 +1,462 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Host Control Panel</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGuard AI | Host Control Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --bg-body: #f8fafc;
-        }
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --dark: #1e293b;
+            --bg-body: #f1f5f9;
+        }
 
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
-        }
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #334155;
+            overflow-x: hidden;
+        }
 
-        .host-header {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: white;
-            padding: 60px 0 80px 0;
-            border-radius: 0 0 40px 40px;
-            margin-bottom: -50px;
-        }
+        /* Top Header Area */
+        .host-header {
+            background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
+            color: white;
+            padding: 40px 0 100px 0;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+        }
 
-        .glass-card {
-            background: white;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
+        /* Cards & Containers */
+        .main-container { margin-top: -60px; position: relative; z-index: 10; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        .stat-card {
-            border-top: 4px solid var(--primary-color);
-        }
+        .stat-card {
+            border-bottom: 5px solid transparent;
+            padding: 20px;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .border-primary { border-bottom-color: var(--primary) !important; }
+        .border-success { border-bottom-color: var(--success) !important; }
+        .border-danger { border-bottom-color: var(--danger) !important; }
+        .border-warning { border-bottom-color: var(--warning) !important; }
 
-        .progress { background-color: #e2e8f0; border-radius: 10px; }
-        
-        .badge-a { background-color: #dcfce7; color: #166534; }
-        .badge-fail { background-color: #fee2e2; color: #991b1b; }
+        /* Form Styling */
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            transition: 0.2s;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+            background-color: #fff;
+        }
 
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-        }
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            border-radius: 14px;
+            padding: 12px 24px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+        .btn-primary:hover { background: var(--primary-light); transform: scale(1.02); }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-radius: 12px;
-            padding: 12px 25px;
-            font-weight: 600;
-        }
+        .btn-dark {
+            border-radius: 14px;
+            background: var(--dark);
+            font-weight: 600;
+        }
 
-        #hostForm {
-            border-left: 6px solid var(--primary-color);
-            display: none;
-        }
+        /* Table Design */
+        .table-custom thead th {
+            background: transparent;
+            border-bottom: 2px solid #f1f5f9;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 18px;
+        }
+        .table-custom tbody td { padding: 18px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
 
-        .table thead th {
-            background: #f1f5f9;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            padding: 15px;
-        }
-        
-        /* Efek hover pada baris jadual */
-        .table tbody tr:hover {
-            background-color: #f8fafc;
-        }
-    </style>
+        .grade-badge {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .badge-a { background: #dcfce7; color: #166534; }
+        .badge-f { background: #fee2e2; color: #991b1b; }
+        .badge-pending { background: #fef9c3; color: #854d0e; }
+
+        .progress { height: 8px; border-radius: 10px; background: #f1f5f9; }
+
+        /* Floating Animation */
+        #hostForm {
+            border-top: 8px solid var(--primary);
+            display: none;
+            position: relative;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-radius: 10px;
+            margin-right: 12px;
+        }
+    </style>
 </head>
 <body>
 
 <div class="host-header text-center">
-    <div class="container animate__animated animate__fadeInDown">
-        <h1 class="fw-bold mb-2"><i class="bi bi-cpu-fill text-info"></i> Host Control Panel</h1>
-        <p class="opacity-75">Sistem Pengurusan Gred & Bahan Pembelajaran AI</p>
-    </div>
+    <div class="container animate__animated animate__fadeIn">
+        <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard Host</h1>
+        <p class="opacity-75 small">Sistem Penilaian Strategik & Arkib Digital</p>
+    </div>
 </div>
 
-<div class="container mb-5">
-    <div class="row g-3 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-primary h-100">
-                <small class="text-muted fw-bold">PURATA SKOR</small>
-                <h2 class="fw-bold mb-0 text-primary" id="statAvg">0%</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-success h-100">
-                <small class="text-muted fw-bold">LULUS</small>
-                <h2 class="fw-bold mb-0 text-success" id="statPass">0</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-danger h-100">
-                <small class="text-muted fw-bold">GAGAL</small>
-                <h2 class="fw-bold mb-0 text-danger" id="statFail">0</h2>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card glass-card p-3 text-center stat-card border-warning h-100">
-                <small class="text-muted fw-bold">PENDING</small>
-                <h2 class="fw-bold mb-0 text-warning" id="statPending">0</h2>
-            </div>
-        </div>
-    </div>
+<div class="container main-container mb-5">
+    <div class="row g-3 mb-4 animate__animated animate__fadeInUp">
+        <div class="col-md-3">
+            <div class="card glass-card stat-card border-primary">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <small class="text-muted fw-bold d-block">PURATA KESELURUHAN</small>
+                        <h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3>
+                    </div>
+                    <i class="bi bi-graph-up-arrow fs-3 text-primary opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card stat-card border-success">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <small class="text-muted fw-bold d-block">PELAJAR LULUS</small>
+                        <h3 class="fw-bold mb-0 text-success" id="statPass">0</h3>
+                    </div>
+                    <i class="bi bi-person-check fs-3 text-success opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card stat-card border-danger">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <small class="text-muted fw-bold d-block">PELAJAR GAGAL</small>
+                        <h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3>
+                    </div>
+                    <i class="bi bi-person-x fs-3 text-danger opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card glass-card stat-card border-warning">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <small class="text-muted fw-bold d-block">BELUM DINILAI</small>
+                        <h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3>
+                    </div>
+                    <i class="bi bi-clock-history fs-3 text-warning opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card glass-card p-4 mb-4 border-0">
-                <h5 class="fw-bold mb-4"><i class="bi bi-people me-2 text-primary"></i> Pengurusan Prestasi Pelajar</h5>
-                <div class="row g-2">
-                    <div class="col-md-9">
-                        <select id="courseSelect" class="form-select shadow-sm">
-                            <option value="">-- Pilih Subjek --</option>
-                            <option value="Software Engineering">Software Engineering</option>
-                            <option value="IoT Systems">IoT Systems</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                            <option value="AI Solutions">AI Solutions</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100 shadow-sm" onclick="searchBySubject()">
-                            <i class="bi bi-search me-1"></i> Cari
-                        </button>
-                    </div>
-                </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card glass-card p-4 mb-4 border-0">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="section-icon"><i class="bi bi-people-fill"></i></div>
+                    <h5 class="fw-bold mb-0">Direktori Prestasi Pelajar</h5>
+                </div>
+                
+                <div class="row g-2 mb-4">
+                    <div class="col-md-9">
+                        <select id="courseSelect" class="form-select shadow-sm border-0">
+                            <option value="">-- Pilih Subjek Program --</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                            <option value="IoT Systems">IoT Systems</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="AI Solutions">AI Solutions</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="searchBySubject()">
+                            <i class="bi bi-filter-right me-1"></i> Papar
+                        </button>
+                    </div>
+                </div>
 
-                <div id="searchResults" class="mt-4">
-                    <div class="text-center py-5 text-muted">
-                        <i class="bi bi-clipboard-data fs-1 opacity-25"></i>
-                        <p>Pilih subjek dan tekan butang cari.</p>
-                    </div>
-                </div>
-            </div>
+                <div id="searchResults">
+                    <div class="text-center py-5">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" style="width: 80px; opacity: 0.3;" class="mb-3">
+                        <p class="text-muted small">Sila pilih subjek untuk memulakan analisis data.</p>
+                    </div>
+                </div>
+            </div>
 
-            <form id="hostForm" class="card glass-card p-4 mb-4 shadow-lg animate__animated animate__fadeIn">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Penilaian: <span id="displayStudentName" class="text-primary"></span></h5>
-                    <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
-                </div>
-                <div class="row g-3">
-                    <input type="hidden" id="currentDocId">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Quiz (20%)</label>
-                        <input type="number" id="quiz" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Test (30%)</label>
-                        <input type="number" id="test" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold">Midterm (50%)</label>
-                        <input type="number" id="midterm" class="form-control" placeholder="0-100" oninput="liveGrade()">
-                    </div>
-                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-3">
-                        <div>
-                            <span class="text-muted small">Ramalan Gred: </span>
-                            <span id="liveGradeText" class="fw-bold text-primary">-</span>
-                        </div>
-                        <button type="submit" class="btn btn-primary px-5">
-                            <i class="bi bi-save me-2"></i> Sahkan & Simpan
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
+            <form id="hostForm" class="card glass-card p-4 mb-4 animate__animated animate__slideInUp">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="section-icon"><i class="bi bi-pencil-square"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Input Markah: <span id="displayStudentName" class="text-primary"></span></h6>
+                            <small class="text-muted">Kemasukan data penilaian akademik</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
+                </div>
+                
+                <div class="row g-3">
+                    <input type="hidden" id="currentDocId">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Quiz (20%)</label>
+                        <input type="number" id="quiz" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Test (30%)</label>
+                        <input type="number" id="test" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Midterm (50%)</label>
+                        <input type="number" id="midterm" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                    </div>
+                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-3">
+                        <div>
+                            <p class="text-muted small mb-0">Analisis Gred Semasa</p>
+                            <h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="bi bi-check2-circle me-2"></i> Simpan Skor
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-        <div class="col-lg-4">
-            <div class="card glass-card p-4 border-0 h-100">
-                <h5 class="fw-bold mb-4"><i class="bi bi-cloud-arrow-up me-2 text-success"></i> Muat Naik Bahan</h5>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Tajuk Bahan</label>
-                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Nota Minggu 1">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Subjek</label>
-                    <select id="postCourse" class="form-select">
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                        <option value="AI Solutions">AI Solutions</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Kategori</label>
-                    <select id="postCategory" class="form-select">
-                        <option value="Lecture">Lecture</option>
-                        <option value="Lab">Lab</option>
-                        <option value="Nota">Nota</option>
-                        <option value="Pengumuman">Pengumuman</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label small fw-bold">Link/Isi Kandungan</label>
-                    <textarea id="postContent" class="form-control" rows="5" placeholder="Masukkan link Drive atau maklumat..."></textarea>
-                </div>
-                <button class="btn btn-dark w-100 py-3 shadow-sm fw-bold" onclick="uploadMaterial()">
-                    <i class="bi bi-send me-2"></i> Publish Sekarang
-                </button>
-            </div>
-        </div>
-    </div>
+        <div class="col-lg-4">
+            <div class="card glass-card p-4 border-0 mb-4 sticky-top" style="top: 20px;">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="section-icon" style="background: rgba(46, 204, 113, 0.1); color: var(--success);"><i class="bi bi-cloud-plus-fill"></i></div>
+                    <h5 class="fw-bold mb-0">Pusat Sumber AI</h5>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Nama Bahan</label>
+                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Modul Python Dasar">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Subjek Sasaran</label>
+                    <select id="postCourse" class="form-select">
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                        <option value="AI Solutions">AI Solutions</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Kategori Fail</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="cat" id="c1" value="Lecture" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="c1">Nota</label>
+                        <input type="radio" class="btn-check" name="cat" id="c2" value="Lab">
+                        <label class="btn btn-outline-secondary btn-sm" for="c2">Lab</label>
+                        <input type="radio" class="btn-check" name="cat" id="c3" value="Alert">
+                        <label class="btn btn-outline-secondary btn-sm" for="c3">Info</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Link Akses / URL</label>
+                    <textarea id="postContent" class="form-control" rows="3" placeholder="Masukkan pautan Google Drive atau nota..."></textarea>
+                </div>
+                <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()">
+                    <i class="bi bi-broadcast me-2"></i> Terbitkan Bahan
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
-        authDomain: "eduguard-ai-2742b.firebaseapp.com",
-        projectId: "eduguard-ai-2742b",
-        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
-        messagingSenderId: "96233022148",
-        appId: "1:96233022148:web:1f903d72b3f79690409f91"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // Fungsi LIVE GRADE semasa menaip
-    window.liveGrade = () => {
-        const q = Number(document.getElementById('quiz').value) || 0;
-        const t = Number(document.getElementById('test').value) || 0;
-        const m = Number(document.getElementById('midterm').value) || 0;
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "GAGAL" : "-");
-        document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
-    };
+    window.liveGrade = () => {
+        const q = Number(document.getElementById('quiz').value) || 0;
+        const t = Number(document.getElementById('test').value) || 0;
+        const m = Number(document.getElementById('midterm').value) || 0;
+        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "GAGAL" : "-");
+        document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
+    };
 
-    window.searchBySubject = async function() {
-        const selected = document.getElementById('courseSelect').value;
-        const resArea = document.getElementById('searchResults');
-        if (!selected) return;
+    window.searchBySubject = async function() {
+        const selected = document.getElementById('courseSelect').value;
+        const resArea = document.getElementById('searchResults');
+        if (!selected) return;
 
-        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Sedang memuatkan data...</p></div>`;
+        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-grow text-primary"></div></div>`;
 
-        try {
-            const q = query(collection(db, "course_registrations"), where("course", "==", selected));
-            const snap = await getDocs(q);
+        try {
+            const q = query(collection(db, "course_registrations"), where("course", "==", selected));
+            const snap = await getDocs(q);
 
-            if (snap.empty) {
-                resArea.innerHTML = `<div class="alert alert-light border text-center p-5">
-                                        <i class="bi bi-emoji-frown fs-2 d-block mb-2 text-muted"></i>
-                                        Tiada pelajar berdaftar untuk subjek ini.
-                                     </div>`;
-                updateStats(0, 0, 0, 0);
-                return;
-            }
+            if (snap.empty) {
+                resArea.innerHTML = `<div class="alert bg-white text-center p-5 border-dashed rounded-4">
+                                        <p class="text-muted mb-0 small">Tiada pelajar yang mendaftar kursus ini.</p>
+                                     </div>`;
+                updateStats(0, 0, 0, 0);
+                return;
+            }
 
-            let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
-            let html = `<div class="table-responsive animate__animated animate__fadeIn">
-                        <table class="table align-middle">
-                        <thead><tr><th>Pelajar</th><th class="text-center">Prestasi</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
-                        <tbody>`;
+            let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
+            let html = `<div class="table-responsive">
+                        <table class="table table-custom">
+                        <thead><tr><th>Maklumat Pelajar</th><th>Statistik Markah</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
+                        <tbody>`;
 
-            snap.forEach(d => {
-                const data = d.data();
-                const mark = parseFloat(data.totalMark) || 0;
-                total++;
+            snap.forEach(d => {
+                const data = d.data();
+                const mark = parseFloat(data.totalMark) || 0;
+                total++;
 
-                if(!data.grade) pending++;
-                else if(data.grade === 'GAGAL') fail++;
-                else { pass++; sumMarks += mark; }
+                if(!data.grade) pending++;
+                else if(data.grade === 'GAGAL') fail++;
+                else { pass++; sumMarks += mark; }
 
-                const barColor = mark >= 80 ? 'bg-success' : (mark >= 40 ? 'bg-primary' : 'bg-danger');
+                const barColor = mark >= 80 ? 'bg-success' : (mark >= 40 ? 'bg-primary' : 'bg-danger');
 
-                html += `<tr>
-                    <td>
-                        <div class="fw-bold text-dark">${data.studentName}</div>
-                        <small class="text-muted text-uppercase" style="font-size: 0.7rem;">ID: ${data.studentID}</small>
-                    </td>
-                    <td style="width: 150px;">
-                        <div class="progress" style="height: 6px; margin-bottom: 4px;">
-                            <div class="progress-bar ${barColor}" style="width: ${mark}%"></div>
-                        </div>
-                        <small class="text-muted" style="font-size: 10px;">${mark}% Berjaya</small>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge ${mark >= 80 ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-fail' : 'bg-light text-dark')} p-2 px-3 rounded-pill">
-                            ${data.grade || 'PENDING'}
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" 
-                            onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
-                            <i class="bi bi-pencil-square me-1"></i> Skor
-                        </button>
-                    </td>
-                </tr>`;
-            });
+                html += `<tr>
+                    <td>
+                        <span class="fw-bold d-block text-dark">${data.studentName}</span>
+                        <code class="small text-muted">${data.studentID}</code>
+                    </td>
+                    <td style="width: 200px;">
+                        <div class="d-flex align-items-center">
+                            <div class="progress w-100 me-2">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated ${barColor}" style="width: ${mark}%"></div>
+                            </div>
+                            <small class="fw-bold">${mark}%</small>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="grade-badge ${mark >= 80 ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-f' : 'badge-pending')}">
+                            ${data.grade || 'NA'}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-light border rounded-pill px-3" 
+                            onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
 
-            resArea.innerHTML = html + "</tbody></table></div>";
-            updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
+            resArea.innerHTML = html + "</tbody></table></div>";
+            updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
 
-        } catch (e) { Swal.fire('Ralat', e.message, 'error'); }
-    };
+        } catch (e) { Swal.fire('Ralat', e.message, 'error'); }
+    };
 
-    function updateStats(avg, p, f, pen) {
-        document.getElementById('statAvg').innerText = avg + "%";
-        document.getElementById('statPass').innerText = p;
-        document.getElementById('statFail').innerText = f;
-        document.getElementById('statPending').innerText = pen;
-    }
+    function updateStats(avg, p, f, pen) {
+        document.getElementById('statAvg').innerText = avg + "%";
+        document.getElementById('statPass').innerText = p;
+        document.getElementById('statFail').innerText = f;
+        document.getElementById('statPending').innerText = pen;
+    }
 
-    window.prepareEdit = (id, name, q, t, m) => {
-        document.getElementById('currentDocId').value = id;
-        document.getElementById('displayStudentName').innerText = name;
-        document.getElementById('quiz').value = q;
-        document.getElementById('test').value = t;
-        document.getElementById('midterm').value = m;
-        document.getElementById('hostForm').style.display = 'block';
-        liveGrade(); // Kira gred awal
-        window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 50, behavior: 'smooth' });
-    };
+    window.prepareEdit = (id, name, q, t, m) => {
+        document.getElementById('currentDocId').value = id;
+        document.getElementById('displayStudentName').innerText = name;
+        document.getElementById('quiz').value = q;
+        document.getElementById('test').value = t;
+        document.getElementById('midterm').value = m;
+        document.getElementById('hostForm').style.display = 'block';
+        liveGrade();
+        window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 80, behavior: 'smooth' });
+    };
 
-    document.getElementById('hostForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const q = Number(document.getElementById('quiz').value);
-        const t = Number(document.getElementById('test').value);
-        const m = Number(document.getElementById('midterm').value);
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "GAGAL";
+    document.getElementById('hostForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const q = Number(document.getElementById('quiz').value);
+        const t = Number(document.getElementById('test').value);
+        const m = Number(document.getElementById('midterm').value);
+        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "GAGAL";
 
-        try {
-            await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
-                quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
-                status: "Marked", lastUpdated: serverTimestamp()
-            });
-            Swal.fire({ title: 'Tersimpan!', text: 'Prestasi pelajar berjaya dikemaskini.', icon: 'success', timer: 2000, showConfirmButton: false });
-            searchBySubject();
-            document.getElementById('hostForm').style.display = 'none';
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
-    };
+        try {
+            await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
+                quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
+                status: "Marked", lastUpdated: serverTimestamp()
+            });
+            Swal.fire({ title: 'Success', icon: 'success', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+            searchBySubject();
+            document.getElementById('hostForm').style.display = 'none';
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+    };
 
-    window.uploadMaterial = async () => {
-        const title = document.getElementById('postTitle').value;
-        const content = document.getElementById('postContent').value;
-        if(!title || !content) return Swal.fire('Info', 'Sila isi tajuk dan link bahan!', 'info');
+    window.uploadMaterial = async () => {
+        const title = document.getElementById('postTitle').value;
+        const content = document.getElementById('postContent').value;
+        const category = document.querySelector('input[name="cat"]:checked').value;
+        if(!title || !content) return Swal.fire('Info', 'Lengkapkan maklumat bahan!', 'info');
 
-        try {
-            await addDoc(collection(db, "materials"), {
-                title, content, course: document.getElementById('postCourse').value,
-                category: document.getElementById('postCategory').value,
-                datePosted: serverTimestamp()
-            });
-            Swal.fire('Berjaya!', 'Bahan telah diterbitkan ke dashboard pelajar.', 'success');
-            document.getElementById('postTitle').value = "";
-            document.getElementById('postContent').value = "";
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
-    };
+        try {
+            await addDoc(collection(db, "materials"), {
+                title, content, course: document.getElementById('postCourse').value,
+                category, datePosted: serverTimestamp()
+            });
+            Swal.fire({ title: 'Published!', icon: 'success', text: 'Bahan telah berjaya dihantar.' });
+            document.getElementById('postTitle').value = "";
+            document.getElementById('postContent').value = "";
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+    };
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>      
+</html>
