@@ -197,99 +197,105 @@
         }
     }
 
-    window.openPsiko = () => {
-        Swal.fire({
-            title: 'Analisis AI: Luahan Emosi',
-            html: `
-                <div class="text-start px-2">
-                    <p class="text-muted small mb-3">Ceritakan cabaran anda dalam pembelajaran. AI akan menilai tahap risiko anda.</p>
-                    <textarea id="aiInput" class="form-control" rows="5" maxlength="500"
-                        placeholder="Contoh: Saya risau tentang subjek Python..."></textarea>
-                    <div id="charCount" class="text-end small text-muted mt-1">0 / 500</div>
-                </div>
-            `,
-            confirmButtonText: 'Analisis Sekarang',
-            showCancelButton: true,
-            confirmButtonColor: '#4361ee',
-            didOpen: () => {
-                const textarea = document.getElementById('aiInput');
-                textarea.addEventListener('input', () => {
-                    document.getElementById('charCount').innerText = `${textarea.value.length} / 500`;
-                });
+ window.openPsiko = async () => {
+    // Definisi 5 Soalan berkaitan Kesejahteraan Pelajar
+    const questions = [
+        { q: "Adakah anda merasa tertekan dengan jumlah tugasan/projek sekarang?", weight: 2 },
+        { q: "Adakah anda merasa sukar untuk tidur kerana memikirkan pelajaran?", weight: 2 },
+        { q: "Adakah anda merasa hilang minat atau motivasi dalam subjek yang diambil?", weight: 2 },
+        { q: "Adakah anda merasa bimbang akan gagal dalam peperiksaan akan datang?", weight: 2 },
+        { q: "Adakah anda merasa tiada tempat untuk mengadu masalah akademik anda?", weight: 2 }
+    ];
+
+    let totalScore = 0;
+    
+    // Gunakan gelung untuk tanya soalan satu per satu melalui SweetAlert
+    for (let i = 0; i < questions.length; i++) {
+        const { value: answer } = await Swal.fire({
+            title: `Soalan ${i + 1}/5`,
+            text: questions[i].q,
+            icon: 'question',
+            input: 'radio',
+            inputOptions: {
+                '0': 'Tidak Pernah',
+                '1': 'Jarang-jarang',
+                '2': 'Kerap',
+                '3': 'Sangat Kerap'
             },
-            preConfirm: () => {
-                const text = document.getElementById('aiInput').value;
-                if (text.trim().length < 15) {
-                    Swal.showValidationMessage('Tulis sekurang-kurangnya 15 aksara.');
-                    return false;
-                }
-                return text;
-            }
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                const userText = result.value;
-                const analysis = analyzeStressWithAI(userText);
-                
-                Swal.fire({ 
-                    title: 'Memproses...', 
-                    html: 'AI sedang menganalisis sentimen anda...',
-                    allowOutsideClick: false, 
-                    didOpen: () => Swal.showLoading() 
-                });
-
-                try {
-                    const assessmentData = {
-                        studentID: activeID,
-                        studentName: currentUserData.name,
-                        feedbackText: userText,
-                        riskLevel: analysis.level,
-                        aiAdvice: analysis.advice,
-                        timestamp: serverTimestamp(),
-                        supervisorEmail: currentUserData.supervisorEmail || "tiada"
-                    };
-
-                    await setDoc(doc(db, "assessments", activeID), assessmentData);
-                    await updateDoc(doc(db, "users", activeID), { 
-                        psikoStatus: 'done',
-                        stressLevel: analysis.level 
-                    });
-
-                    Swal.fire({
-                        icon: analysis.icon,
-                        title: `Risiko: ${analysis.level}`,
-                        text: analysis.advice,
-                        confirmButtonText: 'Teruskan'
-                    }).then(() => location.reload());
-
-                } catch (e) {
-                    Swal.fire('Ralat', 'Gagal menghantar data.', 'error');
-                }
-            }
+            inputValidator: (value) => {
+                if (!value) return 'Sila pilih satu jawapan!';
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee'
         });
-    };
 
-    function analyzeStressWithAI(text) {
-        const input = text.toLowerCase();
-        const criticalWords = ['putus asa', 'gagal', 'benci', 'mati', 'depress', 'menangis', 'tekanan melampau', 'tak tahan', 'berhenti', 'stres sangat'];
-        const mediumWords = ['susah', 'pening', 'stres', 'banyak kerja', 'letih', 'penat', 'tak faham', 'lambat', 'risau', 'takut'];
+        if (answer) {
+            totalScore += parseInt(answer);
+        } else {
+            return; // Berhenti jika user cancel
+        }
+    }
 
-        let score = 0;
-        criticalWords.forEach(w => { if(input.includes(w)) score += 5; });
-        mediumWords.forEach(w => { if(input.includes(w)) score += 2; });
+    // --- PROSES ANALISIS AI BERDASARKAN SKOR ---
+    const analysis = analyzeStressWithAI(totalScore);
 
-        if (score >= 8) return {
-            level: 'CRITICAL', icon: 'error',
-            advice: 'Anda menunjukkan tanda tekanan tinggi. Penyelia anda telah dimaklumkan untuk bantuan segera.'
+    Swal.fire({ 
+        title: 'Menilai Keputusan...', 
+        didOpen: () => Swal.showLoading() 
+    });
+
+    try {
+        const assessmentData = {
+            studentID: activeID,
+            studentName: currentUserData.name,
+            score: totalScore,
+            riskLevel: analysis.level,
+            aiAdvice: analysis.advice,
+            timestamp: serverTimestamp(),
+            supervisorEmail: currentUserData.supervisorEmail || "tiada"
         };
-        if (score >= 3) return {
-            level: 'MEDIUM', icon: 'warning',
-            advice: 'Anda nampak terbeban. Cuba rehat sebentar dan berbincang dengan rakan atau mentor.'
-        };
+
+        await setDoc(doc(db, "assessments", activeID), assessmentData);
+        await updateDoc(doc(db, "users", activeID), { 
+            psikoStatus: 'done',
+            stressLevel: analysis.level 
+        });
+
+        Swal.fire({
+            icon: analysis.icon,
+            title: `Analisis AI: ${analysis.level}`,
+            text: analysis.advice,
+            confirmButtonText: 'Faham'
+        }).then(() => location.reload());
+
+    } catch (e) {
+        Swal.fire('Ralat', 'Gagal memproses data.', 'error');
+    }
+};
+
+// --- LOGIK PENGIRAAN SKOR AI ---
+function analyzeStressWithAI(score) {
+    // Skor Maksimum: 15 (3 markah x 5 soalan)
+    if (score >= 11) {
         return {
-            level: 'NORMAL', icon: 'success',
-            advice: 'Tahap emosi anda stabil. Kekalkan momentum positif ini!'
+            level: 'CRITICAL',
+            icon: 'error',
+            advice: 'Tahap tekanan anda sangat tinggi (Skor: ' + score + '/15). Kami telah menghantar makluman kepada kaunselor untuk sesi bantuan segera.'
+        };
+    } else if (score >= 6) {
+        return {
+            level: 'MEDIUM',
+            icon: 'warning',
+            advice: 'Anda berada di tahap amaran (Skor: ' + score + '/15). Cuba uruskan masa dengan lebih baik atau berbincang dengan rakan sekuliah.'
+        };
+    } else {
+        return {
+            level: 'NORMAL',
+            icon: 'success',
+            advice: 'Tahap kesejahteraan anda baik (Skor: ' + score + '/15). Teruskan fokus dan kekalkan momentum positif ini!'
         };
     }
+}
 
     window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
     
