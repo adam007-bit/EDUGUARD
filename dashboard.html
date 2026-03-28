@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Dashboard Holistik</title>
+    <title>EduGuard AI | Dashboard Penyelia</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -11,112 +11,101 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
         .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
-        .navbar-brand { color: #4361ee !important; font-weight: 700; font-size: 1.4rem; }
+        .navbar-brand { color: #4361ee !important; font-weight: 700; }
         
-        .stat-card { border: none; border-radius: 16px; background: #ffffff; transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
-        
+        .stat-card { border: none; border-radius: 16px; background: #ffffff; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .main-card { border: none; border-radius: 20px; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         
-        .table thead th { background: #f8fafc; padding: 16px; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
-        .table tbody td { padding: 18px 16px; border-color: #f1f5f9; }
-        
-        /* Highlight baris jika markah rendah DAN stres tinggi */
+        /* Baris Kritikal: Gagal + Mental High */
         .row-critical { background-color: #fff1f2 !important; border-left: 5px solid #ef4444; }
+        .row-warning { border-left: 5px solid #f59e0b; }
         
-        .btn-export { border-radius: 10px; font-weight: 600; background: #4361ee; color: white; border: none; }
+        .table thead th { background: #f8fafc; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; border: none; }
+        .badge { padding: 6px 12px; border-radius: 8px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg sticky-top mb-4 py-3">
+<nav class="navbar navbar-expand-lg sticky-top mb-4 py-3 shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="#"><i class="bi bi-shield-lock-fill"></i> EduGuard <span style="color: #f59e0b;">AI</span></a>
+        <a class="navbar-brand" href="#"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard <span class="text-warning">AI</span></a>
         <div class="d-flex align-items-center gap-3">
-            <span class="text-muted small" id="svEmailDisplay">Memuatkan...</span>
-            <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm px-3">Log Keluar</button>
+            <div class="text-end d-none d-md-block">
+                <div class="fw-bold small" id="svNameDisplay">Penyelia...</div>
+                <div class="text-muted" style="font-size: 0.7rem;" id="svEmailDisplay">memuatkan...</div>
+            </div>
+            <button onclick="handleLogout()" class="btn btn-outline-danger btn-sm px-3 rounded-3">Log Keluar</button>
         </div>
     </div>
 </nav>
 
 <div class="container pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">Selamat Datang, <span id="rpsNameDisplay" class="text-primary">...</span></h4>
-            <p class="text-muted mb-0">Pemantauan Akademik & Kesejahteraan Mental.</p>
-        </div>
-        <button onclick="exportToCSV()" class="btn btn-export shadow-sm px-4 py-2">Export CSV</button>
+    <div class="mb-4">
+        <h4 class="fw-bold mb-1">Panel Pemantauan Pelajar</h4>
+        <p class="text-muted small">Data digabungkan secara automatik daripada portal akademik dan penilaian mental.</p>
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card stat-card p-3 shadow-sm">
+        <div class="col-md-3">
+            <div class="stat-card p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-primary-subtle text-primary me-3"><i class="bi bi-people"></i></div>
-                    <div>
-                        <h6 class="text-muted small fw-bold mb-0">TOTAL PELAJAR</h6>
-                        <h3 id="totalCount" class="fw-bold mb-0">0</h3>
-                    </div>
+                    <div><small class="text-muted fw-bold">TOTAL PELAJAR</small><h3 id="totalCount" class="fw-bold mb-0">0</h3></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card stat-card p-3 shadow-sm">
+        <div class="col-md-3">
+            <div class="stat-card p-3">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-heart-pulse"></i></div>
-                    <div>
-                        <h6 class="text-danger small fw-bold mb-0">RISIKO MENTAL (HIGH)</h6>
-                        <h3 id="stressHighCount" class="text-danger fw-bold mb-0">0</h3>
-                    </div>
+                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div><small class="text-danger fw-bold">RISIKO TINGGI (MENTAL)</small><h3 id="stressHighCount" class="text-danger fw-bold mb-0">0</h3></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card stat-card p-3 shadow-sm">
+        <div class="col-md-3">
+            <div class="stat-card p-3">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-exclamation-octagon"></i></div>
-                    <div>
-                        <h6 class="text-warning small fw-bold mb-0">KRITIKAL (GAGAL)</h6>
-                        <h3 id="failCount" class="text-warning fw-bold mb-0">0</h3>
-                    </div>
+                    <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-mortarboard"></i></div>
+                    <div><small class="text-warning fw-bold">KRITIKAL (GAGAL)</small><h3 id="failCount" class="text-warning fw-bold mb-0">0</h3></div>
                 </div>
             </div>
+        </div>
+        <div class="col-md-3 text-end d-flex align-items-center justify-content-end">
+            <button onclick="exportToCSV()" class="btn btn-primary shadow px-4 py-2 fw-bold"><i class="bi bi-download me-2"></i>Eksport CSV</button>
         </div>
     </div>
 
-    <div class="card main-card overflow-hidden mb-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4">Profil Pelajar</th>
-                        <th>Markah (%)</th>
-                        <th class="text-center">Stres (AI)</th>
-                        <th class="text-center">Status Akademik</th>
-                        <th class="text-center">Status Mental</th>
-                        <th class="text-end pe-4">Profil</th>
+                        <th class="ps-4">Nama & ID Pelajar</th>
+                        <th class="text-center">Akademik (%)</th>
+                        <th class="text-center">Skor Stres (5-Q)</th>
+                        <th class="text-center">Risiko Mental</th>
+                        <th class="text-center">Status Akhir</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="6" class="text-center p-5 text-muted">Mengambil data pendaftaran dan penilaian...</td></tr>
+                    <tr><td colspan="5" class="text-center p-5 text-muted">Menghubungkan data Firebase...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-4">
         <div class="col-md-6">
-            <div class="card main-card p-4">
-                <h6 class="fw-bold mb-3">Status Prestasi Akademik</h6>
+            <div class="card border-0 shadow-sm p-4 rounded-4">
+                <h6 class="fw-bold mb-4">Taburan Prestasi Akademik</h6>
                 <div style="height: 250px;"><canvas id="gradeChart"></canvas></div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card main-card p-4">
-                <h6 class="fw-bold mb-3">Status Kesejahteraan Mental</h6>
+            <div class="card border-0 shadow-sm p-4 rounded-4">
+                <h6 class="fw-bold mb-4">Tahap Kesejahteraan Minda</h6>
                 <div style="height: 250px;"><canvas id="stressChart"></canvas></div>
             </div>
         </div>
@@ -127,7 +116,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -143,85 +132,89 @@
     const auth = getAuth(app);
 
     let allDataCombined = [];
-    let gradeChart = null;
-    let stressChart = null;
+    let gradeChart, stressChart;
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             document.getElementById('svEmailDisplay').innerText = user.email;
+            await fetchSupervisorName(user.email);
             loadCombinedData(user.email);
         } else {
             window.location.href = "index.html";
         }
     });
 
+    // Ambil nama SV daripada koleksi 'users'
+    async function fetchSupervisorName(email) {
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const snap = await getDocs(q);
+        if(!snap.empty) {
+            document.getElementById('svNameDisplay').innerText = snap.docs[0].data().name;
+        }
+    }
+
     function loadCombinedData(svEmail) {
-        // 1. Dengar data Pendaftaran (Akademik)
+        // Listen Pendaftaran
         const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
-        
         onSnapshot(qReg, (regSnap) => {
             const registrations = [];
             regSnap.forEach(doc => registrations.push({ id: doc.id, ...doc.data() }));
 
-            // 2. Dengar data Assessment (Stres)
+            // Listen Assessment (5 Soalan)
             const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail));
-            
             onSnapshot(qAssess, (assessSnap) => {
                 const assessmentsMap = new Map();
-                // Simpan penilaian terbaru bagi setiap pelajar
                 assessSnap.forEach(doc => {
                     const d = doc.data();
+                    // Simpan yang terbaru sahaja bagi setiap studentID
                     assessmentsMap.set(d.studentID, d);
                 });
-
-                combineAndRender(registrations, assessmentsMap);
+                renderUI(registrations, assessmentsMap);
             });
         });
     }
 
-    function combineAndRender(registrations, assessmentsMap) {
+    function renderUI(registrations, assessmentsMap) {
         const tbody = document.getElementById('dashTable');
         tbody.innerHTML = '';
         allDataCombined = [];
 
-        let stats = { highStress: 0, fail: 0, excel: 0, normal: 0 };
-        let stressStats = { LOW: 0, MEDIUM: 0, HIGH: 0 };
+        let stats = { highStress: 0, fail: 0, normal: 0, excellent: 0 };
+        let mentalStats = { LOW: 0, MEDIUM: 0, HIGH: 0 };
 
         registrations.forEach(reg => {
             const assess = assessmentsMap.get(reg.studentID) || { risk: 'TIADA DATA', stress: 0 };
             const mark = parseFloat(reg.totalMark) || 0;
             
-            // Logik Akademik
-            let acadLabel = mark < 40 ? "GAGAL" : (mark >= 75 ? "EXCELLENT" : "NORMAL");
-            let acadClass = mark < 40 ? "bg-danger" : (mark >= 75 ? "bg-success" : "bg-warning text-dark");
-            
-            // Logik Mental
-            let mentalLabel = assess.risk || "TIADA DATA";
-            let mentalClass = mentalLabel === "HIGH" ? "bg-danger" : (mentalLabel === "MEDIUM" ? "bg-warning text-dark" : "bg-info");
-
+            // 1. Logik Akademik
+            let acadBadge = mark < 40 ? "bg-danger" : (mark >= 75 ? "bg-success" : "bg-warning text-dark");
             if (mark < 40) stats.fail++;
-            if (mark >= 75) stats.excel++;
-            if (mentalLabel === "HIGH") stats.highStress++;
-            if (stressStats[mentalLabel] !== undefined) stressStats[mentalLabel]++;
+            else if (mark >= 75) stats.excellent++;
+            else stats.normal++;
 
-            allDataCombined.push({ ...reg, ...assess, acadLabel, mentalLabel });
+            // 2. Logik Mental
+            let risk = assess.risk || "TIADA";
+            let riskBadge = risk === "HIGH" ? "bg-danger" : (risk === "MEDIUM" ? "bg-warning text-dark" : "bg-info");
+            if (mentalStats[risk] !== undefined) mentalStats[risk]++;
+            if (risk === "HIGH") stats.highStress++;
 
-            // Highlight jika Gagal + Stres Tinggi
-            const isCritical = (mark < 40 && mentalLabel === "HIGH");
+            // 3. Status Holistik
+            let isCritical = (mark < 40 && risk === "HIGH");
+            let holisticStatus = isCritical ? "TINDAKAN SEGERA" : "STABIL";
+            let holisticBadge = isCritical ? "bg-danger animate__animated animate__pulse animate__infinite" : "bg-light text-muted";
+
+            allDataCombined.push({ ...reg, ...assess, mark });
 
             tbody.innerHTML += `
-                <tr class="animate__animated animate__fadeIn ${isCritical ? 'row-critical' : ''}">
+                <tr class="${isCritical ? 'row-critical' : (risk === 'HIGH' ? 'row-warning' : '')}">
                     <td class="ps-4">
                         <div class="fw-bold">${reg.studentName}</div>
-                        <small class="text-muted">${reg.studentID}</small>
+                        <div class="text-muted small">${reg.studentID} | ${reg.course}</div>
                     </td>
-                    <td class="text-center fw-bold">${mark}%</td>
-                    <td class="text-center">${assess.stress}/5</td>
-                    <td class="text-center"><span class="badge ${acadClass}">${acadLabel}</span></td>
-                    <td class="text-center"><span class="badge ${mentalClass}">${mentalLabel}</span></td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-outline-primary" onclick="alert('Lihat Skor: ${reg.studentName}')"><i class="bi bi-eye"></i></button>
-                    </td>
+                    <td class="text-center"><span class="badge ${acadBadge}">${mark}%</span></td>
+                    <td class="text-center fw-bold">${assess.stress}/15</td>
+                    <td class="text-center"><span class="badge ${riskBadge}">${risk}</span></td>
+                    <td class="text-center"><span class="badge ${holisticBadge}">${holisticStatus}</span></td>
                 </tr>`;
         });
 
@@ -229,48 +222,57 @@
         document.getElementById('stressHighCount').innerText = stats.highStress;
         document.getElementById('failCount').innerText = stats.fail;
 
-        updateCharts(stats, stressStats);
+        updateCharts(stats, mentalStats);
     }
 
     function updateCharts(acad, mental) {
-        const ctxG = document.getElementById('gradeChart').getContext('2d');
-        const ctxS = document.getElementById('stressChart').getContext('2d');
+        const ctxG = document.getElementById('gradeChart');
+        const ctxS = document.getElementById('stressChart');
 
-        if (gradeChart) gradeChart.destroy();
-        if (stressChart) stressChart.destroy();
+        if(gradeChart) gradeChart.destroy();
+        if(stressChart) stressChart.destroy();
 
         gradeChart = new Chart(ctxG, {
             type: 'bar',
             data: {
                 labels: ['Gagal', 'Normal', 'Cemerlang'],
-                datasets: [{ data: [acad.fail, acad.normal, acad.excel], backgroundColor: '#4361ee' }]
+                datasets: [{ 
+                    label: 'Pelajar',
+                    data: [acad.fail, acad.normal, acad.excellent], 
+                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+                    borderRadius: 8
+                }]
             },
-            options: { maintainAspectRatio: false }
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
         stressChart = new Chart(ctxS, {
             type: 'doughnut',
             data: {
                 labels: ['Low', 'Medium', 'High'],
-                datasets: [{ data: [mental.LOW, mental.MEDIUM, mental.HIGH], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+                datasets: [{ 
+                    data: [mental.LOW, mental.MEDIUM, mental.HIGH], 
+                    backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
             },
-            options: { maintainAspectRatio: false }
+            options: { maintainAspectRatio: false, cutout: '70%' }
         });
     }
 
     window.exportToCSV = () => {
-        let csv = "Nama,ID,Markah,Gred,Stres,Risiko Mental\n";
+        let csv = "Nama,ID,Kursus,Markah,Risiko Mental\n";
         allDataCombined.forEach(r => {
-            csv += `"${r.studentName}","${r.studentID}",${r.totalMark},"${r.grade}",${r.stress},"${r.mentalLabel}"\n`;
+            csv += `"${r.studentName}","${r.studentID}","${r.course}",${r.mark},"${r.risk}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `EduGuard_Holistik_Report.csv`;
+        a.download = `Laporan_Penyelia_EduGuard.csv`;
         a.click();
     };
 
-    window.handleLogout = () => { if(confirm("Keluar?")) signOut(auth).then(() => window.location.href = "index.html"); };
+    window.handleLogout = () => { if(confirm("Log keluar dari sistem?")) signOut(auth); };
 </script>
 </body>
 </html>
