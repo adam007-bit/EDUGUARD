@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Portal Pelajar</title>
+    <title>EduGuard AI | Portal Pelajar Holistik</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -29,87 +30,39 @@
             border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
-        /* Verification Screen - Simplified */
+        /* Verification Screen */
         #verifySection { height: 100vh; display: flex; align-items: center; }
-        
         .verify-card {
-            max-width: 450px;
-            width: 100%;
+            max-width: 450px; width: 100%;
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border-radius: 30px;
-            padding: 50px 40px;
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 30px; padding: 50px 40px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
         }
 
         .verify-input {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.4rem;
-            text-align: center;
-            letter-spacing: 2px;
-            border-radius: 16px;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            background: #f8fafc;
-            transition: 0.3s;
-        }
-
-        .verify-input:focus {
-            border-color: var(--primary-neon);
-            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
-            background: #fff;
-        }
-
-        .btn-verify {
-            background: linear-gradient(135deg, var(--primary-neon), var(--accent-neon));
-            color: white;
-            border: none;
-            border-radius: 16px;
-            padding: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
-            transition: 0.3s;
-        }
-
-        .btn-verify:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.3);
-            color: white;
+            font-size: 1.4rem; text-align: center;
+            border-radius: 16px; padding: 15px; border: 2px solid #e2e8f0;
         }
 
         /* Student Header */
         .student-header { 
             background: linear-gradient(135deg, #1e293b, #334155); 
-            color: white; 
-            padding: 110px 0 70px 0; 
+            color: white; padding: 110px 0 70px 0; 
             border-radius: 0 0 50px 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .header-info {
             background: rgba(255, 255, 255, 0.08);
-            padding: 8px 20px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: inline-flex;
-            gap: 15px;
+            padding: 8px 20px; border-radius: 12px; font-size: 0.85rem;
         }
 
         /* Portal Cards */
         .portal-card { 
-            border: none; 
-            border-radius: 24px; 
-            padding: 25px; 
-            background: white; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.02); 
-            transition: 0.3s; 
-            border: 1px solid #f1f5f9;
+            border: none; border-radius: 24px; padding: 25px; 
+            background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.02); 
+            margin-bottom: 20px; border: 1px solid #f1f5f9;
         }
-
-        .portal-card:hover { transform: translateY(-5px); }
 
         .grade-circle { 
             width: 55px; height: 55px; border-radius: 16px; 
@@ -120,27 +73,14 @@
         .bg-grade-a { background: #dcfce7; color: #166534; }
         .bg-grade-g { background: #fee2e2; color: #991b1b; }
 
-        /* Navigation */
-        .nav-pills {
-            background: #fff;
-            padding: 8px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-        }
+        /* Navigation Pills */
+        .nav-pills { background: #fff; padding: 8px; border-radius: 20px; }
+        .nav-pills .nav-link { border-radius: 15px; font-weight: 700; color: #64748b; }
+        .nav-pills .nav-link.active { background: var(--primary-neon); color: white; }
 
-        .nav-pills .nav-link { 
-            border-radius: 15px; font-weight: 700; color: #64748b; 
-            padding: 12px 20px; font-size: 0.9rem;
-        }
-
-        .nav-pills .nav-link.active { 
-            background: var(--primary-neon); color: white; 
-        }
-
-        .badge-val { 
-            background: var(--primary-neon); color: white; 
-            padding: 3px 10px; border-radius: 8px; font-family: 'JetBrains Mono';
-        }
+        /* Assessment Styling */
+        .q-box { border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
+        .form-check-label { font-size: 0.8rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -157,15 +97,10 @@
     <div class="row justify-content-center w-100 mx-0">
         <div class="verify-card text-center">
             <h3 class="fw-bold mb-2">Portal Pelajar</h3>
-            <p class="text-muted small mb-4">Sila masukkan ID anda untuk mengakses sistem.</p>
-            
-            <div class="mb-4 text-start">
-                <label class="form-label small fw-bold text-secondary px-1">ID PELAJAR</label>
-                <input type="text" id="verifyID" class="form-control verify-input" placeholder="CONTOH: ST123">
-            </div>
-            
-            <button class="btn btn-verify w-100" onclick="verifyStudent()">
-                LOG MASUK SISTEM <i class="bi bi-box-arrow-in-right ms-2"></i>
+            <p class="text-muted small mb-4">Sila masukkan ID untuk akses.</p>
+            <input type="text" id="verifyID" class="form-control verify-input mb-4" placeholder="CONTOH: ST123">
+            <button class="btn btn-primary w-100 py-3 fw-bold rounded-4" onclick="verifyStudent()">
+                LOG MASUK <i class="bi bi-box-arrow-in-right ms-2"></i>
             </button>
         </div>
     </div>
@@ -177,26 +112,24 @@
             <h1 class="fw-bold mb-3"><span id="userDisplayName">-</span></h1>
             <div class="header-info">
                 <span><i class="bi bi-hash me-1"></i> <span id="userDisplayID">ID</span></span>
-                <span><i class="bi bi-person-badge me-1"></i> <span id="userDisplaySV">SV</span></span>
+                <span class="ms-3"><i class="bi bi-person-badge me-1"></i> <span id="userDisplaySV">SV</span></span>
             </div>
         </div>
     </div>
 
     <div class="container mt-4">
         <div class="d-flex justify-content-center mb-5">
-            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <ul class="nav nav-pills shadow-sm" id="pills-tab">
                 <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#content-results">Keputusan</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-materials">Bahan</button></li>
                 <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-register">Daftar</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-assessment">Status</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#content-assessment">Status Minda</button></li>
             </ul>
         </div>
 
         <div class="tab-content pb-5">
             <div class="tab-pane fade show active" id="content-results">
-                <div class="row justify-content-center">
-                    <div class="col-md-8" id="resultsList"></div>
-                </div>
+                <div class="row justify-content-center"><div class="col-md-8" id="resultsList"></div></div>
             </div>
 
             <div class="tab-pane fade" id="content-materials">
@@ -207,10 +140,13 @@
                 <div class="row justify-content-center">
                     <div class="col-md-7">
                         <div class="portal-card">
-                            <h5 class="fw-bold mb-4">Pendaftaran Kursus Baru</h5>
-                            <div class="mb-3"><label class="form-label small fw-bold">DOMAIN</label><select id="newCourse" class="form-select"><option value="Software Engineering">Software Engineering</option><option value="IoT Systems">IoT Systems</option><option value="Data Analytics">Data Analytics</option></select></div>
-                            <div class="mb-3"><label class="form-label small fw-bold">SEMESTER</label><select id="newSemester" class="form-select"><option value="Semester 1">Semester 1</option><option value="Semester 2">Semester 2</option></select></div>
-                            <div class="mb-4"><label class="form-label small fw-bold">PENYELIA</label><select id="newSupervisor" class="form-select"><option value="">Memuatkan...</option></select></div>
+                            <h5 class="fw-bold mb-4">Daftar Kursus</h5>
+                            <div class="mb-3"><label class="small fw-bold">DOMAIN</label>
+                                <select id="newCourse" class="form-select">
+                                    <option>Software Engineering</option><option>IoT Systems</option><option>Data Analytics</option>
+                                </select>
+                            </div>
+                            <div class="mb-3"><label class="small fw-bold">PENYELIA</label><select id="newSupervisor" class="form-select"><option value="">Memuatkan...</option></select></div>
                             <button class="btn btn-primary w-100 py-3 fw-bold rounded-3" onclick="registerNewCourse()">DAFTAR SEKARANG</button>
                         </div>
                     </div>
@@ -219,25 +155,70 @@
 
             <div class="tab-pane fade" id="content-assessment">
                 <div class="row justify-content-center">
-                    <div class="col-md-7">
+                    <div class="col-md-8">
                         <div class="portal-card">
-                            <h5 class="fw-bold mb-4">Analisis Kesejahteraan</h5>
-                            <div class="mb-4"><div class="d-flex justify-content-between mb-2"><label class="small fw-bold">STRESS</label><span id="stressVal" class="badge-val">3</span></div><input type="range" class="form-range" min="1" max="5" id="stress" value="3" oninput="document.getElementById('stressVal').innerText=this.value"></div>
-                            <div class="mb-4"><div class="d-flex justify-content-between mb-2"><label class="small fw-bold">BEBAN KERJA</label><span id="loadVal" class="badge-val">3</span></div><input type="range" class="form-range" min="1" max="5" id="load" value="3" oninput="document.getElementById('loadVal').innerText=this.value"></div>
-                            <button class="btn btn-dark w-100 py-3 fw-bold rounded-3" onclick="submitAssessment()">HANTAR STATUS</button>
+                            <h5 class="fw-bold text-center">Penilaian Kesejahteraan Diri</h5>
+                            <p class="text-muted text-center small mb-4">Maklumat ini sulit dan dihantar terus kepada Penyelia anda.</p>
+                            
+                            <form id="assessmentForm">
+                                <div class="q-box">
+                                    <label class="fw-bold small mb-2 text-primary">1. Berapa kerap anda rasa tidak mampu mengawal perkara penting dalam hidup?</label>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="0" required><label class="form-check-label">Tiada</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="1"><label class="form-check-label">Jarang</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="2"><label class="form-check-label">Kerap</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q1" value="3"><label class="form-check-label">Sangat Kerap</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="q-box">
+                                    <label class="fw-bold small mb-2 text-primary">2. Adakah anda merasa tertekan dengan tugasan akademik (assignment/projek)?</label>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="0" required><label class="form-check-label">Tiada</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="1"><label class="form-check-label">Jarang</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="2"><label class="form-check-label">Kerap</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q2" value="3"><label class="form-check-label">Sangat Kerap</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="q-box">
+                                    <label class="fw-bold small mb-2 text-primary">3. Adakah anda hilang minat untuk bergaul atau melakukan hobi?</label>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="0" required><label class="form-check-label">Tidak</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="1"><label class="form-check-label">Sedikit</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="2"><label class="form-check-label">Banyak</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q3" value="3"><label class="form-check-label">Hampir Selalu</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="q-box">
+                                    <label class="fw-bold small mb-2 text-primary">4. Adakah anda mengalami gangguan tidur (susah tidur/tidur berlebihan)?</label>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="0" required><label class="form-check-label">Tiada</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="1"><label class="form-check-label">1-2 Hari</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="2"><label class="form-check-label">3-4 Hari</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q4" value="3"><label class="form-check-label">Hampir Setiap Hari</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="q-box border-0">
+                                    <label class="fw-bold small mb-2 text-primary">5. Adakah anda rasa bimbang/gelisah tentang masa depan anda?</label>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="0" required><label class="form-check-label">Tiada</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="1"><label class="form-check-label">Jarang</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="2"><label class="form-check-label">Kerap</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="radio" name="q5" value="3"><label class="form-check-label">Sangat Kerap</label></div>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow" onclick="submitAssessment()">
+                                    HANTAR PENILAIAN <i class="bi bi-heart-pulse-fill ms-2"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="announcementModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0" style="border-radius: 20px;">
-            <div class="modal-header bg-warning border-0 p-3"><h6 class="modal-title fw-bold">Peringatan Penting</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4" id="modalAlertContent"></div>
         </div>
     </div>
 </div>
@@ -263,21 +244,19 @@
         const id = document.getElementById('verifyID').value.trim();
         if(!id) return alert("Sila masukkan ID!");
 
-        try {
-            const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
-            const snap = await getDocs(q);
-            if(snap.empty) return alert("ID tidak sah!");
+        const q = query(collection(db, "course_registrations"), where("studentID", "==", id));
+        const snap = await getDocs(q);
+        if(snap.empty) return alert("ID tidak sah!");
 
-            activeStudent = snap.docs[0].data();
-            document.getElementById('verifySection').classList.add('d-none');
-            document.getElementById('mainPortal').classList.remove('d-none');
-            
-            document.getElementById('userDisplayName').innerText = activeStudent.studentName;
-            document.getElementById('userDisplayID').innerText = activeStudent.studentID;
-            document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
+        activeStudent = snap.docs[0].data();
+        document.getElementById('verifySection').classList.add('d-none');
+        document.getElementById('mainPortal').classList.remove('d-none');
+        
+        document.getElementById('userDisplayName').innerText = activeStudent.studentName;
+        document.getElementById('userDisplayID').innerText = activeStudent.studentID;
+        document.getElementById('userDisplaySV').innerText = activeStudent.supervisorEmail;
 
-            loadResults(id); loadAutoMaterials(id); fetchSVList();
-        } catch (e) { console.error(e); }
+        loadResults(id); loadAutoMaterials(id); fetchSVList();
     }
 
     async function loadResults(id) {
@@ -287,14 +266,11 @@
         list.innerHTML = "";
         snap.forEach(doc => {
             const data = doc.data();
-            let gradeClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'G' ? 'bg-grade-g' : 'bg-light');
+            let gClass = data.grade === 'A' ? 'bg-grade-a' : (data.grade === 'G' ? 'bg-grade-g' : 'bg-light');
             list.innerHTML += `
-                <div class="portal-card mb-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="fw-bold mb-1">${data.course}</h6>
-                        <p class="small text-muted mb-0">${data.semester} | Quiz: ${data.quiz}%</p>
-                    </div>
-                    <div class="grade-circle ${gradeClass}">${data.grade || '-'}</div>
+                <div class="portal-card d-flex justify-content-between align-items-center">
+                    <div><h6 class="fw-bold mb-1">${data.course}</h6><p class="small text-muted mb-0">Quiz: ${data.quiz}% | Markah: ${data.totalMark}%</p></div>
+                    <div class="grade-circle ${gClass}">${data.grade || '-'}</div>
                 </div>`;
         });
     }
@@ -303,70 +279,73 @@
         const display = document.getElementById('materialsDisplay');
         const qReg = query(collection(db, "course_registrations"), where("studentID", "==", studentID));
         const snapReg = await getDocs(qReg);
-        let registeredCourses = snapReg.docs.map(doc => doc.data().course);
+        let regCourses = snapReg.docs.map(doc => doc.data().course);
 
         const snapMat = await getDocs(collection(db, "materials"));
         display.innerHTML = "";
-        let alertHTML = "";
-
         snapMat.forEach(doc => {
             const m = doc.data();
-            if (registeredCourses.includes(m.course)) {
+            if (regCourses.includes(m.course)) {
                 display.innerHTML += `
-                    <div class="portal-card mb-3 border-start border-4 ${m.category === 'Tarikh Penting' ? 'border-warning' : 'border-primary'}">
-                        <span class="badge ${m.category === 'Tarikh Penting' ? 'bg-warning text-dark' : 'bg-primary-subtle text-primary'} mb-2">${m.category}</span>
+                    <div class="portal-card border-start border-4 border-primary">
                         <h6 class="fw-bold mb-1">${m.title}</h6>
                         <p class="small text-muted mb-0">${m.content}</p>
                     </div>`;
-                if (m.category === 'Tarikh Penting') {
-                    alertHTML += `<div class="p-2 mb-2 bg-light rounded small border-start border-warning border-3"><strong>${m.course}</strong>: ${m.title}</div>`;
-                }
             }
         });
-        if (alertHTML) {
-            document.getElementById('modalAlertContent').innerHTML = alertHTML;
-            new bootstrap.Modal(document.getElementById('announcementModal')).show();
-        }
     }
 
     async function fetchSVList() {
         const svSelect = document.getElementById('newSupervisor');
         const snap = await getDocs(query(collection(db, "users"), where("role", "==", "supervisor")));
-        svSelect.innerHTML = '<option value="">-- Pilih --</option>';
-        snap.forEach(doc => {
-            const sv = doc.data();
-            svSelect.innerHTML += `<option value="${sv.email}">${sv.name}</option>`;
-        });
+        svSelect.innerHTML = '<option value="">-- Pilih SV --</option>';
+        snap.forEach(doc => svSelect.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`);
     }
 
     window.registerNewCourse = async function() {
         const course = document.getElementById('newCourse').value;
         const svEmail = document.getElementById('newSupervisor').value;
-        const semester = document.getElementById('newSemester').value;
         if(!svEmail) return alert("Pilih SV!");
         const regID = `${activeStudent.studentID}_${course.replace(/\s+/g, '')}`;
         try {
             await setDoc(doc(db, "course_registrations", regID), {
                 studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                course: course, semester: semester, supervisorEmail: svEmail,
+                course: course, semester: "Semester 1", supervisorEmail: svEmail,
                 quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", status: "Normal", timestamp: serverTimestamp()
             });
-            alert("Pendaftaran Berjaya!"); loadResults(activeStudent.studentID);
+            alert("Berjaya!"); loadResults(activeStudent.studentID);
         } catch (e) { alert("Gagal."); }
     }
 
+    // NEW DIAGNOSTIC ASSESSMENT LOGIC
     window.submitAssessment = async function() {
-        const s = parseInt(document.getElementById('stress').value);
-        const l = parseInt(document.getElementById('load').value);
+        const form = document.getElementById('assessmentForm');
+        const formData = new FormData(form);
+        let score = 0; let answered = 0;
+
+        for (let i = 1; i <= 5; i++) {
+            const val = formData.get(`q${i}`);
+            if (val !== null) { score += parseInt(val); answered++; }
+        }
+
+        if (answered < 5) return alert("Sila jawab semua 5 soalan!");
+
+        let risk = score >= 11 ? "HIGH" : (score >= 6 ? "MEDIUM" : "LOW");
+
         try {
             await addDoc(collection(db, "assessments"), {
-                studentID: activeStudent.studentID, studentName: activeStudent.studentName,
-                supervisorEmail: activeStudent.supervisorEmail, stress: s, load: l, timestamp: serverTimestamp()
+                studentID: activeStudent.studentID,
+                studentName: activeStudent.studentName,
+                supervisorEmail: activeStudent.supervisorEmail,
+                stress: score, // Disimpan sebagai 'stress' untuk dashboard SV
+                risk: risk,
+                timestamp: serverTimestamp()
             });
-            alert("Status Dihantar!");
-        } catch (e) { alert("Gagal."); }
+            alert(`Berjaya! Tahap Risiko: ${risk}. Data telah dihantar ke SV.`);
+            form.reset();
+        } catch (e) { alert("Gagal hantar."); }
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>   
+</html>
