@@ -160,6 +160,98 @@
         e.preventDefault();
         
         // --- LOGIK FIREBASE ANDA DI SINI (auth.js) ---
+        <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    // Gunakan config yang sama seperti Dashboard anda
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
+        authDomain: "eduguard-ai-2742b.firebaseapp.com",
+        projectId: "eduguard-ai-2742b",
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app",
+        messagingSenderId: "96233022148",
+        appId: "1:96233022148:web:1f903d72b3f79690409f91"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const fullName = document.getElementById('fullName').value;
+
+        // Tunjukkan loading
+        Swal.fire({ title: 'Sila Tunggu...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        try {
+            if (isLoginMode) {
+                // --- LOGIK LOG MASUK ---
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Semak peranan (role) dalam Firestore
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    // Halakan ke dashboard berdasarkan role
+                    if (userData.role === 'supervisor') window.location.href = "supervisor_dashboard.html";
+                    else if (userData.role === 'student') window.location.href = "student_portal.html";
+                    else window.location.href = "host_panel.html";
+                }
+            } else {
+                // --- LOGIK DAFTAR ---
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Simpan profil ke Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    name: fullName,
+                    email: email,
+                    role: currentRole, // Diambil dari variable global di script HTML anda
+                    createdAt: new Date().toISOString()
+                });
+
+                Swal.fire('Berjaya!', 'Akaun anda telah dicipta.', 'success').then(() => {
+                    location.reload(); // Kembali ke skrin log masuk
+                });
+            }
+        } catch (error) {
+            let errorMsg = "Berlaku ralat teknikal.";
+            if (error.code === 'auth/user-not-found') {
+                // Mencetuskan SweetAlert yang anda buat tadi untuk tanya "Nak daftar?"
+                triggerRegistrationPrompt();
+                return;
+            } else if (error.code === 'auth/wrong-password') {
+                errorMsg = "Kata laluan salah!";
+            }
+            
+            Swal.fire('Ralat', errorMsg, 'error');
+        }
+    });
+
+    function triggerRegistrationPrompt() {
+        Swal.fire({
+            title: 'Akaun Tidak Ditemui',
+            text: "Emel anda belum berdaftar. Adakah anda ingin mendaftar akaun baru?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Daftar Sini'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                isLoginMode = false;
+                updateUI(); // Fungsi dari script asal anda
+                Swal.close();
+            }
+        });
+    }
+</script>
         // Contoh simulasi jika user tidak dijumpai:
         const userFound = false; 
 
