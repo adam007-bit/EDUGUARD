@@ -10,49 +10,71 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-        .auth-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); overflow: hidden; background: white; width: 100%; max-width: 450px; margin: auto; }
+        .navbar { background: white !important; padding: 15px 0; }
+        .main-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); overflow: hidden; background: white; width: 100%; max-width: 450px; }
         .auth-header { background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; padding: 40px 30px; text-align: center; }
         .role-selector .btn { border-radius: 12px; font-weight: 600; flex: 1; border: 1px solid #e2e8f0; color: #64748b; }
-        .role-selector .btn.active { background: #4361ee !important; color: white !important; }
-        .form-control { border-radius: 12px; padding: 12px; background-color: #f8fafc; }
-        .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; }
+        .role-selector .btn.active { background: #4361ee !important; border-color: #4361ee !important; color: white !important; }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc; }
+        .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; transition: 0.3s; }
+        .input-group-text { border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; border-left: none; }
+        .password-input { border-radius: 12px 0 0 12px !important; }
     </style>
 </head>
 <body>
 
-<div class="auth-card mt-5 mb-5">
-    <div class="auth-header">
-        <i class="bi bi-shield-lock fs-1 mb-2 d-block"></i>
-        <h3 class="fw-bold mb-1" id="authTitle">Log Masuk RPS</h3>
-        <p class="small mb-0 opacity-75">Sila masukkan butiran akaun anda.</p>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="#">
+            <i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span>
+        </a>
     </div>
+</nav>
 
-    <div class="p-4">
-        <div class="role-selector d-flex gap-2 mb-4">
-            <button type="button" id="btn-supervisor" class="btn active" onclick="switchRole('supervisor')">RPS</button>
-            <button type="button" id="btn-student" class="btn" onclick="switchRole('student')">Pelajar</button>
-            <button type="button" id="btn-host" class="btn" onclick="switchRole('host')">Host</button>
+<div class="main-wrapper mt-5">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="bi bi-person-circle fs-1 mb-2 d-block"></i>
+            <h3 class="fw-bold mb-1" id="authTitle">Log Masuk RPS</h3>
+            <p class="small mb-0 opacity-75">Sila masukkan butiran akaun anda.</p>
         </div>
 
-        <form id="authForm">
-            <div class="mb-3" id="nameField" style="display: none;">
-                <label class="fw-semibold small mb-2">Nama Penuh</label>
-                <input type="text" id="fullName" class="form-control" placeholder="Nama penuh anda">
+        <div class="p-4">
+            <div class="role-selector d-flex gap-2 mb-4">
+                <button type="button" id="btn-supervisor" class="btn active" onclick="switchRole('supervisor')">RPS</button>
+                <button type="button" id="btn-student" class="btn" onclick="switchRole('student')">Pelajar</button>
+                <button type="button" id="btn-host" class="btn" onclick="switchRole('host')">Host</button>
             </div>
-            <div class="mb-3">
-                <label class="fw-semibold small mb-2">Alamat Emel</label>
-                <input type="email" id="email" class="form-control" placeholder="contoh@emel.com" required>
-            </div>
-            <div class="mb-4">
-                <label class="fw-semibold small mb-2">Kata Laluan</label>
-                <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-            </div>
-            <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">LOG MASUK</button>
-        </form>
 
-        <div class="text-center mt-4">
-            <span id="toggleText" class="text-muted small">Belum ada akaun?</span> 
-            <a href="javascript:void(0)" id="toggleAuthLink" class="text-primary fw-bold text-decoration-none small ms-1">Daftar Sini</a>
+            <form id="authForm">
+                <div class="mb-3" id="nameField" style="display: none;">
+                    <label class="fw-semibold small mb-2">Nama Penuh</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="Nama penuh anda">
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-semibold small mb-2">Alamat Emel</label>
+                    <input type="email" id="email" class="form-control" placeholder="contoh@emel.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="fw-semibold small mb-2">Kata Laluan</label>
+                    <div class="input-group">
+                        <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
+                        <span class="input-group-text" id="btnTogglePassword">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">LOG MASUK</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <span id="toggleText" class="text-muted small">Belum ada akaun?</span> 
+                <a href="javascript:void(0)" id="toggleAuthLink" class="text-primary fw-bold text-decoration-none small ms-1">Daftar Sini</a>
+            </div>
         </div>
     </div>
 </div>
@@ -78,21 +100,34 @@
     window.isLoginMode = true;
     window.currentRole = 'supervisor';
 
-    window.updateUI = () => {
+    window.updateUI = function() {
         const titleMap = { 'supervisor': 'RPS', 'student': 'Pelajar', 'host': 'Host' };
         document.getElementById('authTitle').innerText = (window.isLoginMode ? 'Log Masuk ' : 'Daftar ') + titleMap[window.currentRole];
         document.getElementById('authBtn').innerText = window.isLoginMode ? 'LOG MASUK' : 'DAFTAR SEKARANG';
         document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
+        document.getElementById('fullName').required = !window.isLoginMode;
         document.getElementById('toggleText').innerText = window.isLoginMode ? 'Belum ada akaun?' : 'Sudah ada akaun?';
         document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? 'Daftar Sini' : 'Log Masuk';
     };
 
-    window.switchRole = (role) => {
+    window.switchRole = function(role) {
         window.currentRole = role;
         document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`btn-${role}`).classList.add('active');
         window.updateUI();
     };
+
+    document.getElementById('btnTogglePassword').addEventListener('click', () => {
+        const passInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+            eyeIcon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            passInput.type = 'password';
+            eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    });
 
     document.getElementById('toggleAuthLink').addEventListener('click', () => {
         window.isLoginMode = !window.isLoginMode;
@@ -109,21 +144,28 @@
 
         try {
             if (window.isLoginMode) {
-                const userCred = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCred.user;
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-
+                
                 if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    // KUNCI UTAMA: Simpan sesi
+                    const userData = userDoc.data();
+                    
+                    // --- KEKALKAN SEMUA TAPI SIMPAN SESI DI SINI ---
                     sessionStorage.setItem("activeUser", user.uid);
-                    sessionStorage.setItem("tempRegName", data.name);
+                    sessionStorage.setItem("tempRegName", userData.name);
                     sessionStorage.setItem("tempRegID", user.uid);
 
-                    Swal.fire({ icon: 'success', title: 'Berjaya!', timer: 1000, showConfirmButton: false }).then(() => {
-                        if (data.role === 'student') {
-                            window.location.href = data.registrationStatus === 'complete' ? "student-view.html" : "registration-course.html";
-                        } else if (data.role === 'supervisor') {
+                    Swal.fire({ icon: 'success', title: 'Berjaya!', text: `Selamat datang, ${userData.name}`, timer: 1500, showConfirmButton: false })
+                    .then(() => {
+                        if (userData.role === 'student') {
+                            // Cek status pendaftaran kursus
+                            if (userData.registrationStatus === 'complete') {
+                                window.location.href = "student-view.html";
+                            } else {
+                                window.location.href = "registration-course.html";
+                            }
+                        } else if (userData.role === 'supervisor') {
                             window.location.href = "dashboard.html";
                         } else {
                             window.location.href = "host.html";
@@ -131,17 +173,25 @@
                     });
                 }
             } else {
-                const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "users", userCred.user.uid), {
-                    name: fullName, email: email, role: window.currentRole, registrationStatus: 'pending', createdAt: new Date().toISOString()
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                await setDoc(doc(db, "users", user.uid), {
+                    name: fullName,
+                    email: email,
+                    role: window.currentRole,
+                    registrationStatus: 'pending',
+                    createdAt: new Date().toISOString()
                 });
-                Swal.fire('Berjaya!', 'Sila Log Masuk.', 'success').then(() => {
+                Swal.fire('Berjaya!', 'Akaun anda telah didaftarkan. Sila log masuk.', 'success').then(() => {
                     window.isLoginMode = true;
                     window.updateUI();
                 });
             }
-        } catch (error) { Swal.fire('Gagal', error.message, 'error'); }
+        } catch (error) {
+            Swal.fire('Gagal', error.message, 'error');
+        }
     });
+    window.updateUI();
 </script>
 </body>
 </html>
