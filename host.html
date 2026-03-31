@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -140,8 +140,8 @@
 
 <div class="host-header text-center">
     <div class="container animate__animated animate__fadeIn">
-        <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard </h1>
-        <p class="opacity-75 small">Sistem Penilaian Strategik & Arkib Digital</p>
+        <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard</h1>
+        <p class="opacity-75 small">Strategic Evaluation System & Digital Archive</p>
     </div>
 </div>
 
@@ -151,7 +151,7 @@
             <div class="card glass-card stat-card border-primary">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">PURATA KESELURUHAN</small>
+                        <small class="text-muted fw-bold d-block">OVERALL AVERAGE</small>
                         <h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3>
                     </div>
                     <i class="bi bi-graph-up-arrow fs-3 text-primary opacity-50"></i>
@@ -162,7 +162,7 @@
             <div class="card glass-card stat-card border-success">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">PELAJAR LULUS</small>
+                        <small class="text-muted fw-bold d-block">STUDENTS PASSED</small>
                         <h3 class="fw-bold mb-0 text-success" id="statPass">0</h3>
                     </div>
                     <i class="bi bi-person-check fs-3 text-success opacity-50"></i>
@@ -173,7 +173,7 @@
             <div class="card glass-card stat-card border-danger">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">PELAJAR GAGAL</small>
+                        <small class="text-muted fw-bold d-block">STUDENTS FAILED</small>
                         <h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3>
                     </div>
                     <i class="bi bi-person-x fs-3 text-danger opacity-50"></i>
@@ -184,7 +184,7 @@
             <div class="card glass-card stat-card border-warning">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">BELUM DINILAI</small>
+                        <small class="text-muted fw-bold d-block">PENDING EVALUATION</small>
                         <h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3>
                     </div>
                     <i class="bi bi-clock-history fs-3 text-warning opacity-50"></i>
@@ -198,13 +198,13 @@
             <div class="card glass-card p-4 mb-4 border-0">
                 <div class="d-flex align-items-center mb-4">
                     <div class="section-icon"><i class="bi bi-people-fill"></i></div>
-                    <h5 class="fw-bold mb-0">Direktori Prestasi Pelajar</h5>
+                    <h5 class="fw-bold mb-0">Student Performance Directory</h5>
                 </div>
                 
                 <div class="row g-2 mb-4">
                     <div class="col-md-9">
                         <select id="courseSelect" class="form-select shadow-sm border-0">
-                            <option value="">-- Pilih Subjek Program --</option>
+                            <option value="">-- Select Subject Program --</option>
                             <option value="Software Engineering">Software Engineering</option>
                             <option value="IoT Systems">IoT Systems</option>
                             <option value="Data Analytics">Data Analytics</option>
@@ -213,7 +213,7 @@
                     </div>
                     <div class="col-md-3">
                         <button class="btn btn-primary w-100" onclick="searchBySubject()">
-                            <i class="bi bi-filter-right me-1"></i> Papar
+                            <i class="bi bi-filter-right me-1"></i> View
                         </button>
                     </div>
                 </div>
@@ -221,7 +221,7 @@
                 <div id="searchResults">
                     <div class="text-center py-5">
                         <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" style="width: 80px; opacity: 0.3;" class="mb-3">
-                        <p class="text-muted small">Sila pilih subjek untuk memulakan analisis data.</p>
+                        <p class="text-muted small">Please select a subject to begin data analysis.</p>
                     </div>
                 </div>
             </div>
@@ -231,8 +231,8 @@
                     <div class="d-flex align-items-center">
                         <div class="section-icon"><i class="bi bi-pencil-square"></i></div>
                         <div>
-                            <h6 class="fw-bold mb-0">Input Markah: <span id="displayStudentName" class="text-primary"></span></h6>
-                            <small class="text-muted">Kemasukan data penilaian akademik</small>
+                            <h6 class="fw-bold mb-0">Grade Input: <span id="displayStudentName" class="text-primary"></span></h6>
+                            <small class="text-muted">Academic assessment data entry</small>
                         </div>
                     </div>
                     <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
@@ -254,11 +254,11 @@
                     </div>
                     <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-3">
                         <div>
-                            <p class="text-muted small mb-0">Analisis Gred Semasa</p>
+                            <p class="text-muted small mb-0">Current Grade Analysis</p>
                             <h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4>
                         </div>
                         <button type="submit" class="btn btn-primary px-5">
-                            <i class="bi bi-check2-circle me-2"></i> Simpan Skor
+                            <i class="bi bi-check2-circle me-2"></i> Save Score
                         </button>
                     </div>
                 </div>
@@ -269,15 +269,15 @@
             <div class="card glass-card p-4 border-0 mb-4 sticky-top" style="top: 20px;">
                 <div class="d-flex align-items-center mb-4">
                     <div class="section-icon" style="background: rgba(46, 204, 113, 0.1); color: var(--success);"><i class="bi bi-cloud-plus-fill"></i></div>
-                    <h5 class="fw-bold mb-0">Pusat Sumber AI</h5>
+                    <h5 class="fw-bold mb-0">AI Resource Center</h5>
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Nama Bahan</label>
-                    <input type="text" id="postTitle" class="form-control" placeholder="cth: Modul Python Dasar">
+                    <label class="form-label small fw-bold">Material Title</label>
+                    <input type="text" id="postTitle" class="form-control" placeholder="e.g.: Basic Python Module">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Subjek Sasaran</label>
+                    <label class="form-label small fw-bold">Target Subject</label>
                     <select id="postCourse" class="form-select">
                         <option value="Software Engineering">Software Engineering</option>
                         <option value="IoT Systems">IoT Systems</option>
@@ -286,10 +286,10 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Kategori Fail</label>
+                    <label class="form-label small fw-bold">File Category</label>
                     <div class="btn-group w-100" role="group">
                         <input type="radio" class="btn-check" name="cat" id="c1" value="Lecture" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="c1">Nota</label>
+                        <label class="btn btn-outline-secondary btn-sm" for="c1">Notes</label>
                         <input type="radio" class="btn-check" name="cat" id="c2" value="Lab">
                         <label class="btn btn-outline-secondary btn-sm" for="c2">Lab</label>
                         <input type="radio" class="btn-check" name="cat" id="c3" value="Alert">
@@ -297,11 +297,11 @@
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label small fw-bold">Link Akses / URL</label>
-                    <textarea id="postContent" class="form-control" rows="3" placeholder="Masukkan pautan Google Drive atau nota..."></textarea>
+                    <label class="form-label small fw-bold">Access Link / URL</label>
+                    <textarea id="postContent" class="form-control" rows="3" placeholder="Enter Google Drive link or notes..."></textarea>
                 </div>
                 <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()">
-                    <i class="bi bi-broadcast me-2"></i> Terbitkan Bahan
+                    <i class="bi bi-broadcast me-2"></i> Publish Material
                 </button>
             </div>
         </div>
@@ -329,7 +329,7 @@
         const t = Number(document.getElementById('test').value) || 0;
         const m = Number(document.getElementById('midterm').value) || 0;
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "GAGAL" : "-");
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "FAILED" : "-");
         document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
     };
 
@@ -346,7 +346,7 @@
 
             if (snap.empty) {
                 resArea.innerHTML = `<div class="alert bg-white text-center p-5 border-dashed rounded-4">
-                                        <p class="text-muted mb-0 small">Tiada pelajar yang mendaftar kursus ini.</p>
+                                        <p class="text-muted mb-0 small">No students are registered for this course.</p>
                                      </div>`;
                 updateStats(0, 0, 0, 0);
                 return;
@@ -355,7 +355,7 @@
             let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
             let html = `<div class="table-responsive">
                         <table class="table table-custom">
-                        <thead><tr><th>Maklumat Pelajar</th><th>Statistik Markah</th><th class="text-center">Gred</th><th class="text-end">Aksi</th></tr></thead>
+                        <thead><tr><th>Student Information</th><th>Score Statistics</th><th class="text-center">Grade</th><th class="text-end">Action</th></tr></thead>
                         <tbody>`;
 
             snap.forEach(d => {
@@ -364,7 +364,7 @@
                 total++;
 
                 if(!data.grade) pending++;
-                else if(data.grade === 'GAGAL') fail++;
+                else if(data.grade === 'FAILED' || data.grade === 'GAGAL') fail++;
                 else { pass++; sumMarks += mark; }
 
                 const barColor = mark >= 80 ? 'bg-success' : (mark >= 40 ? 'bg-primary' : 'bg-danger');
@@ -383,7 +383,7 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <span class="grade-badge ${mark >= 80 ? 'badge-a' : (data.grade === 'GAGAL' ? 'badge-f' : 'badge-pending')}">
+                        <span class="grade-badge ${mark >= 80 ? 'badge-a' : (data.grade === 'FAILED' || data.grade === 'GAGAL' ? 'badge-f' : 'badge-pending')}">
                             ${data.grade || 'NA'}
                         </span>
                     </td>
@@ -399,7 +399,7 @@
             resArea.innerHTML = html + "</tbody></table></div>";
             updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
 
-        } catch (e) { Swal.fire('Ralat', e.message, 'error'); }
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
     };
 
     function updateStats(avg, p, f, pen) {
@@ -426,7 +426,7 @@
         const t = Number(document.getElementById('test').value);
         const m = Number(document.getElementById('midterm').value);
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "GAGAL";
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "FAILED";
 
         try {
             await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
@@ -443,14 +443,14 @@
         const title = document.getElementById('postTitle').value;
         const content = document.getElementById('postContent').value;
         const category = document.querySelector('input[name="cat"]:checked').value;
-        if(!title || !content) return Swal.fire('Info', 'Lengkapkan maklumat bahan!', 'info');
+        if(!title || !content) return Swal.fire('Info', 'Please complete the material information!', 'info');
 
         try {
             await addDoc(collection(db, "materials"), {
                 title, content, course: document.getElementById('postCourse').value,
                 category, datePosted: serverTimestamp()
             });
-            Swal.fire({ title: 'Published!', icon: 'success', text: 'Bahan telah berjaya dihantar.' });
+            Swal.fire({ title: 'Published!', icon: 'success', text: 'Material has been successfully uploaded.' });
             document.getElementById('postTitle').value = "";
             document.getElementById('postContent').value = "";
         } catch (e) { Swal.fire('Error', e.message, 'error'); }
