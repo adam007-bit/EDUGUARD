@@ -27,7 +27,6 @@
         .master-row { cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; }
         .master-row:hover { background-color: #f8fafc !important; }
         
-        /* Critical Row (Fail + Stress) */
         .row-critical { border-left-color: var(--p-red); background-color: #fff1f2 !important; }
         .row-critical:hover { background-color: #ffe4e6 !important; }
         
@@ -37,6 +36,15 @@
         .detail-pane { background-color: #f8fafc; padding: 25px !important; }
         .inner-table-card { border-radius: 16px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
         
+        /* New Score Styling */
+        .score-cell {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--p-blue);
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+
         .progress { background-color: #e2e8f0; border-radius: 50px; overflow: hidden; }
         .chart-container { position: relative; height: 280px; width: 100%; }
 
@@ -248,16 +256,38 @@
                     <td colspan="5" class="detail-pane">
                         <div class="inner-table-card p-4">
                             <div class="row g-4">
-                                <div class="col-md-7">
-                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book-half me-2"></i>Academic Details</h6>
+                                <div class="col-md-8">
+                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book-half me-2"></i>Academic Breakdown</h6>
                                     <div class="table-responsive">
-                                        <table class="table table-sm" style="font-size: 0.85rem;">
-                                            <thead class="table-light"><tr><th>Course Code</th><th class="text-center">Marks</th><th class="text-center">Grade</th></tr></thead>
-                                            <tbody>${stu.courses.map(c=>`<tr><td>${c.course}</td><td class="text-center fw-bold">${c.totalMark}%</td><td class="text-center"><span class="badge bg-primary-subtle text-primary">${c.grade}</span></td></tr>`).join('')}</tbody>
+                                        <table class="table table-sm align-middle" style="font-size: 0.85rem;">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Course</th>
+                                                    <th class="text-center">Quiz (20%)</th>
+                                                    <th class="text-center">Test (30%)</th>
+                                                    <th class="text-center">Midterm (50%)</th>
+                                                    <th class="text-center">Total Mark</th>
+                                                    <th class="text-center">Grade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${stu.courses.map(c=>`
+                                                    <tr>
+                                                        <td class="fw-bold">${c.course}</td>
+                                                        <td class="text-center"><span class="score-cell">${c.quiz || 0}</span></td>
+                                                        <td class="text-center"><span class="score-cell">${c.test || 0}</span></td>
+                                                        <td class="text-center"><span class="score-cell">${c.midterm || 0}</span></td>
+                                                        <td class="text-center fw-bold text-primary">${c.totalMark}%</td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-primary-subtle text-primary">${c.grade || 'N/A'}</span>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
-                                <div class="col-md-5 border-start">
+                                <div class="col-md-4 border-start">
                                     <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-heart-pulse me-2"></i>AI Sentiment Analysis</h6>
                                     <div class="p-3 rounded-4 bg-light border-0">
                                         <p class="small text-muted mb-2">Student Feedback:</p>
