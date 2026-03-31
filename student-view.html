@@ -285,11 +285,32 @@
         }
 
         const analysis = analyzeStressWithAI(totalScore);
-        await setDoc(doc(db, "assessments", activeID), {
-            studentID: activeID, score: totalScore, riskLevel: analysis.level, timestamp: serverTimestamp()
-        });
-        await updateDoc(doc(db, "users", activeID), { psikoStatus: 'done', stressLevel: analysis.level });
-        Swal.fire({ icon: analysis.icon, title: analysis.level, text: analysis.advice }).then(() => location.reload());
+        
+        try {
+            // Save assessment with Student Name included
+            await setDoc(doc(db, "assessments", activeID), {
+                studentID: activeID,
+                studentName: currentUserData.name, 
+                score: totalScore, 
+                riskLevel: analysis.level, 
+                timestamp: serverTimestamp()
+            });
+
+            await updateDoc(doc(db, "users", activeID), { 
+                psikoStatus: 'done', 
+                stressLevel: analysis.level 
+            });
+
+            Swal.fire({ 
+                icon: analysis.icon, 
+                title: analysis.level, 
+                text: analysis.advice 
+            }).then(() => location.reload());
+            
+        } catch (error) {
+            console.error("Error saving assessment:", error);
+            Swal.fire('Error', 'Failed to save analysis.', 'error');
+        }
     };
 
     function analyzeStressWithAI(score) {
@@ -299,6 +320,7 @@
     }
 
     window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
+    window.openPsiko = openPsiko; // Ensure global scope
     initDashboard();
 </script>
 </body>
