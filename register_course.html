@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Pendaftaran Kursus</title>
+    <title>EduGuard AI | Course Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -23,20 +23,20 @@
         <div class="bg-primary text-white d-inline-block p-3 rounded-circle mb-3">
             <i class="bi bi-journal-plus fs-3"></i>
         </div>
-        <h3 class="fw-bold">Daftar Kursus</h3>
-        <p class="text-muted small">Sila pilih kursus dan penyelia anda.</p>
+        <h3 class="fw-bold">Course Registration</h3>
+        <p class="text-muted small">Please select your course and supervisor.</p>
     </div>
 
     <form id="courseRegForm">
         <div class="mb-3">
-            <label class="fw-semibold small mb-2">ID Pelajar</label>
+            <label class="fw-semibold small mb-2">Student ID</label>
             <input type="text" id="displayID" class="form-control fw-bold text-primary" readonly>
         </div>
 
         <div class="mb-3">
-            <label class="fw-semibold small mb-2">Pilih Kursus</label>
+            <label class="fw-semibold small mb-2">Select Course</label>
             <select id="course" class="form-select" required>
-                <option value="">-- Pilih Kursus --</option>
+                <option value="">-- Choose Course --</option>
                 <option value="Software Engineering">Software Engineering</option>
                 <option value="IoT Systems">IoT Systems</option>
                 <option value="Data AI & Robotics">Data AI & Robotics</option>
@@ -45,14 +45,14 @@
         </div>
 
         <div class="mb-4">
-            <label class="fw-semibold small mb-2">Penyelia (RPS)</label>
+            <label class="fw-semibold small mb-2">Supervisor (RPS)</label>
             <select id="supervisor" class="form-select" required>
-                <option value="">Memuatkan senarai...</option>
+                <option value="">Loading list...</option>
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary shadow-sm">SAHKAN PENDAFTARAN</button>
-        <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small" onclick="window.location.href='student-view.html'">Batal & Kembali</button>
+        <button type="submit" class="btn btn-primary shadow-sm">CONFIRM REGISTRATION</button>
+        <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small" onclick="window.location.href='student-view.html'">Cancel & Return</button>
     </form>
 </div>
 
@@ -74,8 +74,8 @@
 
     const activeID = sessionStorage.getItem("activeUser");
     
-    // Pastikan kita ambil nama pelajar dari Firestore jika tempName tiada
-    let studentFullName = sessionStorage.getItem("tempRegName") || "Pelajar";
+    // Ensure we get the student name from Firestore if tempName is missing
+    let studentFullName = sessionStorage.getItem("tempRegName") || "Student";
 
     if (!activeID) {
         window.location.href = "index.html";
@@ -88,12 +88,12 @@
         try {
             const q = query(collection(db, "users"), where("role", "==", "supervisor"));
             const snap = await getDocs(q);
-            svDropdown.innerHTML = '<option value="">-- Pilih Penyelidik --</option>';
+            svDropdown.innerHTML = '<option value="">-- Choose Supervisor --</option>';
             snap.forEach(doc => {
                 svDropdown.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`;
             });
         } catch (e) {
-            svDropdown.innerHTML = '<option>Ralat memuatkan data</option>';
+            svDropdown.innerHTML = '<option>Error loading data</option>';
         }
     }
     loadSupervisors();
@@ -104,13 +104,13 @@
         const selectedCourse = document.getElementById('course').value;
         const selectedSupervisor = document.getElementById('supervisor').value;
         
-        // UNIK: Gabungan ID Pelajar + Nama Kursus (supaya boleh daftar banyak kursus berbeza)
+        // UNIQUE: Combination of Student ID + Course Name (allows registering for multiple different courses)
         const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}`;
 
-        Swal.fire({ title: 'Menyimpan Pendaftaran...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: 'Saving Registration...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            // 1. Simpan rekod pendaftaran dalam koleksi 'course_registrations'
+            // 1. Save registration record in 'course_registrations' collection
             await setDoc(doc(db, "course_registrations", uniqueDocID), {
                 studentID: activeID,
                 studentName: studentFullName,
@@ -122,8 +122,8 @@
                 timestamp: serverTimestamp()
             });
 
-            // 2. Kemaskini profil utama user
-            // Kita simpan supervisorEmail terakhir yang dipilih sebagai rujukan utama untuk stress assessment
+            // 2. Update main user profile
+            // Save the last selected supervisorEmail as a primary reference for assessments
             await updateDoc(doc(db, "users", activeID), {
                 registrationStatus: "complete",
                 supervisorEmail: selectedSupervisor 
@@ -131,8 +131,8 @@
 
             Swal.fire({ 
                 icon: 'success', 
-                title: 'Berjaya!', 
-                text: `Anda telah berdaftar untuk kursus ${selectedCourse}`, 
+                title: 'Success!', 
+                text: `You have successfully registered for the course: ${selectedCourse}`, 
                 timer: 2000, 
                 showConfirmButton: false 
             })
@@ -140,7 +140,7 @@
                 window.location.href = "student-view.html";
             });
         } catch (error) {
-            Swal.fire('Gagal', 'Sila cuba lagi: ' + error.message, 'error');
+            Swal.fire('Failed', 'Please try again: ' + error.message, 'error');
         }
     });
 </script>
