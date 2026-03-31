@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Dashboard Penyelia Terperinci</title>
+    <title>EduGuard AI | Detailed Supervisor Dashboard</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -27,7 +27,7 @@
         .master-row { cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; }
         .master-row:hover { background-color: #f8fafc !important; }
         
-        /* Barisan Kritikal (Gagal + Stress) */
+        /* Critical Row (Fail + Stress) */
         .row-critical { border-left-color: var(--p-red); background-color: #fff1f2 !important; }
         .row-critical:hover { background-color: #ffe4e6 !important; }
         
@@ -53,11 +53,11 @@
         </a>
         <div class="d-flex align-items-center gap-3">
             <div class="text-end d-none d-md-block border-end pe-3">
-                <div class="fw-bold small lh-1" id="svNameDisplay">Penyelia...</div>
-                <div class="text-muted mt-1" style="font-size: 0.7rem;" id="svEmailDisplay">memuatkan...</div>
+                <div class="fw-bold small lh-1" id="svNameDisplay">Supervisor...</div>
+                <div class="text-muted mt-1" style="font-size: 0.7rem;" id="svEmailDisplay">loading...</div>
             </div>
             <button onclick="handleLogout()" class="btn btn-light border btn-sm px-3 rounded-pill fw-bold text-danger">
-                <i class="bi bi-box-arrow-right me-1"></i> Log Keluar
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
             </button>
         </div>
     </div>
@@ -66,15 +66,15 @@
 <div class="container pb-5">
     <div class="row align-items-end mb-4 g-3">
         <div class="col-lg-7">
-            <h3 class="fw-bold mb-1">Analisis Holistik Pelajar</h3>
-            <p class="text-muted mb-0">Sistem pemantauan risiko akademik dan kesejahteraan mental secara masa nyata.</p>
+            <h3 class="fw-bold mb-1">Holistic Student Analysis</h3>
+            <p class="text-muted mb-0">Real-time academic risk and mental wellbeing monitoring system.</p>
         </div>
         <div class="col-lg-5 text-lg-end no-print">
             <button onclick="exportToCSV()" class="btn btn-success shadow-sm fw-bold px-4 rounded-pill me-2">
                 <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
             </button>
             <button onclick="downloadDashboardImage()" class="btn btn-primary shadow-sm fw-bold px-4 rounded-pill">
-                <i class="bi bi-camera me-1"></i> Simpan Laporan
+                <i class="bi bi-camera me-1"></i> Save Report
             </button>
         </div>
     </div>
@@ -84,7 +84,7 @@
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-primary-subtle text-primary me-3"><i class="bi bi-people-fill"></i></div>
-                    <div><small class="text-muted fw-bold text-uppercase ls-1">Jumlah Pelajar</small><h2 id="totalCount" class="fw-bold mb-0">0</h2></div>
+                    <div><small class="text-muted fw-bold text-uppercase ls-1">Total Students</small><h2 id="totalCount" class="fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
@@ -92,7 +92,7 @@
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-heart-pulse-fill"></i></div>
-                    <div><small class="text-danger fw-bold text-uppercase ls-1">Stress Tinggi</small><h2 id="stressHighCount" class="text-danger fw-bold mb-0">0</h2></div>
+                    <div><small class="text-danger fw-bold text-uppercase ls-1">High Stress</small><h2 id="stressHighCount" class="text-danger fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
@@ -100,7 +100,7 @@
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
                     <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-exclamation-octagon-fill"></i></div>
-                    <div><small class="text-warning fw-bold text-uppercase ls-1">Risiko Gagal</small><h2 id="failCount" class="text-warning fw-bold mb-0">0</h2></div>
+                    <div><small class="text-warning fw-bold text-uppercase ls-1">Risk of Failure</small><h2 id="failCount" class="text-warning fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
@@ -111,15 +111,15 @@
             <table class="table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width: 30%;">Profil Pelajar</th>
-                        <th class="text-center">Bil. Kursus</th>
-                        <th class="text-center">Purata Akademik</th>
-                        <th class="text-center">Risiko Stress</th>
-                        <th class="text-end pe-4">Status Intervensi</th>
+                        <th class="ps-4" style="width: 30%;">Student Profile</th>
+                        <th class="text-center">No. of Courses</th>
+                        <th class="text-center">Academic Average</th>
+                        <th class="text-center">Stress Risk</th>
+                        <th class="text-end pe-4">Intervention Status</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="5" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Memproses data Firebase...</td></tr>
+                    <tr><td colspan="5" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Processing Firebase data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -128,13 +128,13 @@
     <div class="row g-4">
         <div class="col-md-6">
             <div class="card border-0 shadow-sm p-4 rounded-4">
-                <h6 class="fw-bold mb-4"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Taburan Gred Akademik</h6>
+                <h6 class="fw-bold mb-4"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Academic Grade Distribution</h6>
                 <div class="chart-container"><canvas id="gradeChart"></canvas></div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card border-0 shadow-sm p-4 rounded-4">
-                <h6 class="fw-bold mb-4"><i class="bi bi-pie-chart-fill me-2 text-danger"></i>Status Saringan Mental</h6>
+                <h6 class="fw-bold mb-4"><i class="bi bi-pie-chart-fill me-2 text-danger"></i>Mental Screening Status</h6>
                 <div class="chart-container"><canvas id="stressChart"></canvas></div>
             </div>
         </div>
@@ -142,7 +142,6 @@
 </div>
 
 <script type="module">
-    // --- LOGIK FIREBASE & CHART ANDA KEKAL SAMA SEPERTI ASAL ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
@@ -204,9 +203,8 @@
         let m_low = 0, m_med = 0, m_high = 0, m_none = 0;
 
         Object.values(groups).forEach((stu) => {
-            const assess = aMap.get(stu.id) || { riskLevel: 'TIADA', feedbackText: 'Belum membuat saringan.' };
-            // Penyelarasan kunci: riskLevel digunakan dalam kod anda sebelum ini
-            const risk = assess.riskLevel || 'TIADA';
+            const assess = aMap.get(stu.id) || { riskLevel: 'NONE', feedbackText: 'No screening completed.' };
+            const risk = assess.riskLevel || 'NONE';
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
             
             if(risk === "CRITICAL" || risk === "HIGH") { s_high++; m_high++; }
@@ -232,7 +230,7 @@
                             </div>
                         </div>
                     </td>
-                    <td class="text-center"><span class="badge bg-light text-dark border">${stu.courses.length} Kursus</span></td>
+                    <td class="text-center"><span class="badge bg-light text-dark border">${stu.courses.length} Courses</span></td>
                     <td class="text-center fw-bold ${avg < 40 ? 'text-danger':''}">${avg}%</td>
                     <td class="text-center">
                         <span class="badge ${risk==='CRITICAL' || risk==='HIGH'?'bg-danger':(risk==='MEDIUM'?'bg-warning text-dark':'bg-info')}">
@@ -241,7 +239,7 @@
                     </td>
                     <td class="text-end pe-4">
                         <span class="badge ${isCrit?'bg-danger animate__animated animate__pulse animate__infinite':'bg-light text-muted border'}">
-                            ${isCrit?'TINDAKAN SEGERA':'STABIL'}
+                            ${isCrit?'IMMEDIATE ACTION':'STABLE'}
                         </span>
                         <i class="bi bi-chevron-down ms-2 text-muted"></i>
                     </td>
@@ -251,23 +249,23 @@
                         <div class="inner-table-card p-4">
                             <div class="row g-4">
                                 <div class="col-md-7">
-                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book-half me-2"></i>Perincian Akademik</h6>
+                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book-half me-2"></i>Academic Details</h6>
                                     <div class="table-responsive">
                                         <table class="table table-sm" style="font-size: 0.85rem;">
-                                            <thead class="table-light"><tr><th>Kod Kursus</th><th class="text-center">Markah</th><th class="text-center">Gred</th></tr></thead>
+                                            <thead class="table-light"><tr><th>Course Code</th><th class="text-center">Marks</th><th class="text-center">Grade</th></tr></thead>
                                             <tbody>${stu.courses.map(c=>`<tr><td>${c.course}</td><td class="text-center fw-bold">${c.totalMark}%</td><td class="text-center"><span class="badge bg-primary-subtle text-primary">${c.grade}</span></td></tr>`).join('')}</tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <div class="col-md-5 border-start">
-                                    <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-heart-pulse me-2"></i>Analisis Sentimen AI</h6>
+                                    <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-heart-pulse me-2"></i>AI Sentiment Analysis</h6>
                                     <div class="p-3 rounded-4 bg-light border-0">
-                                        <p class="small text-muted mb-2">Luahan Pelajar:</p>
+                                        <p class="small text-muted mb-2">Student Feedback:</p>
                                         <div class="p-3 bg-white rounded-3 mb-3 border border-dashed italic" style="font-size:0.85rem; font-style: italic; color:#475569;">
-                                            "${assess.feedbackText || 'Tiada maklum balas.'}"
+                                            "${assess.feedbackText || 'No feedback available.'}"
                                         </div>
                                         <div class="d-flex justify-content-between mb-1 small fw-bold">
-                                            <span>Tahap Risiko:</span>
+                                            <span>Risk Level:</span>
                                             <span class="${risk==='CRITICAL'?'text-danger':''}">${risk}</span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
@@ -299,38 +297,38 @@
         if(gradeChart) gradeChart.destroy();
         gradeChart = new Chart(document.getElementById('gradeChart'), {
             type: 'bar',
-            data: { labels: ['Berisiko Gagal', 'Sederhana', 'Cemerlang'], datasets: [{ label: 'Bilangan Pelajar', data: [a.fail, a.normal, a.excel], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderRadius: 8 }] },
+            data: { labels: ['Risk of Failure', 'Average', 'Excellent'], datasets: [{ label: 'Number of Students', data: [a.fail, a.normal, a.excel], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderRadius: 8 }] },
             options: commonOptions
         });
         
         if(stressChart) stressChart.destroy();
         stressChart = new Chart(document.getElementById('stressChart'), {
             type: 'doughnut',
-            data: { labels: ['Stabil/Rendah', 'Sederhana', 'Tinggi/Kritikal'], datasets: [{ data: [m.LOW, m.MEDIUM, m.HIGH], backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'], borderWeight: 0 }] },
+            data: { labels: ['Stable/Low', 'Medium', 'High/Critical'], datasets: [{ data: [m.LOW, m.MEDIUM, m.HIGH], backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'], borderWeight: 0 }] },
             options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
         });
     }
 
     window.exportToCSV = () => {
-        let csv = "ID,Nama,Bil Kursus,Purata(%),Risiko Mental,Status\n";
+        let csv = "ID,Name,No. Courses,Average(%),Mental Risk,Status\n";
         Object.values(globalGroupedData).forEach(stu => {
-            const assess = globalAssessMap.get(stu.id) || { riskLevel: 'TIADA' };
+            const assess = globalAssessMap.get(stu.id) || { riskLevel: 'NONE' };
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
-            const status = (avg < 40 && (assess.riskLevel === "CRITICAL" || assess.riskLevel === "HIGH")) ? "KRITIKAL" : "STABIL";
+            const status = (avg < 40 && (assess.riskLevel === "CRITICAL" || assess.riskLevel === "HIGH")) ? "CRITICAL" : "STABLE";
             csv += `${stu.id},${stu.name},${stu.courses.length},${avg},${assess.riskLevel},${status}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `Laporan_EduGuard_${new Date().toLocaleDateString()}.csv`; a.click();
+        a.href = url; a.download = `EduGuard_Report_${new Date().toLocaleDateString()}.csv`; a.click();
     };
 
     window.downloadDashboardImage = () => {
         const target = document.getElementById('dashboardContent');
-        Swal.fire({ title: 'Menjana Gambar...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: 'Generating Image...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         html2canvas(target, { scale: 2, backgroundColor: "#f8fafc", useCORS: true, logging: false }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `Laporan_Analisis_EduGuard.png`; link.href = canvas.toDataURL(); link.click();
+            link.download = `EduGuard_Analysis_Report.png`; link.href = canvas.toDataURL(); link.click();
             Swal.close();
         });
     };
