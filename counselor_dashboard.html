@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard AI | Panel Intervensi Kaunselor</title>
+    <title>EduGuard AI | Counselor Panel</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
     <style>
         :root { --p-navy: #1e293b; --p-blue: #4361ee; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; }
+        .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; transition: 0.3s; z-index: 1000; }
         .main-content { margin-left: 250px; padding: 40px; }
         .card-stats { border: none; border-radius: 24px; padding: 25px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; }
         .card-stats:hover { transform: translateY(-5px); }
@@ -22,6 +22,9 @@
         .table-custom { background: white; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
         .thead-dark { background: #f1f5f9; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-risk { padding: 6px 14px; border-radius: 50px; font-weight: 700; font-size: 0.7rem; }
+        
+        /* Lang Switcher in Sidebar */
+        .lang-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 10px; font-size: 0.8rem; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -29,22 +32,25 @@
 <div class="sidebar shadow">
     <h4 class="fw-bold text-primary mb-5"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard AI</h4>
     <nav class="nav flex-column gap-3">
-        <a class="nav-link text-white fw-bold active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> Ringkasan</a>
-        <a class="nav-link text-white-50" href="#"><i class="bi bi-people-fill me-2"></i> Semua Pelajar</a>
+        <a class="nav-link text-white fw-bold active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> <span id="navSummary">Ringkasan</span></a>
+        <a class="nav-link text-white-50" href="#"><i class="bi bi-people-fill me-2"></i> <span id="navStudents">Semua Pelajar</span></a>
         <hr class="opacity-25">
-        <a class="nav-link text-white-50" href="#" onclick="logout()"><i class="bi bi-box-arrow-left me-2"></i> Log Keluar</a>
+        <button class="lang-btn" onclick="toggleLanguage()">
+            <i class="bi bi-translate me-2"></i><span id="langText">English</span>
+        </button>
+        <a class="nav-link text-white-50 mt-2" href="#" onclick="logout()"><i class="bi bi-box-arrow-left me-2"></i> <span id="navLogout">Log Keluar</span></a>
     </nav>
 </div>
 
 <div class="main-content">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold mb-1">Analisis Intervensi Pelajar</h2>
-            <p class="text-muted">Memantau kesejahteraan emosi dan prestasi akademik pelajar.</p>
+            <h2 class="fw-bold mb-1" id="pageTitle">Analisis Intervensi Pelajar</h2>
+            <p class="text-muted" id="pageSubTitle">Memantau kesejahteraan emosi dan prestasi akademik pelajar.</p>
         </div>
         <div class="text-end">
             <div class="fw-bold" id="liveTime">...</div>
-            <span class="badge bg-success-subtle text-success rounded-pill">Sistem Aktif</span>
+            <span class="badge bg-success-subtle text-success rounded-pill" id="sysActive">Sistem Aktif</span>
         </div>
     </div>
 
@@ -53,7 +59,7 @@
             <div class="card-stats critical-border">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-muted small fw-bold">KES KRITIKAL</div>
+                        <div class="text-muted small fw-bold" id="lblCrit">KES KRITIKAL</div>
                         <h1 class="fw-bold text-danger mb-0" id="critCount">0</h1>
                     </div>
                     <i class="bi bi-exclamation-triangle-fill fs-1 text-danger opacity-25"></i>
@@ -64,7 +70,7 @@
             <div class="card-stats warning-border">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-muted small fw-bold">KES SEDERHANA</div>
+                        <div class="text-muted small fw-bold" id="lblMed">KES SEDERHANA</div>
                         <h1 class="fw-bold text-warning mb-0" id="medCount">0</h1>
                     </div>
                     <i class="bi bi-activity fs-1 text-warning opacity-25"></i>
@@ -75,7 +81,7 @@
             <div class="card-stats border-start border-primary border-5">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-muted small fw-bold">GAGAL AKADEMIK</div>
+                        <div class="text-muted small fw-bold" id="lblFail">GAGAL AKADEMIK</div>
                         <h1 class="fw-bold text-primary mb-0" id="failCount">0</h1>
                     </div>
                     <i class="bi bi-mortarboard-fill fs-1 text-primary opacity-25"></i>
@@ -90,42 +96,42 @@
             <input type="text" id="searchInput" class="form-control border-start-0 rounded-end-4 py-2" placeholder="Cari Nama atau ID Pelajar..." onkeyup="filterTable()">
         </div>
         <button class="btn btn-outline-primary rounded-4 px-4" onclick="loadAllData()">
-            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+            <i class="bi bi-arrow-clockwise me-1"></i> <span id="btnRefresh">Refresh Data</span>
         </button>
     </div>
 
-    <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Status Kesejahteraan Emosi</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i> <span id="tblStressTitle">Status Kesejahteraan Emosi</span></h5>
     <div class="table-custom mb-5 shadow-sm">
         <table class="table table-hover align-middle mb-0" id="riskTable">
             <thead class="thead-dark">
                 <tr>
-                    <th class="ps-4 py-3">Maklumat Pelajar</th>
-                    <th>Skor AI (/15)</th>
-                    <th>Tahap Risiko</th>
-                    <th>Tarikh Saringan</th>
-                    <th class="text-center">Tindakan</th>
+                    <th class="ps-4 py-3" id="thInfo">Maklumat Pelajar</th>
+                    <th id="thScore">Skor AI (/15)</th>
+                    <th id="thRisk">Tahap Risiko</th>
+                    <th id="thDate">Tarikh Saringan</th>
+                    <th class="text-center" id="thAction">Tindakan</th>
                 </tr>
             </thead>
             <tbody id="riskTableBody">
-                <tr><td colspan="5" class="text-center py-5">Memuatkan data...</td></tr>
+                <tr><td colspan="5" class="text-center py-5" id="msgLoading">Memuatkan data...</td></tr>
             </tbody>
         </table>
     </div>
 
-    <h5 class="fw-bold mb-3"><i class="bi bi-journal-x text-primary me-2"></i>Pelajar Berisiko Gagal</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-journal-x text-primary me-2"></i> <span id="tblFailTitle">Pelajar Berisiko Gagal</span></h5>
     <div class="table-custom shadow-sm">
         <table class="table table-hover align-middle mb-0">
             <thead class="thead-dark">
                 <tr>
-                    <th class="ps-4 py-3">ID Pelajar</th>
-                    <th>Subjek / Kursus</th>
-                    <th>Gred Akhir</th>
-                    <th>Markah</th>
-                    <th class="text-center">Status</th>
+                    <th class="ps-4 py-3" id="thID">ID Pelajar</th>
+                    <th id="thCourse">Subjek / Kursus</th>
+                    <th id="thGrade">Gred Akhir</th>
+                    <th id="thMark">Markah</th>
+                    <th class="text-center" id="thStatus">Status</th>
                 </tr>
             </thead>
             <tbody id="failTableBody">
-                <tr><td colspan="5" class="text-center py-5 text-muted small">Tiada data kegagalan dikesan.</td></tr>
+                <tr><td colspan="5" class="text-center py-5 text-muted small" id="msgNoFail">Tiada data kegagalan dikesan.</td></tr>
             </tbody>
         </table>
     </div>
@@ -147,11 +153,80 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- LOGIK TERJEMAHAN ---
+    window.currentLang = 'ms';
+    const translations = {
+        en: {
+            navSummary: "Summary", navStudents: "All Students", navLogout: "Logout",
+            pageTitle: "Student Intervention Analysis", pageSubTitle: "Monitoring emotional well-being and academic performance.",
+            sysActive: "System Active", lblCrit: "CRITICAL CASES", lblMed: "MEDIUM CASES", lblFail: "ACADEMIC FAIL",
+            btnRefresh: "Refresh Data", searchPlaceholder: "Search Name or Student ID...",
+            tblStressTitle: "Emotional Well-being Status", tblFailTitle: "Students at Risk of Failing",
+            thInfo: "Student Info", thScore: "AI Score (/15)", thRisk: "Risk Level", thDate: "Screening Date", thAction: "Action",
+            thID: "Student ID", thCourse: "Subject / Course", thGrade: "Final Grade", thMark: "Marks", thStatus: "Status",
+            msgLoading: "Loading data...", msgNoFail: "No failure data detected.",
+            btnIntervene: "Intervention", badgeAction: "ACTION",
+            swalTitle: "Intervention", swalSub: "Message will appear on Student Dashboard", swalPlaceholder: "Write your message here...",
+            swalBtn: "Send Notification", swalSuccess: "Sent!", swalSuccessMsg: "Student will receive this message shortly."
+        },
+        ms: {
+            navSummary: "Ringkasan", navStudents: "Semua Pelajar", navLogout: "Log Keluar",
+            pageTitle: "Analisis Intervensi Pelajar", pageSubTitle: "Memantau kesejahteraan emosi dan prestasi akademik pelajar.",
+            sysActive: "Sistem Aktif", lblCrit: "KES KRITIKAL", lblMed: "KES SEDERHANA", lblFail: "GAGAL AKADEMIK",
+            btnRefresh: "Refresh Data", searchPlaceholder: "Cari Nama atau ID Pelajar...",
+            tblStressTitle: "Status Kesejahteraan Emosi", tblFailTitle: "Pelajar Berisiko Gagal",
+            thInfo: "Maklumat Pelajar", thScore: "Skor AI (/15)", thRisk: "Tahap Risiko", thDate: "Tarikh Saringan", thAction: "Tindakan",
+            thID: "ID Pelajar", thCourse: "Subjek / Kursus", thGrade: "Gred Akhir", thMark: "Markah", thStatus: "Status",
+            msgLoading: "Memuatkan data...", msgNoFail: "Tiada data kegagalan dikesan.",
+            btnIntervene: "Intervensi", badgeAction: "TINDAKAN",
+            swalTitle: "Intervensi", swalSub: "Mesej akan muncul di Dashboard Pelajar", swalPlaceholder: "Tulis pesanan anda di sini...",
+            swalBtn: "Hantar Notifikasi", swalSuccess: "Dihantar!", swalSuccessMsg: "Pelajar akan menerima mesej ini sebentar lagi."
+        }
+    };
+
+    window.toggleLanguage = function() {
+        window.currentLang = (window.currentLang === 'ms') ? 'en' : 'ms';
+        document.getElementById('langText').innerText = (window.currentLang === 'ms') ? 'English' : 'Bahasa Melayu';
+        window.updateUI();
+        window.loadAllData(); // Reload table to refresh dynamic button texts
+    };
+
+    window.updateUI = function() {
+        const t = translations[window.currentLang];
+        document.getElementById('navSummary').innerText = t.navSummary;
+        document.getElementById('navStudents').innerText = t.navStudents;
+        document.getElementById('navLogout').innerText = t.navLogout;
+        document.getElementById('pageTitle').innerText = t.pageTitle;
+        document.getElementById('pageSubTitle').innerText = t.pageSubTitle;
+        document.getElementById('sysActive').innerText = t.sysActive;
+        document.getElementById('lblCrit').innerText = t.lblCrit;
+        document.getElementById('lblMed').innerText = t.lblMed;
+        document.getElementById('lblFail').innerText = t.lblFail;
+        document.getElementById('btnRefresh').innerText = t.btnRefresh;
+        document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+        document.getElementById('tblStressTitle').innerText = t.tblStressTitle;
+        document.getElementById('tblFailTitle').innerText = t.tblFailTitle;
+        document.getElementById('thInfo').innerText = t.thInfo;
+        document.getElementById('thScore').innerText = t.thScore;
+        document.getElementById('thRisk').innerText = t.thRisk;
+        document.getElementById('thDate').innerText = t.thDate;
+        document.getElementById('thAction').innerText = t.thAction;
+        document.getElementById('thID').innerText = t.thID;
+        document.getElementById('thCourse').innerText = t.thCourse;
+        document.getElementById('thGrade').innerText = t.thGrade;
+        document.getElementById('thMark').innerText = t.thMark;
+        document.getElementById('thStatus').innerText = t.thStatus;
+    };
+
     // Live Clock
-    setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleString('ms-MY'); }, 1000);
+    setInterval(() => { 
+        const langCode = window.currentLang === 'ms' ? 'ms-MY' : 'en-US';
+        document.getElementById('liveTime').innerText = new Date().toLocaleString(langCode); 
+    }, 1000);
 
     // Load Data Function
     async function loadAllData() {
+        const t = translations[window.currentLang];
         try {
             const qStress = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
             const snapStress = await getDocs(qStress);
@@ -160,7 +235,7 @@
             let cCount = 0, mCount = 0;
 
             if (snapStress.empty) {
-                riskTable.innerHTML = '<tr><td colspan="5" class="text-center py-5">Tiada data.</td></tr>';
+                riskTable.innerHTML = `<tr><td colspan="5" class="text-center py-5">No Data.</td></tr>`;
             }
 
             snapStress.forEach(doc => {
@@ -176,10 +251,10 @@
                         </td>
                         <td><span class="fw-bold">${data.score}</span>/15</td>
                         <td><span class="badge badge-risk ${data.riskLevel === 'CRITICAL' ? 'bg-danger' : 'bg-warning'}">${data.riskLevel}</span></td>
-                        <td><small>${data.timestamp?.toDate().toLocaleDateString('ms-MY') || '-'}</small></td>
+                        <td><small>${data.timestamp?.toDate().toLocaleDateString(window.currentLang === 'ms' ? 'ms-MY' : 'en-US') || '-'}</small></td>
                         <td class="text-center">
                             <button class="btn btn-dark btn-sm rounded-pill px-3" onclick="hubungiPelajar('${data.studentID}', '${data.studentName}')">
-                                <i class="bi bi-chat-dots me-1"></i> Intervensi
+                                <i class="bi bi-chat-dots me-1"></i> ${t.btnIntervene}
                             </button>
                         </td>
                     </tr>`;
@@ -194,23 +269,28 @@
             failTable.innerHTML = '';
             document.getElementById('failCount').innerText = snapFail.size;
 
+            if(snapFail.empty) {
+                failTable.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted small">${t.msgNoFail}</td></tr>`;
+            }
+
             snapFail.forEach(doc => {
                 const d = doc.data();
-                failTable.innerHTML += `<tr><td class="ps-4">${d.studentID}</td><td>${d.course}</td><td class="text-danger fw-bold">${d.grade}</td><td>${d.totalMark}%</td><td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 rounded-pill">TINDAKAN</span></td></tr>`;
+                failTable.innerHTML += `<tr><td class="ps-4">${d.studentID}</td><td>${d.course}</td><td class="text-danger fw-bold">${d.grade}</td><td>${d.totalMark}%</td><td class="text-center"><span class="badge bg-danger-subtle text-danger px-3 rounded-pill">${t.badgeAction}</span></td></tr>`;
             });
 
         } catch (e) { console.error(e); }
     }
 
-    // Modal Hubungi Pelajar (Hantar Notifikasi)
+    // Modal Hubungi Pelajar
     window.hubungiPelajar = async (id, nama) => {
+        const t = translations[window.currentLang];
         const { value: text } = await Swal.fire({
-            title: `Intervensi: ${nama}`,
+            title: `${t.swalTitle}: ${nama}`,
             input: 'textarea',
-            inputLabel: 'Mesej akan muncul di Dashboard Pelajar',
-            inputPlaceholder: 'Tulis pesanan anda di sini...',
+            inputLabel: t.swalSub,
+            inputPlaceholder: t.swalPlaceholder,
             showCancelButton: true,
-            confirmButtonText: 'Hantar Notifikasi',
+            confirmButtonText: t.swalBtn,
             confirmButtonColor: '#1e293b'
         });
 
@@ -223,9 +303,9 @@
                     status: "unread",
                     timestamp: serverTimestamp()
                 });
-                Swal.fire('Dihantar!', 'Pelajar akan menerima mesej ini sebentar lagi.', 'success');
+                Swal.fire(t.swalSuccess, t.swalSuccessMsg, 'success');
             } catch (e) {
-                Swal.fire('Ralat', 'Gagal menghantar mesej.', 'error');
+                Swal.fire('Error', 'Failed to send message.', 'error');
             }
         }
     };
@@ -238,6 +318,9 @@
 
     window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
     window.loadAllData = loadAllData;
+    
+    // Initial Load
+    window.updateUI();
     loadAllData();
 </script>
 </body>
