@@ -31,6 +31,11 @@
         .inner-table-card { border-radius: 16px; border: 1px solid #e2e8f0; background: white; }
         .score-cell { background: #f1f5f9; font-weight: 600; color: var(--p-blue); border-radius: 6px; padding: 4px 8px; }
         .chart-container { position: relative; height: 280px; width: 100%; }
+        
+        /* Chat UI Enhancements */
+        #chatHistory::-webkit-scrollbar { width: 5px; }
+        #chatHistory::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -132,10 +137,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white border-0 rounded-top-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-chat-dots me-2"></i> <span id="chatStudentName">Chat</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="chatHistory" class="p-3" style="height: 350px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px;">
+                    </div>
+                <input type="hidden" id="currentChatID">
+                <div class="p-3 border-top bg-white rounded-bottom-4">
+                    <form id="replyForm" class="d-flex gap-2">
+                        <input type="text" id="replyInput" class="form-control rounded-pill border-0 bg-light px-3" placeholder="Tulis mesej..." required>
+                        <button type="submit" class="btn btn-primary rounded-circle shadow-sm" style="width: 45px; height: 45px;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, getDocs, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -197,13 +226,11 @@
     });
 
     function loadData(svEmail) {
-        // Query registrations where the supervisor matches
         const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
         onSnapshot(qReg, (regSnap) => {
             const regs = [];
             regSnap.forEach(doc => regs.push(doc.data()));
             
-            // Query assessments for the same supervisor context
             const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail));
             onSnapshot(qAssess, (assessSnap) => {
                 const aMap = new Map();
@@ -230,18 +257,14 @@
         Object.values(groups).forEach((stu) => {
             const assess = aMap.get(stu.id) || { riskLevel: 'NONE', feedbackText: 'No assessment recorded.' };
             const mentalRisk = (assess.riskLevel || 'NONE').toUpperCase();
-            
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
             
-            // Calculate Mental Stats
             if(mentalRisk === "HIGH" || mentalRisk === "CRITICAL") { s_high_stress++; m_high++; }
             else if(mentalRisk === "MEDIUM") m_med++; 
             else m_low++;
 
-            // Calculate Academic Stats
             if(avg < 40) s_fail++; else if(avg >= 75) s_excel++; else s_norm++;
 
-            // Urgent action logic: Academic Fail + High Mental Stress
             const isCrit = (avg < 40 || mentalRisk === "HIGH" || mentalRisk === "CRITICAL");
             const collId = `c_${stu.id.replace(/[^a-zA-Z0-9]/g, '')}`;
 
@@ -301,7 +324,9 @@
                                             <span>${translations[currentLang].riskLevel}</span>
                                             <span class="${mentalRisk==='HIGH' || mentalRisk==='CRITICAL'?'text-danger':''}">${mentalRisk}</span>
                                         </div>
-                                        <button class="btn btn-primary btn-sm w-100 rounded-pill">${translations[currentLang].btnNotify}</button>
+                                        <button class="btn btn-primary btn-sm w-100 rounded-pill" onclick="openChat('${stu.id}', '${stu.name}')">
+                                            <i class="bi bi-chat-left-dots me-1"></i> ${translations[currentLang].btnNotify}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -315,6 +340,64 @@
         document.getElementById('failCount').innerText = s_fail;
         updateCharts({fail: s_fail, normal: s_norm, excel: s_excel}, {LOW: m_low, MEDIUM: m_med, HIGH: m_high});
     }
+
+    // --- LOGIK CHAT & NOTIFIKASI ---
+    window.openChat = (studentID, studentName) => {
+        const chatModal = new bootstrap.Modal(document.getElementById('chatModal'));
+        document.getElementById('chatStudentName').innerText = studentName;
+        document.getElementById('currentChatID').value = studentID;
+        chatModal.show();
+
+        const q = query(
+            collection(db, "chats"),
+            where("studentID", "==", studentID),
+            orderBy("timestamp", "asc")
+        );
+
+        onSnapshot(q, (snap) => {
+            const history = document.getElementById('chatHistory');
+            history.innerHTML = '';
+            snap.forEach(d => {
+                const m = d.data();
+                const isMe = m.sender !== studentID;
+                history.innerHTML += `
+                    <div class="d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'} animate__animated animate__fadeInUp">
+                        <div class="p-2 px-3 rounded-4 ${isMe ? 'bg-primary text-white' : 'bg-white border text-dark'}" style="max-width: 80%; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            ${m.text}
+                        </div>
+                    </div>`;
+            });
+            history.scrollTop = history.scrollHeight;
+        });
+    };
+
+    document.getElementById('replyForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('replyInput');
+        const studentID = document.getElementById('currentChatID').value;
+        const svEmail = auth.currentUser.email;
+
+        if (!input.value.trim()) return;
+
+        try {
+            await addDoc(collection(db, "chats"), {
+                studentID: studentID,
+                supervisorEmail: svEmail,
+                sender: svEmail,
+                text: input.value,
+                timestamp: serverTimestamp()
+            });
+
+            await addDoc(collection(db, "notifications"), {
+                studentID: studentID,
+                message: `Penyelia hantar mesej: ${input.value.substring(0, 30)}...`,
+                status: "unread",
+                timestamp: serverTimestamp()
+            });
+
+            input.value = '';
+        } catch (err) { console.error("Error sending message:", err); }
+    };
 
     function updateCharts(a, m) {
         const labelsGrade = currentLang === 'en' ? ['Risk of Failure', 'Average', 'Excellent'] : ['Risiko Gagal', 'Sederhana', 'Cemerlang'];
