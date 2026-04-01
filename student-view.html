@@ -26,6 +26,19 @@
         .section-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; }
         .section-title i { color: var(--p-blue); margin-right: 12px; font-size: 1.3rem; }
         .badge-status { font-size: 0.7rem; padding: 5px 12px; border-radius: 50px; }
+
+        /* Chat Overlay Styles */
+        .chat-container {
+            position: fixed; bottom: 100px; right: 30px; width: 320px; height: 400px;
+            background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0;
+        }
+        .chat-header { background: var(--p-blue); color: white; padding: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
+        .chat-input-area { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; }
+        .msg { max-width: 85%; padding: 8px 12px; border-radius: 15px; font-size: 0.8rem; line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
+        .msg-them { align-self: flex-start; background: #e2e8f0; color: #1e293b; border-bottom-left-radius: 2px; }
     </style>
 </head>
 <body>
@@ -34,8 +47,11 @@
     <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand fw-bold text-primary"><i class="bi bi-shield-check-fill me-2"></i>EduGuard AI</span>
         <div class="d-flex gap-2">
+            <button onclick="toggleLanguage()" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                <i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span>
+            </button>
             <button class="btn btn-primary btn-sm rounded-pill px-4 fw-600 shadow-sm" onclick="window.location.href='register_course.html'">
-                <i class="bi bi-plus-lg me-1"></i> Register Course
+                <i class="bi bi-plus-lg me-1"></i> <span data-i18n="navRegister">Register Course</span>
             </button>
             <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()">
                 <i class="bi bi-box-arrow-right"></i>
@@ -46,7 +62,7 @@
 
 <div class="header-box text-center shadow-sm">
     <div class="container animate__animated animate__fadeIn">
-        <h2 class="fw-bold mb-1">Welcome, <span id="studentNameDisplay" class="text-warning">...</span></h2>
+        <h2 class="fw-bold mb-1"><span data-i18n="welcomeText">Welcome</span>, <span id="studentNameDisplay" class="text-warning">...</span></h2>
         <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
     </div>
 </div>
@@ -54,58 +70,73 @@
 <div class="container pb-5">
     <div class="row g-4">
         <div class="col-lg-7">
-            <h5 class="section-title"><i class="bi bi-grid-fill"></i> Academic Summary</h5>
+            <h5 class="section-title"><i class="bi bi-grid-fill"></i> <span data-i18n="titleAcademic">Academic Summary</span></h5>
             <div id="courseList">
-                <div class="text-center py-5 text-muted"><div class="spinner-border text-primary mb-2 spinner-border-sm"></div><br>Loading data...</div>
+                <div class="text-center py-5 text-muted"><div class="spinner-border text-primary mb-2 spinner-border-sm"></div><br><span data-i18n="loading">Loading data...</span></div>
             </div>
 
-            <h5 class="section-title mt-5"><i class="bi bi-heart-pulse-fill"></i> AI Emotional Screening</h5>
+            <h5 class="section-title mt-5"><i class="bi bi-heart-pulse-fill"></i> <span data-i18n="titleAI">AI Emotional Screening</span></h5>
             <div class="glass-card animate__animated animate__fadeInUp">
                 <div class="d-flex align-items-start mb-3">
                     <div class="bg-light p-3 rounded-4 me-3 text-primary"><i class="bi bi-clipboard2-pulse fs-4"></i></div>
                     <div>
-                        <h6 class="fw-bold mb-1">Well-being Analysis</h6>
-                        <p class="text-muted small mb-0">AI will analyze your input to identify stress levels and provide support.</p>
+                        <h6 class="fw-bold mb-1" data-i18n="wbTitle">Well-being Analysis</h6>
+                        <p class="text-muted small mb-0" data-i18n="wbDesc">AI will analyze your input to identify stress levels and provide support.</p>
                     </div>
                 </div>
                 <div id="stressResultArea" class="mb-4 d-none p-3 bg-light rounded-4 border border-dashed">
-                    <small class="text-muted d-block mb-1">Latest Result:</small>
+                    <small class="text-muted d-block mb-1" data-i18n="latestResult">Latest Result:</small>
                     <h5 id="stressLevelLabel" class="fw-bold mb-0">...</h5>
                 </div>
                 <button class="btn btn-dark w-100 fw-bold py-3 rounded-4 shadow-sm" id="btnPsiko" onclick="openPsiko()">
-                    <i class="bi bi-robot me-2"></i> START AI ANALYSIS
+                    <i class="bi bi-robot me-2"></i> <span data-i18n="btnAI">START AI ANALYSIS</span>
                 </button>
             </div>
         </div>
 
         <div class="col-lg-5">
-            <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> Materials & Notes</h5>
+            <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> <span data-i18n="titleMaterials">Materials & Notes</span></h5>
             <div id="materialList">
                 <div class="text-center py-5 bg-white rounded-4 border border-dashed">
-                    <p class="small text-muted mb-0">Register for a course to access study materials.</p>
+                    <p class="small text-muted mb-0" data-i18n="noMaterials">Register for a course to access study materials.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div style="position: fixed; bottom: 30px; right: 30px; z-index: 1050;">
+<div style="position: fixed; bottom: 30px; right: 30px; z-index: 1050; display: flex; flex-direction: column; gap: 12px;">
+    <button class="btn btn-success rounded-circle shadow-lg p-3" onclick="toggleChat()" style="width: 60px; height: 60px;">
+        <i class="bi bi-chat-dots-fill fs-4"></i>
+    </button>
     <button class="btn btn-primary rounded-circle shadow-lg p-3" onclick="openInbox()" style="width: 60px; height: 60px;">
         <i class="bi bi-chat-left-text-fill fs-4"></i>
         <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
     </button>
 </div>
 
+<div id="chatBox" class="chat-container animate__animated animate__fadeInUp">
+    <div class="chat-header">
+        <span><i class="bi bi-person-circle me-2"></i> <span data-i18n="chatWith">Supervisor</span></span>
+        <button class="btn btn-sm text-white p-0" onclick="toggleChat()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div id="chatMessages" class="chat-messages"></div>
+    <form id="chatForm" class="chat-input-area">
+        <input type="text" id="chatInput" class="form-control form-control-sm rounded-pill" placeholder="..." required>
+        <button type="submit" class="btn btn-primary btn-sm rounded-circle"><i class="bi bi-send"></i></button>
+    </form>
+</div>
+
 <div class="modal fade" id="inboxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow">
             <div class="modal-header border-0 bg-light rounded-top-4">
-                <h5 class="fw-bold mb-0"><i class="bi bi-mailbox2 me-2"></i> Counselor Messages</h5>
+                <h5 class="fw-bold mb-0"><i class="bi bi-mailbox2 me-2"></i> <span data-i18n="counselorMsg">Counselor Messages</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
                 <div id="inboxList" class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
-                    <div class="text-center py-5 text-muted small">No messages yet.</div>
+                    <div class="text-center py-5 text-muted small" data-i18n="noMessages">No messages yet.</div>
                 </div>
             </div>
         </div>
@@ -117,9 +148,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { 
-        getFirestore, doc, getDoc, updateDoc, setDoc, 
+        getFirestore, doc, getDoc, updateDoc, setDoc, addDoc,
         collection, query, where, getDocs, serverTimestamp,
-        onSnapshot 
+        onSnapshot, orderBy
     } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
@@ -138,58 +169,131 @@
     if (!activeID) window.location.href = "index.html";
 
     let currentUserData = null;
+    let currentLang = 'en';
 
-    // --- LIVE LISTENER & MESSAGE HISTORY ---
+    const translations = {
+        en: {
+            navRegister: "Register Course", welcomeText: "Welcome", loading: "Loading data...",
+            titleAcademic: "Academic Summary", titleAI: "AI Emotional Screening",
+            wbTitle: "Well-being Analysis", wbDesc: "AI will analyze your input to identify stress levels.",
+            latestResult: "Latest Result:", btnAI: "START AI ANALYSIS", btnAIUpdate: "UPDATE ANALYSIS",
+            titleMaterials: "Materials & Notes", noMaterials: "No courses/materials found.",
+            counselorMsg: "Counselor Messages", noMessages: "No messages yet.",
+            openNotes: "Open Notes", chatWith: "Supervisor Chat", chatPlaceholder: "Type message...",
+            q1: "Feel overwhelmed by workload?", q2: "Difficult to sleep?", q3: "Lost interest in subjects?",
+            q4: "Worry about failing?", q5: "No one to talk to?",
+            opt0: "Never", opt1: "Rarely", opt2: "Often", opt3: "Very Often",
+            swalTitle: "Question", swalVal: "Select answer!",
+            levelCritical: "CRITICAL", levelMedium: "MEDIUM", levelNormal: "NORMAL"
+        },
+        ms: {
+            navRegister: "Daftar Kursus", welcomeText: "Selamat Datang", loading: "Memuatkan...",
+            titleAcademic: "Ringkasan Akademik", titleAI: "Saringan Emosi AI",
+            wbTitle: "Analisis Kesejahteraan", wbDesc: "AI akan menganalisis tahap stres anda.",
+            latestResult: "Keputusan Terkini:", btnAI: "MULAKAN ANALISIS AI", btnAIUpdate: "KEMASKINI ANALISIS",
+            titleMaterials: "Bahan & Nota", noMaterials: "Tiada kursus/bahan ditemui.",
+            counselorMsg: "Mesej Kaunselor", noMessages: "Tiada mesej setakat ini.",
+            openNotes: "Buka Nota", chatWith: "Sembang Penyelia", chatPlaceholder: "Tulis mesej...",
+            q1: "Rasa terbeban dengan kerja?", q2: "Sukar untuk tidur?", q3: "Hilang minat belajar?",
+            q4: "Risau tentang gagal?", q5: "Tiada teman bicara?",
+            opt0: "Tidak Pernah", opt1: "Jarang", opt2: "Sering", opt3: "Sangat Sering",
+            swalTitle: "Soalan", swalVal: "Pilih jawapan!",
+            levelCritical: "KRITIKAL", levelMedium: "SEDERHANA", levelNormal: "NORMAL"
+        }
+    };
+
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'en' ? 'ms' : 'en';
+        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
+        applyTranslations();
+        loadAcademicData();
+    };
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerText = translations[currentLang][key];
+        });
+        document.getElementById('chatInput').placeholder = translations[currentLang].chatPlaceholder;
+        if (currentUserData?.psikoStatus === 'done') {
+            document.getElementById('btnPsiko').innerText = translations[currentLang].btnAIUpdate;
+        }
+    }
+
+    // --- CHAT SYSTEM ---
+    window.toggleChat = () => {
+        const box = document.getElementById('chatBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+        if(box.style.display === 'flex') loadChat();
+    };
+
+    function loadChat() {
+        const msgDiv = document.getElementById('chatMessages');
+        const svEmail = currentUserData?.supervisorEmail || "admin@eduguard.com"; // Fallback
+
+        const q = query(collection(db, "chats"), 
+            where("studentID", "==", activeID), 
+            where("supervisorEmail", "==", svEmail), 
+            orderBy("timestamp", "asc"));
+
+        onSnapshot(q, (snap) => {
+            msgDiv.innerHTML = '';
+            snap.forEach(doc => {
+                const m = doc.data();
+                const isMe = m.sender === activeID;
+                msgDiv.innerHTML += `<div class="msg ${isMe ? 'msg-me' : 'msg-them'} animate__animated animate__fadeInUp">${m.text}</div>`;
+            });
+            msgDiv.scrollTop = msgDiv.scrollHeight;
+        });
+    }
+
+    document.getElementById('chatForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chatInput');
+        const svEmail = currentUserData?.supervisorEmail || "admin@eduguard.com";
+        if(!input.value.trim()) return;
+
+        await addDoc(collection(db, "chats"), {
+            studentID: activeID, supervisorEmail: svEmail,
+            sender: activeID, text: input.value, timestamp: serverTimestamp()
+        });
+        input.value = '';
+    };
+
+    // --- DASHBOARD LOGIC ---
     function listenToNotifications() {
         const qNotify = query(collection(db, "notifications"), where("studentID", "==", activeID));
-        
         onSnapshot(qNotify, (snapshot) => {
             const inboxList = document.getElementById('inboxList');
             const badge = document.getElementById('notifBadge');
             let unreadCount = 0;
             let messages = [];
-
             snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
             messages.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-            if (messages.length === 0) {
-                badge.classList.add('d-none');
-                return;
-            }
-
+            if (messages.length === 0) { badge.classList.add('d-none'); return; }
             inboxList.innerHTML = '';
             messages.forEach((msg) => {
                 const isUnread = msg.status === "unread";
                 if (isUnread) unreadCount++;
-
-                const dateString = msg.timestamp?.toDate().toLocaleString() || 'Just now';
                 inboxList.innerHTML += `
                     <div class="list-group-item p-3 border-0 border-bottom ${isUnread ? 'bg-primary-subtle' : ''}">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'}">${dateString}</small>
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'}">Message</small>
                             ${isUnread ? '<span class="badge bg-primary">New</span>' : ''}
                         </div>
                         <p class="mb-0 small text-dark">${msg.message}</p>
                     </div>`;
             });
-
-            if (unreadCount > 0) {
-                badge.innerText = unreadCount;
-                badge.classList.remove('d-none');
-            } else {
-                badge.classList.add('d-none');
-            }
+            badge.innerText = unreadCount;
+            unreadCount > 0 ? badge.classList.remove('d-none') : badge.classList.add('d-none');
         });
     }
 
     window.openInbox = async () => {
-        const myModal = new bootstrap.Modal(document.getElementById('inboxModal'));
-        myModal.show();
-
+        new bootstrap.Modal(document.getElementById('inboxModal')).show();
         const q = query(collection(db, "notifications"), where("studentID", "==", activeID), where("status", "==", "unread"));
-        const unreadDocs = await getDocs(q);
-        const updates = unreadDocs.docs.map(d => updateDoc(doc(db, "notifications", d.id), { status: "read" }));
-        await Promise.all(updates);
+        const snap = await getDocs(q);
+        snap.forEach(d => updateDoc(doc(db, "notifications", d.id), { status: "read" }));
     };
 
     async function initDashboard() {
@@ -199,18 +303,17 @@
                 currentUserData = uSnap.data();
                 document.getElementById('studentNameDisplay').innerText = currentUserData.name;
                 document.getElementById('studentIDDisplay').innerText = activeID;
-                
                 if(currentUserData.psikoStatus === 'done') {
                     const resArea = document.getElementById('stressResultArea');
                     const label = document.getElementById('stressLevelLabel');
                     resArea.classList.remove('d-none');
-                    label.innerText = `LEVEL: ${currentUserData.stressLevel}`;
+                    label.innerText = `${translations[currentLang].latestResult} ${currentUserData.stressLevel}`;
                     label.className = `fw-bold mb-0 text-${currentUserData.stressLevel.toLowerCase()}`;
-                    document.getElementById('btnPsiko').innerText = "UPDATE ANALYSIS";
                 }
             }
             loadAcademicData();
             listenToNotifications();
+            applyTranslations();
         } catch (e) { console.error(e); }
     }
 
@@ -221,7 +324,7 @@
         const snapC = await getDocs(qC);
 
         if (snapC.empty) {
-            cContainer.innerHTML = `<div class="alert alert-warning rounded-4 border-0 p-4 small text-center">No courses registered.</div>`;
+            cContainer.innerHTML = `<div class="alert alert-warning rounded-4 border-0 p-4 small text-center">${translations[currentLang].noMaterials}</div>`;
             return;
         }
 
@@ -249,78 +352,39 @@
         if (userCourses.length > 0) {
             const qM = query(collection(db, "materials"), where("course", "in", userCourses.slice(0, 10)));
             const snapM = await getDocs(qM);
-            mContainer.innerHTML = snapM.empty ? '<div class="text-center py-5 text-muted small">No materials.</div>' : '';
+            mContainer.innerHTML = snapM.empty ? `<div class="text-center py-5 text-muted small">${translations[currentLang].noMaterials}</div>` : '';
             snapM.forEach(doc => {
                 const m = doc.data();
                 mContainer.innerHTML += `
                     <div class="material-card shadow-sm animate__animated animate__fadeInRight">
                         <span class="badge bg-primary-subtle text-primary mb-2" style="font-size: 0.6rem;">${m.category}</span>
                         <h6 class="fw-bold mb-1">${m.title}</h6>
-                        <a href="${m.content}" target="_blank" class="btn btn-sm btn-primary w-100 rounded-pill py-2 mt-2">Open Notes</a>
+                        <a href="${m.content}" target="_blank" class="btn btn-sm btn-primary w-100 rounded-pill py-2 mt-2">${translations[currentLang].openNotes}</a>
                     </div>`;
             });
         }
     }
 
     window.openPsiko = async () => {
-        const questions = [
-            { q: "Do you feel overwhelmed by your current workload?", weight: 2 },
-            { q: "Do you find it difficult to sleep due to studies?", weight: 2 },
-            { q: "Have you lost interest in your subjects?", weight: 2 },
-            { q: "Do you worry about failing exams?", weight: 2 },
-            { q: "Do you feel you have no one to talk to?", weight: 2 }
-        ];
-
-        let totalScore = 0;
+        const t = translations[currentLang];
+        const questions = [ {q:t.q1}, {q:t.q2}, {q:t.q3}, {q:t.q4}, {q:t.q5} ];
+        let score = 0;
         for (let i = 0; i < questions.length; i++) {
-            const { value: answer } = await Swal.fire({
-                title: `Question ${i + 1}/5`,
-                text: questions[i].q,
-                input: 'radio',
-                inputOptions: { '0':'Never', '1':'Rarely', '2':'Often', '3':'Very Often' },
-                inputValidator: (v) => !v && 'Select an answer!',
-                showCancelButton: true
+            const { value: ans } = await Swal.fire({
+                title: `${t.swalTitle} ${i+1}/5`, text: questions[i].q, input: 'radio',
+                inputOptions: { '0':t.opt0, '1':t.opt1, '2':t.opt2, '3':t.opt3 },
+                inputValidator: (v) => !v && t.swalVal, showCancelButton: true
             });
-            if (answer) totalScore += parseInt(answer); else return;
+            if (ans) score += parseInt(ans); else return;
         }
 
-        const analysis = analyzeStressWithAI(totalScore);
-        
-        try {
-            // Save assessment with Student Name included
-            await setDoc(doc(db, "assessments", activeID), {
-                studentID: activeID,
-                studentName: currentUserData.name, 
-                score: totalScore, 
-                riskLevel: analysis.level, 
-                timestamp: serverTimestamp()
-            });
-
-            await updateDoc(doc(db, "users", activeID), { 
-                psikoStatus: 'done', 
-                stressLevel: analysis.level 
-            });
-
-            Swal.fire({ 
-                icon: analysis.icon, 
-                title: analysis.level, 
-                text: analysis.advice 
-            }).then(() => location.reload());
-            
-        } catch (error) {
-            console.error("Error saving assessment:", error);
-            Swal.fire('Error', 'Failed to save analysis.', 'error');
-        }
+        const res = score >= 11 ? {l:t.levelCritical, i:'error'} : score >= 6 ? {l:t.levelMedium, i:'warning'} : {l:t.levelNormal, i:'success'};
+        await setDoc(doc(db, "assessments", activeID), { studentID: activeID, studentName: currentUserData.name, score, riskLevel: res.l, timestamp: serverTimestamp() });
+        await updateDoc(doc(db, "users", activeID), { psikoStatus: 'done', stressLevel: res.l });
+        Swal.fire({ icon: res.i, title: res.l, text: 'Analysis completed.' }).then(() => location.reload());
     };
 
-    function analyzeStressWithAI(score) {
-        if (score >= 11) return { level: 'CRITICAL', icon: 'error', advice: 'Very high stress. Counselor alerted.' };
-        if (score >= 6) return { level: 'MEDIUM', icon: 'warning', advice: 'Warning level. Manage time better.' };
-        return { level: 'NORMAL', icon: 'success', advice: 'Well-being is good. Keep it up!' };
-    }
-
     window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
-    window.openPsiko = openPsiko; // Ensure global scope
     initDashboard();
 </script>
 </body>
