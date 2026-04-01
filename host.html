@@ -114,6 +114,7 @@
 <div class="host-header text-center">
     <div class="container animate__animated animate__fadeIn">
         <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard</h1>
+        <p class="mb-0 fw-bold"><span data-i18n="welcome">Welcome</span>, <span id="hostName" class="text-info">...</span></p>
         <p class="opacity-75 small" data-i18n="headerSubtitle">Strategic Evaluation System & Digital Archive</p>
     </div>
 </div>
@@ -223,7 +224,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -241,6 +242,7 @@
     let currentLang = 'en';
     const translations = {
         en: {
+            welcome: "Welcome back",
             headerSubtitle: "Strategic Evaluation System & Digital Archive",
             statAvg: "OVERALL AVERAGE", statPass: "STUDENTS PASSED", statFail: "STUDENTS FAILED", statPending: "PENDING EVALUATION",
             dirTitle: "Student Performance Directory", selectSubject: "-- Select Subject Program --", btnView: "View",
@@ -251,6 +253,7 @@
             colAction: "Action", failed: "FAILED", pending: "NA"
         },
         ms: {
+            welcome: "Selamat kembali",
             headerSubtitle: "Sistem Penilaian Strategik & Arkib Digital",
             statAvg: "PURATA KESELURUHAN", statPass: "PELAJAR LULUS", statFail: "PELAJAR GAGAL", statPending: "MENUNGGU PENILAIAN",
             dirTitle: "Direktori Prestasi Pelajar", selectSubject: "-- Pilih Program Subjek --", btnView: "Lihat",
@@ -261,6 +264,20 @@
             colAction: "Tindakan", failed: "GAGAL", pending: "TIADA"
         }
     };
+
+    // --- FUNGSI AMBIL PROFIL HOST ---
+    async function loadHostProfile() {
+        const uid = sessionStorage.getItem("activeUser");
+        if(uid) {
+            try {
+                const userDoc = await getDoc(doc(db, "users", uid));
+                if(userDoc.exists()) {
+                    document.getElementById('hostName').innerText = userDoc.data().name || "Host";
+                }
+            } catch (e) { console.error("Error loading profile", e); }
+        }
+    }
+    loadHostProfile();
 
     window.toggleLanguage = () => {
         currentLang = currentLang === 'en' ? 'ms' : 'en';
