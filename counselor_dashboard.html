@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -46,6 +47,9 @@
         
         .lang-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 10px; width: 100%; text-align: left; transition: 0.2s; }
         .lang-btn:hover { background: rgba(255,255,255,0.2); }
+
+        #chatBox::-webkit-scrollbar { width: 5px; }
+        #chatBox::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -79,7 +83,7 @@
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4"><div class="card-stats critical-border"><div id="lblCrit" style="font-size: 0.7rem;">KRITIKAL</div><h2 class="fw-bold text-danger mb-0" id="critCount">0</h2></div></div>
         <div class="col-6 col-md-4"><div class="card-stats warning-border"><div id="lblMed" style="font-size: 0.7rem;">SEDERHANA</div><h2 class="fw-bold text-warning mb-0" id="medCount">0</h2></div></div>
-        <div class="col-12 col-md-4"><div class="card-stats border-start border-primary border-5"><div id="lblFail" style="font-size: 0.7rem;">KESELURUHAN</div><h2 class="fw-bold text-primary mb-0" id="totalCount">0</h2></div></div>
+        <div class="col-12 col-md-4"><div class="card-stats border-start border-primary border-5"><div id="lblTotal" style="font-size: 0.7rem;">JUMLAH KES</div><h2 class="fw-bold text-primary mb-0" id="totalCount">0</h2></div></div>
     </div>
 
     <div class="search-container mb-4">
@@ -106,10 +110,10 @@
             </div>
             <div class="modal-body p-0">
                 <div id="chatBox"></div>
-                <div class="p-3 bg-white border-top">
+                <div class="p-3 bg-white border-top rounded-bottom-4">
                     <div class="input-group">
                         <input type="text" id="chatInput" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Tulis mesej...">
-                        <button class="btn btn-primary rounded-circle ms-2" id="sendChatBtn">
+                        <button class="btn btn-primary rounded-circle ms-2" id="sendChatBtn" style="width: 45px; height: 45px;">
                             <i class="bi bi-send-fill"></i>
                         </button>
                     </div>
@@ -142,24 +146,25 @@
     const translations = {
         en: {
             pageTitle: "Intervention Panel", pageSubTitle: "AI Active Monitoring",
-            lblCrit: "CRITICAL", lblMed: "MEDIUM", lblFail: "TOTAL CASES",
+            lblCrit: "CRITICAL", lblMed: "MEDIUM", lblTotal: "TOTAL CASES",
             mNav1: "Home", mNav3: "Exit",
             searchPlaceholder: "Search student name...",
             tblStressTitle: "Student Welfare List",
-            chatHint: "Type a message..."
+            chatHint: "Type a message...",
+            langLabel: "Bahasa Melayu"
         },
         ms: {
             pageTitle: "Panel Intervensi", pageSubTitle: "Pemantauan AI Aktif",
-            lblCrit: "KRITIKAL", lblMed: "SEDERHANA", lblFail: "JUMLAH KES",
+            lblCrit: "KRITIKAL", lblMed: "SEDERHANA", lblTotal: "JUMLAH KES",
             mNav1: "Rumah", mNav3: "Keluar",
             searchPlaceholder: "Cari nama pelajar...",
             tblStressTitle: "Senarai Kebajikan Pelajar",
-            chatHint: "Tulis mesej..."
+            chatHint: "Tulis mesej...",
+            langLabel: "English"
         }
     };
 
-    // --- FUNGSI UTAMA ---
-
+    // --- LOAD DATA PELAJAR ---
     async function loadStudents() {
         const q = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
         
@@ -174,18 +179,18 @@
                 if(data.riskLevel === 'CRITICAL') c++;
                 if(data.riskLevel === 'MEDIUM') m++;
 
-                const riskColor = data.riskLevel === 'CRITICAL' ? 'border-danger' : 'border-warning';
-                const badgeColor = data.riskLevel === 'CRITICAL' ? 'bg-danger' : 'bg-warning';
+                const riskClass = data.riskLevel === 'CRITICAL' ? 'critical-border' : (data.riskLevel === 'MEDIUM' ? 'warning-border' : 'border-primary border-start border-5');
+                const badgeColor = data.riskLevel === 'CRITICAL' ? 'bg-danger' : (data.riskLevel === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info');
 
                 list.innerHTML += `
-                    <div class="mobile-data-card shadow-sm border-start border-4 ${riskColor} animate__animated animate__fadeInUp">
+                    <div class="mobile-data-card shadow-sm ${riskClass} animate__animated animate__fadeInUp">
                         <div>
                             <div class="fw-bold">${data.studentName}</div>
                             <div class="small text-muted" style="font-size:0.7rem">ID: ${data.studentID}</div>
                             <span class="badge ${badgeColor} mt-1" style="font-size:0.6rem">${data.riskLevel}</span>
                         </div>
-                        <button class="btn btn-primary rounded-pill btn-sm px-3" onclick="openChat('${data.studentID}', '${data.studentName}')">
-                            <i class="bi bi-chat-text-fill me-1"></i> Chat
+                        <button class="btn btn-primary rounded-pill btn-sm px-3 fw-bold" onclick="openChat('${data.studentID}', '${data.studentName}')">
+                            <i class="bi bi-chat-dots-fill me-1"></i> Chat
                         </button>
                     </div>`;
             });
@@ -197,20 +202,17 @@
     }
 
     // --- SISTEM CHAT ---
-
     window.openChat = function(id, name) {
         activeStudentID = id;
         document.getElementById('chatTargetName').innerText = name;
         const modal = new bootstrap.Modal(document.getElementById('chatModal'));
         modal.show();
 
-        // Bersihkan chat lama jika ada listener aktif
         if (unsubscribeChat) unsubscribeChat();
 
         const chatBox = document.getElementById('chatBox');
         chatBox.innerHTML = '<div class="text-center p-3 small text-muted">Memulakan sembang...</div>';
 
-        // Listen mesej real-time
         const qChat = query(
             collection(db, "notifications"), 
             where("studentID", "==", id),
@@ -225,9 +227,9 @@
                 const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
                 
                 chatBox.innerHTML += `
-                    <div class="msg ${isCounselor ? 'msg-counselor' : 'msg-student'}">
+                    <div class="msg ${isCounselor ? 'msg-counselor' : 'msg-student'} animate__animated animate__fadeIn">
                         ${m.message}
-                        <span class="msg-time">${time}</span>
+                        <span class="msg-time ${isCounselor ? 'text-white-50' : 'text-muted'}">${time}</span>
                     </div>`;
             });
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -248,16 +250,17 @@
                 status: "unread",
                 timestamp: serverTimestamp()
             });
-        } catch(e) { console.error("Gagal hantar:", e); }
+        } catch(e) { 
+            console.error("Gagal hantar:", e);
+            Swal.fire('Ralat', 'Gagal menghantar mesej', 'error');
+        }
     };
 
-    // Enter key untuk hantar chat
     document.getElementById('chatInput').onkeypress = (e) => {
         if(e.key === 'Enter') document.getElementById('sendChatBtn').click();
     };
 
-    // --- UTILITI LAIN ---
-
+    // --- UTILITI & UI ---
     window.toggleLanguage = () => {
         window.currentLang = (window.currentLang === 'ms') ? 'en' : 'ms';
         updateUI();
@@ -266,13 +269,15 @@
     function updateUI() {
         const t = translations[window.currentLang];
         document.getElementById('pageTitle').innerText = t.pageTitle;
+        document.getElementById('pageSubTitle').innerText = t.pageSubTitle;
         document.getElementById('lblCrit').innerText = t.lblCrit;
         document.getElementById('lblMed').innerText = t.lblMed;
-        document.getElementById('lblFail').innerText = t.lblFail;
+        document.getElementById('lblTotal').innerText = t.lblTotal;
         document.getElementById('m-nav1').innerText = t.mNav1;
+        document.getElementById('m-nav3').innerText = t.mNav3;
         document.getElementById('searchInput').placeholder = t.searchPlaceholder;
         document.getElementById('chatInput').placeholder = t.chatHint;
-        document.getElementById('langText').innerText = window.currentLang === 'ms' ? 'English' : 'Bahasa Melayu';
+        document.getElementById('langText').innerText = t.langLabel;
     }
 
     window.filterTable = () => {
@@ -284,10 +289,11 @@
 
     window.logout = () => { 
         Swal.fire({
-            title: 'Keluar?',
+            title: window.currentLang === 'ms' ? 'Log Keluar?' : 'Logout?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444'
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: window.currentLang === 'ms' ? 'Ya, Keluar' : 'Yes, Logout'
         }).then((res) => {
             if(res.isConfirmed) {
                 sessionStorage.clear(); 
