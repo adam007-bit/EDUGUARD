@@ -29,7 +29,6 @@
             overflow-x: hidden;
         }
 
-        /* Top Header Area */
         .host-header {
             background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
             color: white;
@@ -38,7 +37,6 @@
             position: relative;
         }
 
-        /* Cards & Containers */
         .main-container { margin-top: -60px; position: relative; z-index: 10; }
         
         .glass-card {
@@ -50,17 +48,13 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .stat-card {
-            border-bottom: 5px solid transparent;
-            padding: 20px;
-        }
+        .stat-card { border-bottom: 5px solid transparent; padding: 20px; }
         .stat-card:hover { transform: translateY(-5px); }
         .border-primary { border-bottom-color: var(--primary) !important; }
         .border-success { border-bottom-color: var(--success) !important; }
         .border-danger { border-bottom-color: var(--danger) !important; }
         .border-warning { border-bottom-color: var(--warning) !important; }
 
-        /* Form Styling */
         .form-control, .form-select {
             border-radius: 12px;
             padding: 12px 16px;
@@ -68,30 +62,15 @@
             background-color: #f8fafc;
             transition: 0.2s;
         }
-        .form-control:focus {
-            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
-            border-color: var(--primary);
-            background-color: #fff;
-        }
 
-        /* Buttons */
         .btn-primary {
             background: var(--primary);
             border: none;
             border-radius: 14px;
             padding: 12px 24px;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
-        }
-        .btn-primary:hover { background: var(--primary-light); transform: scale(1.02); }
-
-        .btn-dark {
-            border-radius: 14px;
-            background: var(--dark);
-            font-weight: 600;
         }
 
-        /* Table Design */
         .table-custom thead th {
             background: transparent;
             border-bottom: 2px solid #f1f5f9;
@@ -99,10 +78,8 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             padding: 18px;
         }
-        .table-custom tbody td { padding: 18px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
 
         .grade-badge {
             padding: 6px 14px;
@@ -116,32 +93,28 @@
 
         .progress { height: 8px; border-radius: 10px; background: #f1f5f9; }
 
-        /* Floating Animation */
-        #hostForm {
-            border-top: 8px solid var(--primary);
-            display: none;
-            position: relative;
-        }
+        #hostForm { border-top: 8px solid var(--primary); display: none; }
 
-        .section-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(67, 97, 238, 0.1);
-            color: var(--primary);
-            border-radius: 10px;
-            margin-right: 12px;
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
 
+<div class="lang-switcher">
+    <button onclick="toggleLanguage()" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
+        <i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span>
+    </button>
+</div>
+
 <div class="host-header text-center">
     <div class="container animate__animated animate__fadeIn">
         <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard</h1>
-        <p class="opacity-75 small">Strategic Evaluation System & Digital Archive</p>
+        <p class="opacity-75 small" data-i18n="headerSubtitle">Strategic Evaluation System & Digital Archive</p>
     </div>
 </div>
 
@@ -149,46 +122,26 @@
     <div class="row g-3 mb-4 animate__animated animate__fadeInUp">
         <div class="col-md-3">
             <div class="card glass-card stat-card border-primary">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">OVERALL AVERAGE</small>
-                        <h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3>
-                    </div>
-                    <i class="bi bi-graph-up-arrow fs-3 text-primary opacity-50"></i>
-                </div>
+                <small class="text-muted fw-bold d-block" data-i18n="statAvg">OVERALL AVERAGE</small>
+                <h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card glass-card stat-card border-success">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">STUDENTS PASSED</small>
-                        <h3 class="fw-bold mb-0 text-success" id="statPass">0</h3>
-                    </div>
-                    <i class="bi bi-person-check fs-3 text-success opacity-50"></i>
-                </div>
+                <small class="text-muted fw-bold d-block" data-i18n="statPass">STUDENTS PASSED</small>
+                <h3 class="fw-bold mb-0 text-success" id="statPass">0</h3>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card glass-card stat-card border-danger">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">STUDENTS FAILED</small>
-                        <h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3>
-                    </div>
-                    <i class="bi bi-person-x fs-3 text-danger opacity-50"></i>
-                </div>
+                <small class="text-muted fw-bold d-block" data-i18n="statFail">STUDENTS FAILED</small>
+                <h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card glass-card stat-card border-warning">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <small class="text-muted fw-bold d-block">PENDING EVALUATION</small>
-                        <h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3>
-                    </div>
-                    <i class="bi bi-clock-history fs-3 text-warning opacity-50"></i>
-                </div>
+                <small class="text-muted fw-bold d-block" data-i18n="statPending">PENDING EVALUATION</small>
+                <h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3>
             </div>
         </div>
     </div>
@@ -196,15 +149,12 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="card glass-card p-4 mb-4 border-0">
-                <div class="d-flex align-items-center mb-4">
-                    <div class="section-icon"><i class="bi bi-people-fill"></i></div>
-                    <h5 class="fw-bold mb-0">Student Performance Directory</h5>
-                </div>
+                <h5 class="fw-bold mb-4" data-i18n="dirTitle">Student Performance Directory</h5>
                 
                 <div class="row g-2 mb-4">
                     <div class="col-md-9">
                         <select id="courseSelect" class="form-select shadow-sm border-0">
-                            <option value="">-- Select Subject Program --</option>
+                            <option value="" data-i18n="selectSubject">-- Select Subject Program --</option>
                             <option value="Software Engineering">Software Engineering</option>
                             <option value="IoT Systems">IoT Systems</option>
                             <option value="Data Analytics">Data Analytics</option>
@@ -212,97 +162,60 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button class="btn btn-primary w-100" onclick="searchBySubject()">
-                            <i class="bi bi-filter-right me-1"></i> View
-                        </button>
+                        <button class="btn btn-primary w-100" onclick="searchBySubject()" data-i18n="btnView">View</button>
                     </div>
                 </div>
 
                 <div id="searchResults">
                     <div class="text-center py-5">
-                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" style="width: 80px; opacity: 0.3;" class="mb-3">
-                        <p class="text-muted small">Please select a subject to begin data analysis.</p>
+                        <p class="text-muted small" data-i18n="initialMsg">Please select a subject to begin data analysis.</p>
                     </div>
                 </div>
             </div>
 
             <form id="hostForm" class="card glass-card p-4 mb-4 animate__animated animate__slideInUp">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="d-flex align-items-center">
-                        <div class="section-icon"><i class="bi bi-pencil-square"></i></div>
-                        <div>
-                            <h6 class="fw-bold mb-0">Grade Input: <span id="displayStudentName" class="text-primary"></span></h6>
-                            <small class="text-muted">Academic assessment data entry</small>
-                        </div>
-                    </div>
+                    <h6 class="fw-bold mb-0"><span data-i18n="formTitle">Grade Input:</span> <span id="displayStudentName" class="text-primary"></span></h6>
                     <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
                 </div>
                 
                 <div class="row g-3">
                     <input type="hidden" id="currentDocId">
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">Quiz (20%)</label>
-                        <input type="number" id="quiz" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                        <label class="form-label small fw-bold" data-i18n="labelQuiz">Quiz (20%)</label>
+                        <input type="number" id="quiz" class="form-control" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">Test (30%)</label>
-                        <input type="number" id="test" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                        <label class="form-label small fw-bold" data-i18n="labelTest">Test (30%)</label>
+                        <input type="number" id="test" class="form-control" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">Midterm (50%)</label>
-                        <input type="number" id="midterm" class="form-control" placeholder="0-100" oninput="liveGrade()">
+                        <label class="form-label small fw-bold" data-i18n="labelMid">Midterm (50%)</label>
+                        <input type="number" id="midterm" class="form-control" oninput="liveGrade()">
                     </div>
                     <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-3">
                         <div>
-                            <p class="text-muted small mb-0">Current Grade Analysis</p>
+                            <p class="text-muted small mb-0" data-i18n="currentAnalysis">Current Grade Analysis</p>
                             <h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4>
                         </div>
-                        <button type="submit" class="btn btn-primary px-5">
-                            <i class="bi bi-check2-circle me-2"></i> Save Score
-                        </button>
+                        <button type="submit" class="btn btn-primary px-5" data-i18n="btnSave">Save Score</button>
                     </div>
                 </div>
             </form>
         </div>
 
         <div class="col-lg-4">
-            <div class="card glass-card p-4 border-0 mb-4 sticky-top" style="top: 20px;">
-                <div class="d-flex align-items-center mb-4">
-                    <div class="section-icon" style="background: rgba(46, 204, 113, 0.1); color: var(--success);"><i class="bi bi-cloud-plus-fill"></i></div>
-                    <h5 class="fw-bold mb-0">AI Resource Center</h5>
-                </div>
-                
+            <div class="card glass-card p-4 border-0 mb-4">
+                <h5 class="fw-bold mb-4" data-i18n="resTitle">AI Resource Center</h5>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Material Title</label>
-                    <input type="text" id="postTitle" class="form-control" placeholder="e.g.: Basic Python Module">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Target Subject</label>
-                    <select id="postCourse" class="form-select">
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="IoT Systems">IoT Systems</option>
-                        <option value="Data Analytics">Data Analytics</option>
-                        <option value="AI Solutions">AI Solutions</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">File Category</label>
-                    <div class="btn-group w-100" role="group">
-                        <input type="radio" class="btn-check" name="cat" id="c1" value="Lecture" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="c1">Notes</label>
-                        <input type="radio" class="btn-check" name="cat" id="c2" value="Lab">
-                        <label class="btn btn-outline-secondary btn-sm" for="c2">Lab</label>
-                        <input type="radio" class="btn-check" name="cat" id="c3" value="Alert">
-                        <label class="btn btn-outline-secondary btn-sm" for="c3">Info</label>
-                    </div>
+                    <label class="form-label small fw-bold" data-i18n="resMaterial">Material Title</label>
+                    <input type="text" id="postTitle" class="form-control">
                 </div>
                 <div class="mb-4">
-                    <label class="form-label small fw-bold">Access Link / URL</label>
-                    <textarea id="postContent" class="form-control" rows="3" placeholder="Enter Google Drive link or notes..."></textarea>
+                    <label class="form-label small fw-bold" data-i18n="resLink">Access Link / URL</label>
+                    <textarea id="postContent" class="form-control" rows="3"></textarea>
                 </div>
-                <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()">
-                    <i class="bi bi-broadcast me-2"></i> Publish Material
-                </button>
+                <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()" data-i18n="btnPublish">Publish Material</button>
             </div>
         </div>
     </div>
@@ -324,12 +237,52 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Multi-language System
+    let currentLang = 'en';
+    const translations = {
+        en: {
+            headerSubtitle: "Strategic Evaluation System & Digital Archive",
+            statAvg: "OVERALL AVERAGE", statPass: "STUDENTS PASSED", statFail: "STUDENTS FAILED", statPending: "PENDING EVALUATION",
+            dirTitle: "Student Performance Directory", selectSubject: "-- Select Subject Program --", btnView: "View",
+            initialMsg: "Please select a subject to begin data analysis.", formTitle: "Grade Input:",
+            labelQuiz: "Quiz (20%)", labelTest: "Test (30%)", labelMid: "Midterm (50%)", currentAnalysis: "Current Grade Analysis",
+            btnSave: "Save Score", resTitle: "AI Resource Center", resMaterial: "Material Title", resLink: "Access Link / URL",
+            btnPublish: "Publish Material", colInfo: "Student Information", colStats: "Score Statistics", colGrade: "Grade",
+            colAction: "Action", failed: "FAILED", pending: "NA"
+        },
+        ms: {
+            headerSubtitle: "Sistem Penilaian Strategik & Arkib Digital",
+            statAvg: "PURATA KESELURUHAN", statPass: "PELAJAR LULUS", statFail: "PELAJAR GAGAL", statPending: "MENUNGGU PENILAIAN",
+            dirTitle: "Direktori Prestasi Pelajar", selectSubject: "-- Pilih Program Subjek --", btnView: "Lihat",
+            initialMsg: "Sila pilih subjek untuk memulakan analisis data.", formTitle: "Input Gred:",
+            labelQuiz: "Kuiz (20%)", labelTest: "Ujian (30%)", labelMid: "Pertengahan (50%)", currentAnalysis: "Analisis Gred Semasa",
+            btnSave: "Simpan Markah", resTitle: "Pusat Sumber AI", resMaterial: "Tajuk Bahan", resLink: "Pautan Akses / URL",
+            btnPublish: "Terbitkan Bahan", colInfo: "Maklumat Pelajar", colStats: "Statistik Markah", colGrade: "Gred",
+            colAction: "Tindakan", failed: "GAGAL", pending: "TIADA"
+        }
+    };
+
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'en' ? 'ms' : 'en';
+        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
+        applyTranslations();
+        if(document.getElementById('courseSelect').value) searchBySubject(); 
+    };
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerText = translations[currentLang][key];
+        });
+    }
+
+    // Firebase Functions
     window.liveGrade = () => {
         const q = Number(document.getElementById('quiz').value) || 0;
         const t = Number(document.getElementById('test').value) || 0;
         const m = Number(document.getElementById('midterm').value) || 0;
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "FAILED" : "-");
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? translations[currentLang].failed : "-");
         document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
     };
 
@@ -345,51 +298,42 @@
             const snap = await getDocs(q);
 
             if (snap.empty) {
-                resArea.innerHTML = `<div class="alert bg-white text-center p-5 border-dashed rounded-4">
-                                        <p class="text-muted mb-0 small">No students are registered for this course.</p>
-                                     </div>`;
-                updateStats(0, 0, 0, 0);
+                resArea.innerHTML = `<div class="text-center p-5"><p class="text-muted">No students found.</p></div>`;
                 return;
             }
 
             let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
-            let html = `<div class="table-responsive">
-                        <table class="table table-custom">
-                        <thead><tr><th>Student Information</th><th>Score Statistics</th><th class="text-center">Grade</th><th class="text-end">Action</th></tr></thead>
-                        <tbody>`;
+            let html = `<div class="table-responsive"><table class="table table-custom">
+                <thead><tr>
+                    <th>${translations[currentLang].colInfo}</th>
+                    <th>${translations[currentLang].colStats}</th>
+                    <th class="text-center">${translations[currentLang].colGrade}</th>
+                    <th class="text-end">${translations[currentLang].colAction}</th>
+                </tr></thead><tbody>`;
 
             snap.forEach(d => {
                 const data = d.data();
                 const mark = parseFloat(data.totalMark) || 0;
                 total++;
-
                 if(!data.grade) pending++;
                 else if(data.grade === 'FAILED' || data.grade === 'GAGAL') fail++;
                 else { pass++; sumMarks += mark; }
 
-                const barColor = mark >= 80 ? 'bg-success' : (mark >= 40 ? 'bg-primary' : 'bg-danger');
-
                 html += `<tr>
-                    <td>
-                        <span class="fw-bold d-block text-dark">${data.studentName}</span>
-                        <code class="small text-muted">${data.studentID}</code>
-                    </td>
+                    <td><span class="fw-bold d-block">${data.studentName}</span><code class="small text-muted">${data.studentID}</code></td>
                     <td style="width: 200px;">
                         <div class="d-flex align-items-center">
-                            <div class="progress w-100 me-2">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated ${barColor}" style="width: ${mark}%"></div>
-                            </div>
-                            <small class="fw-bold">${mark}%</small>
+                            <div class="progress w-100 me-2"><div class="progress-bar ${mark >= 40 ? 'bg-primary':'bg-danger'}" style="width: ${mark}%"></div></div>
+                            <small>${mark}%</small>
                         </div>
                     </td>
                     <td class="text-center">
                         <span class="grade-badge ${mark >= 80 ? 'badge-a' : (data.grade === 'FAILED' || data.grade === 'GAGAL' ? 'badge-f' : 'badge-pending')}">
-                            ${data.grade || 'NA'}
+                            ${data.grade || translations[currentLang].pending}
                         </span>
                     </td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-light border rounded-pill px-3" 
-                            onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
+                        <button class="btn btn-sm btn-light border rounded-pill" onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -397,17 +341,13 @@
             });
 
             resArea.innerHTML = html + "</tbody></table></div>";
-            updateStats(total > 0 ? (sumMarks/total).toFixed(1) : 0, pass, fail, pending);
+            document.getElementById('statAvg').innerText = (total > 0 ? (sumMarks/total).toFixed(1) : 0) + "%";
+            document.getElementById('statPass').innerText = pass;
+            document.getElementById('statFail').innerText = fail;
+            document.getElementById('statPending').innerText = pending;
 
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        } catch (e) { console.error(e); }
     };
-
-    function updateStats(avg, p, f, pen) {
-        document.getElementById('statAvg').innerText = avg + "%";
-        document.getElementById('statPass').innerText = p;
-        document.getElementById('statFail').innerText = f;
-        document.getElementById('statPending').innerText = pen;
-    }
 
     window.prepareEdit = (id, name, q, t, m) => {
         document.getElementById('currentDocId').value = id;
@@ -426,34 +366,33 @@
         const t = Number(document.getElementById('test').value);
         const m = Number(document.getElementById('midterm').value);
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "FAILED";
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : translations[currentLang].failed;
 
         try {
             await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
                 quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
                 status: "Marked", lastUpdated: serverTimestamp()
             });
-            Swal.fire({ title: 'Success', icon: 'success', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: currentLang === 'en' ? 'Saved!' : 'Disimpan!', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
             searchBySubject();
             document.getElementById('hostForm').style.display = 'none';
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        } catch (e) { alert(e.message); }
     };
 
     window.uploadMaterial = async () => {
         const title = document.getElementById('postTitle').value;
         const content = document.getElementById('postContent').value;
-        const category = document.querySelector('input[name="cat"]:checked').value;
-        if(!title || !content) return Swal.fire('Info', 'Please complete the material information!', 'info');
+        if(!title || !content) return Swal.fire('Error', 'Please fill all fields', 'error');
 
         try {
             await addDoc(collection(db, "materials"), {
-                title, content, course: document.getElementById('postCourse').value,
-                category, datePosted: serverTimestamp()
+                title, content, course: document.getElementById('courseSelect').value || "General",
+                category: "Lecture", datePosted: serverTimestamp()
             });
-            Swal.fire({ title: 'Published!', icon: 'success', text: 'Material has been successfully uploaded.' });
+            Swal.fire('Success', 'Material Published', 'success');
             document.getElementById('postTitle').value = "";
             document.getElementById('postContent').value = "";
-        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        } catch (e) { alert(e.message); }
     };
 </script>
 
