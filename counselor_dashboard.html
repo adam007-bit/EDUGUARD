@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+`<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,22 +12,53 @@
 
     <style>
         :root { --p-navy: #1e293b; --p-blue: #4361ee; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 250px; }
-        .main-content { margin-left: 250px; padding: 40px; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; overflow-x: hidden; }
+        
+        /* Sidebar Responsive Logic */
+        .sidebar { 
+            background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; 
+            position: fixed; width: 250px; z-index: 1000; transition: 0.3s;
+        }
+        .main-content { margin-left: 250px; padding: 40px; transition: 0.3s; }
+        
+        /* Mobile Overlay and Toggle */
+        #mobile-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; }
+
         .card-stats { border: none; border-radius: 24px; padding: 25px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: 0.3s; }
         .card-stats:hover { transform: translateY(-5px); }
         .critical-border { border-left: 8px solid var(--danger); }
         .warning-border { border-left: 8px solid var(--warning); }
-        .table-custom { background: white; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
+        
+        .table-custom { background: white; border-radius: 20px; border: 1px solid #e2e8f0; overflow-x: auto; }
         .thead-dark { background: #f1f5f9; color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-risk { padding: 6px 14px; border-radius: 50px; font-weight: 700; font-size: 0.7rem; }
+
+        /* Media Queries */
+        @media (max-width: 992px) {
+            .sidebar { left: -250px; }
+            .sidebar.active { left: 0; }
+            .main-content { margin-left: 0; padding: 80px 20px 40px 20px; }
+            #mobile-toggle { display: block; }
+            .table-custom table { min-width: 700px; } /* Allows horizontal scroll on tiny screens */
+        }
+
+        @media (max-width: 576px) {
+            .card-stats h1 { font-size: 1.5rem; }
+            .main-content h2 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="sidebar shadow">
-    <h4 class="fw-bold text-primary mb-5"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard AI</h4>
+<button class="btn btn-dark d-lg-none" id="mobile-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+</button>
+
+<div class="sidebar shadow" id="sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h4 class="fw-bold text-primary mb-0"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard AI</h4>
+        <button class="btn text-white d-lg-none" onclick="toggleSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
     <nav class="nav flex-column gap-3">
         <a class="nav-link text-white fw-bold active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> Overview</a>
         <a class="nav-link text-white-50" href="#"><i class="bi bi-people-fill me-2"></i> All Students</a>
@@ -37,20 +68,20 @@
 </div>
 
 <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
         <div>
             <h2 class="fw-bold mb-1">Student Intervention Analysis</h2>
             <p class="text-muted">Monitoring emotional wellbeing and academic performance.</p>
         </div>
-        <div class="text-end">
+        <div class="text-md-end">
             <div class="fw-bold" id="liveTime">...</div>
             <span class="badge bg-success-subtle text-success rounded-pill">System Active</span>
         </div>
     </div>
 
     <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card-stats critical-border">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card-stats critical-border h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold">CRITICAL CASES</div>
@@ -60,8 +91,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card-stats warning-border">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card-stats warning-border h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold">MEDIUM RISK</div>
@@ -71,8 +102,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card-stats border-start border-primary border-5">
+        <div class="col-sm-12 col-lg-4">
+            <div class="card-stats border-start border-primary border-5 h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-muted small fw-bold">ACADEMIC AT-RISK</div>
@@ -84,7 +115,7 @@
         </div>
     </div>
 
-    <div class="mb-4 d-flex gap-2">
+    <div class="mb-4 d-flex flex-column flex-sm-row gap-2">
         <div class="input-group" style="max-width: 400px;">
             <span class="input-group-text bg-white border-end-0 rounded-start-4"><i class="bi bi-search"></i></span>
             <input type="text" id="searchInput" class="form-control border-start-0 rounded-end-4 py-2" placeholder="Search Name or Student ID..." onkeyup="filterTable()">
@@ -130,6 +161,13 @@
         </table>
     </div>
 </div>
+
+<script>
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
