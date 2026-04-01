@@ -17,96 +17,35 @@
             background: var(--bg); 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             color: #1e293b;
-            padding-bottom: 80px; /* Space for Mobile Nav */
+            padding-bottom: 80px; 
         }
 
-        /* --- Sidebar (Desktop Only) --- */
-        .sidebar { 
-            background: var(--p-navy); 
-            color: white; 
-            min-height: 100vh; 
-            padding: 25px; 
-            position: fixed; 
-            width: 260px; 
-            display: none; 
-            z-index: 1001;
-        }
-
+        /* --- Sidebar & Layout --- */
+        .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 260px; display: none; z-index: 1001; }
         .main-content { padding: 20px; transition: 0.3s; }
+        @media (min-width: 992px) { .sidebar { display: block; } .main-content { margin-left: 260px; padding: 40px; } .bottom-nav { display: none !important; } }
 
-        @media (min-width: 992px) {
-            .sidebar { display: block; }
-            .main-content { margin-left: 260px; padding: 40px; }
-            .bottom-nav { display: none !important; }
-        }
-
-        /* --- Bottom Navigation (Mobile Only) --- */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            z-index: 1000;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .nav-item-app {
-            text-align: center;
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.65rem;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
+        /* --- Navigation --- */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid #e2e8f0; }
+        .nav-item-app { text-align: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 600; }
         .nav-item-app.active { color: var(--p-blue); }
         .nav-item-app i { font-size: 1.4rem; display: block; margin-bottom: 2px; }
 
-        /* --- App Cards --- */
-        .card-stats { 
-            border: none; 
-            border-radius: 20px; 
-            padding: 20px; 
-            background: white; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            margin-bottom: 10px;
-        }
+        /* --- UI Components --- */
+        .card-stats { border: none; border-radius: 20px; padding: 20px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 10px; }
         .critical-border { border-left: 6px solid var(--danger); }
         .warning-border { border-left: 6px solid var(--warning); }
+        .mobile-data-card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #eef2f6; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Mobile Table to Card UI */
-        .mobile-data-card {
-            background: white;
-            border-radius: 18px;
-            padding: 15px;
-            margin-bottom: 12px;
-            border: 1px solid #eef2f6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-container {
-            position: sticky;
-            top: 10px;
-            z-index: 900;
-            background: var(--bg);
-            padding: 5px 0 15px 0;
-        }
-
-        /* Hide desktop elements on mobile */
-        @media (max-width: 768px) {
-            .desktop-table { display: none; }
-        }
-        @media (min-width: 769px) {
-            .mobile-list { display: none; }
-        }
+        /* --- Chat System Styles --- */
+        #chatBox { height: 400px; overflow-y: auto; padding: 15px; background: #f1f5f9; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; position: relative; }
+        .msg-counselor { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
+        .msg-student { align-self: flex-start; background: white; color: var(--p-navy); border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg-time { font-size: 0.65rem; opacity: 0.7; display: block; margin-top: 4px; text-align: right; }
+        
+        .lang-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 10px; width: 100%; text-align: left; transition: 0.2s; }
+        .lang-btn:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
@@ -115,32 +54,18 @@
     <h4 class="fw-bold text-primary mb-5"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard AI</h4>
     <nav class="nav flex-column gap-3">
         <a class="nav-link text-white fw-bold active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> Ringkasan</a>
-        <a class="nav-link text-white-50" href="#"><i class="bi bi-people-fill me-2"></i> Pelajar</a>
-        <hr class="opacity-25">
         <button class="lang-btn" onclick="toggleLanguage()">
             <i class="bi bi-translate me-2"></i><span id="langText">English</span>
         </button>
+        <hr class="opacity-25">
         <a class="nav-link text-white-50 mt-2" href="#" onclick="logout()"><i class="bi bi-box-arrow-left me-2"></i> Keluar</a>
     </nav>
 </div>
 
 <div class="bottom-nav">
-    <a href="#" class="nav-item-app active">
-        <i class="bi bi-house-door-fill"></i>
-        <span id="m-nav1">Rumah</span>
-    </a>
-    <a href="#" class="nav-item-app">
-        <i class="bi bi-people"></i>
-        <span id="m-nav2">Pelajar</span>
-    </a>
-    <a href="javascript:void(0)" class="nav-item-app" onclick="toggleLanguage()">
-        <i class="bi bi-translate"></i>
-        <span id="m-lang">EN/BM</span>
-    </a>
-    <a href="#" class="nav-item-app text-danger" onclick="logout()">
-        <i class="bi bi-box-arrow-left"></i>
-        <span id="m-nav3">Keluar</span>
-    </a>
+    <a href="#" class="nav-item-app active"><i class="bi bi-house-door-fill"></i><span id="m-nav1">Rumah</span></a>
+    <a href="javascript:void(0)" class="nav-item-app" onclick="toggleLanguage()"><i class="bi bi-translate"></i><span id="m-lang">EN/BM</span></a>
+    <a href="#" class="nav-item-app text-danger" onclick="logout()"><i class="bi bi-box-arrow-left"></i><span id="m-nav3">Keluar</span></a>
 </div>
 
 <div class="main-content">
@@ -149,67 +74,54 @@
             <h3 class="fw-bold mb-0" id="pageTitle">Dashboard Intervensi</h3>
             <p class="text-muted small mb-0" id="pageSubTitle">Sistem Pemantauan AI Aktif</p>
         </div>
-        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 d-none d-md-inline-block">Sistem Aktif</span>
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-4">
-            <div class="card-stats critical-border">
-                <div class="text-muted extra-small fw-bold mb-1" style="font-size: 0.7rem;" id="lblCrit">KRITIKAL</div>
-                <h2 class="fw-bold text-danger mb-0" id="critCount">0</h2>
-            </div>
-        </div>
-        <div class="col-6 col-md-4">
-            <div class="card-stats warning-border">
-                <div class="text-muted extra-small fw-bold mb-1" style="font-size: 0.7rem;" id="lblMed">SEDERHANA</div>
-                <h2 class="fw-bold text-warning mb-0" id="medCount">0</h2>
-            </div>
-        </div>
-        <div class="col-12 col-md-4 d-md-block">
-            <div class="card-stats border-start border-primary border-5">
-                <div class="text-muted extra-small fw-bold mb-1" style="font-size: 0.7rem;" id="lblFail">BERISIKO GAGAL</div>
-                <h2 class="fw-bold text-primary mb-0" id="failCount">0</h2>
-            </div>
-        </div>
+        <div class="col-6 col-md-4"><div class="card-stats critical-border"><div id="lblCrit" style="font-size: 0.7rem;">KRITIKAL</div><h2 class="fw-bold text-danger mb-0" id="critCount">0</h2></div></div>
+        <div class="col-6 col-md-4"><div class="card-stats warning-border"><div id="lblMed" style="font-size: 0.7rem;">SEDERHANA</div><h2 class="fw-bold text-warning mb-0" id="medCount">0</h2></div></div>
+        <div class="col-12 col-md-4"><div class="card-stats border-start border-primary border-5"><div id="lblFail" style="font-size: 0.7rem;">KESELURUHAN</div><h2 class="fw-bold text-primary mb-0" id="totalCount">0</h2></div></div>
     </div>
 
-    <div class="search-container">
+    <div class="search-container mb-4">
         <div class="input-group shadow-sm rounded-4 overflow-hidden border-0">
             <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
             <input type="text" id="searchInput" class="form-control border-0 py-3" placeholder="Cari nama pelajar..." onkeyup="filterTable()">
         </div>
     </div>
 
-    <div class="mobile-list">
+    <div id="studentContainer">
         <h6 class="fw-bold mb-3" id="tblStressTitle">Senarai Kebajikan Pelajar</h6>
-        <div id="mobileRiskCards">
-            </div>
+        <div id="riskList">
+            <div class="text-center p-5 text-muted small">Memuatkan data pelajar...</div>
+        </div>
     </div>
+</div>
 
-    <div class="desktop-table mt-4">
-        <div class="table-custom shadow-sm">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="thead-dark">
-                    <tr>
-                        <th class="ps-4 py-3" id="thInfo">Maklumat Pelajar</th>
-                        <th id="thRisk">Risiko</th>
-                        <th class="text-center" id="thAction">Tindakan</th>
-                    </tr>
-                </thead>
-                <tbody id="riskTableBody">
-                    <tr><td colspan="3" class="text-center py-5">Memuatkan data...</td></tr>
-                </tbody>
-            </table>
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 bg-primary text-white rounded-top-4">
+                <h6 class="modal-title fw-bold" id="chatTargetName">Chat</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="chatBox"></div>
+                <div class="p-3 bg-white border-top">
+                    <div class="input-group">
+                        <input type="text" id="chatInput" class="form-control border-0 bg-light rounded-pill px-3" placeholder="Tulis mesej...">
+                        <button class="btn btn-primary rounded-circle ms-2" id="sendChatBtn">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script type="module">
-    // --- FIREBASE CONFIG & TRANSLATIONS ---
-    // (Keep your existing Firebase imports and Config here)
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -223,135 +135,170 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let activeStudentID = null;
+    let unsubscribeChat = null;
+
     window.currentLang = 'ms';
     const translations = {
         en: {
-            pageTitle: "Intervention Panel",
-            pageSubTitle: "AI Active Monitoring",
-            lblCrit: "CRITICAL", lblMed: "MEDIUM", lblFail: "FAIL RISK",
-            mNav1: "Home", mNav2: "Students", mNav3: "Exit",
-            btnIntervene: "Intervene",
+            pageTitle: "Intervention Panel", pageSubTitle: "AI Active Monitoring",
+            lblCrit: "CRITICAL", lblMed: "MEDIUM", lblFail: "TOTAL CASES",
+            mNav1: "Home", mNav3: "Exit",
             searchPlaceholder: "Search student name...",
             tblStressTitle: "Student Welfare List",
-            swalTitle: "Send Notification",
-            swalBtn: "Send Now"
+            chatHint: "Type a message..."
         },
         ms: {
-            pageTitle: "Panel Intervensi",
-            pageSubTitle: "Pemantauan AI Aktif",
-            lblCrit: "KRITIKAL", lblMed: "SEDERHANA", lblFail: "RISIKO GAGAL",
-            mNav1: "Rumah", mNav2: "Pelajar", mNav3: "Keluar",
-            btnIntervene: "Intervensi",
+            pageTitle: "Panel Intervensi", pageSubTitle: "Pemantauan AI Aktif",
+            lblCrit: "KRITIKAL", lblMed: "SEDERHANA", lblFail: "JUMLAH KES",
+            mNav1: "Rumah", mNav3: "Keluar",
             searchPlaceholder: "Cari nama pelajar...",
             tblStressTitle: "Senarai Kebajikan Pelajar",
-            swalTitle: "Hantar Notifikasi",
-            swalBtn: "Hantar Sekarang"
+            chatHint: "Tulis mesej..."
         }
     };
 
-    window.toggleLanguage = function() {
+    // --- FUNGSI UTAMA ---
+
+    async function loadStudents() {
+        const q = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
+        
+        onSnapshot(q, (snap) => {
+            const list = document.getElementById('riskList');
+            list.innerHTML = '';
+            let c = 0, m = 0, t = 0;
+
+            snap.forEach(doc => {
+                const data = doc.data();
+                t++;
+                if(data.riskLevel === 'CRITICAL') c++;
+                if(data.riskLevel === 'MEDIUM') m++;
+
+                const riskColor = data.riskLevel === 'CRITICAL' ? 'border-danger' : 'border-warning';
+                const badgeColor = data.riskLevel === 'CRITICAL' ? 'bg-danger' : 'bg-warning';
+
+                list.innerHTML += `
+                    <div class="mobile-data-card shadow-sm border-start border-4 ${riskColor} animate__animated animate__fadeInUp">
+                        <div>
+                            <div class="fw-bold">${data.studentName}</div>
+                            <div class="small text-muted" style="font-size:0.7rem">ID: ${data.studentID}</div>
+                            <span class="badge ${badgeColor} mt-1" style="font-size:0.6rem">${data.riskLevel}</span>
+                        </div>
+                        <button class="btn btn-primary rounded-pill btn-sm px-3" onclick="openChat('${data.studentID}', '${data.studentName}')">
+                            <i class="bi bi-chat-text-fill me-1"></i> Chat
+                        </button>
+                    </div>`;
+            });
+
+            document.getElementById('critCount').innerText = c;
+            document.getElementById('medCount').innerText = m;
+            document.getElementById('totalCount').innerText = t;
+        });
+    }
+
+    // --- SISTEM CHAT ---
+
+    window.openChat = function(id, name) {
+        activeStudentID = id;
+        document.getElementById('chatTargetName').innerText = name;
+        const modal = new bootstrap.Modal(document.getElementById('chatModal'));
+        modal.show();
+
+        // Bersihkan chat lama jika ada listener aktif
+        if (unsubscribeChat) unsubscribeChat();
+
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = '<div class="text-center p-3 small text-muted">Memulakan sembang...</div>';
+
+        // Listen mesej real-time
+        const qChat = query(
+            collection(db, "notifications"), 
+            where("studentID", "==", id),
+            orderBy("timestamp", "asc")
+        );
+
+        unsubscribeChat = onSnapshot(qChat, (snap) => {
+            chatBox.innerHTML = '';
+            snap.forEach(doc => {
+                const m = doc.data();
+                const isCounselor = m.sender === "Counselor";
+                const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
+                
+                chatBox.innerHTML += `
+                    <div class="msg ${isCounselor ? 'msg-counselor' : 'msg-student'}">
+                        ${m.message}
+                        <span class="msg-time">${time}</span>
+                    </div>`;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    };
+
+    document.getElementById('sendChatBtn').onclick = async () => {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg || !activeStudentID) return;
+
+        input.value = '';
+        try {
+            await addDoc(collection(db, "notifications"), {
+                studentID: activeStudentID,
+                message: msg,
+                sender: "Counselor",
+                status: "unread",
+                timestamp: serverTimestamp()
+            });
+        } catch(e) { console.error("Gagal hantar:", e); }
+    };
+
+    // Enter key untuk hantar chat
+    document.getElementById('chatInput').onkeypress = (e) => {
+        if(e.key === 'Enter') document.getElementById('sendChatBtn').click();
+    };
+
+    // --- UTILITI LAIN ---
+
+    window.toggleLanguage = () => {
         window.currentLang = (window.currentLang === 'ms') ? 'en' : 'ms';
         updateUI();
-        loadAllData();
     };
 
     function updateUI() {
         const t = translations[window.currentLang];
         document.getElementById('pageTitle').innerText = t.pageTitle;
-        document.getElementById('pageSubTitle').innerText = t.pageSubTitle;
         document.getElementById('lblCrit').innerText = t.lblCrit;
         document.getElementById('lblMed').innerText = t.lblMed;
         document.getElementById('lblFail').innerText = t.lblFail;
         document.getElementById('m-nav1').innerText = t.mNav1;
-        document.getElementById('m-nav2').innerText = t.mNav2;
-        document.getElementById('m-nav3').innerText = t.mNav3;
         document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-        document.getElementById('tblStressTitle').innerText = t.tblStressTitle;
+        document.getElementById('chatInput').placeholder = t.chatHint;
         document.getElementById('langText').innerText = window.currentLang === 'ms' ? 'English' : 'Bahasa Melayu';
     }
 
-    async function loadAllData() {
-        try {
-            const q = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
-            const snap = await getDocs(q);
-            
-            const tableBody = document.getElementById('riskTableBody');
-            const mobileContainer = document.getElementById('mobileRiskCards');
-            
-            tableBody.innerHTML = '';
-            mobileContainer.innerHTML = '';
-            
-            let cCount = 0, mCount = 0;
-
-            snap.forEach(doc => {
-                const data = doc.data();
-                if(data.riskLevel === "CRITICAL") cCount++;
-                if(data.riskLevel === "MEDIUM") mCount++;
-
-                const riskBadge = data.riskLevel === 'CRITICAL' ? 'bg-danger' : 'bg-warning';
-
-                // Inject Desktop Row
-                tableBody.innerHTML += `
-                    <tr>
-                        <td class="ps-4">
-                            <div class="fw-bold">${data.studentName}</div>
-                            <div class="small text-muted">${data.studentID}</div>
-                        </td>
-                        <td><span class="badge ${riskBadge}">${data.riskLevel}</span></td>
-                        <td class="text-center">
-                            <button class="btn btn-dark btn-sm rounded-pill" onclick="hubungiPelajar('${data.studentID}', '${data.studentName}')">Mesej</button>
-                        </td>
-                    </tr>`;
-
-                // Inject Mobile Card
-                mobileContainer.innerHTML += `
-                    <div class="mobile-data-card shadow-sm border-start border-4 ${data.riskLevel === 'CRITICAL' ? 'border-danger' : 'border-warning'}">
-                        <div>
-                            <div class="fw-bold">${data.studentName}</div>
-                            <div class="small text-muted">${data.studentID}</div>
-                            <span class="badge ${riskBadge} mt-1" style="font-size:0.6rem">${data.riskLevel}</span>
-                        </div>
-                        <button class="btn btn-primary btn-sm rounded-circle p-2" onclick="hubungiPelajar('${data.studentID}', '${data.studentName}')">
-                            <i class="bi bi-chat-fill"></i>
-                        </button>
-                    </div>`;
-            });
-
-            document.getElementById('critCount').innerText = cCount;
-            document.getElementById('medCount').innerText = mCount;
-        } catch (e) { console.log(e); }
-    }
-
-    // Modal, Logout and Search logic (remains similar but uses window.currentLang)
-    window.hubungiPelajar = async (id, nama) => {
-        const t = translations[window.currentLang];
-        const { value: text } = await Swal.fire({
-            title: nama,
-            text: t.swalTitle,
-            input: 'textarea',
-            confirmButtonText: t.swalBtn,
-            confirmButtonColor: '#4361ee'
-        });
-        if (text) {
-             await addDoc(collection(db, "notifications"), {
-                studentID: id, message: text, sender: "Counselor", status: "unread", timestamp: serverTimestamp()
-            });
-            Swal.fire('Success', '', 'success');
-        }
-    };
-
     window.filterTable = () => {
         const val = document.getElementById('searchInput').value.toLowerCase();
-        document.querySelectorAll('.mobile-data-card, #riskTableBody tr').forEach(el => {
+        document.querySelectorAll('.mobile-data-card').forEach(el => {
             el.style.display = el.innerText.toLowerCase().includes(val) ? '' : 'none';
         });
     };
 
-    window.logout = () => { sessionStorage.clear(); window.location.href = "index.html"; };
-    
-    updateUI();
-    loadAllData();
+    window.logout = () => { 
+        Swal.fire({
+            title: 'Keluar?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                sessionStorage.clear(); 
+                window.location.href = "index.html"; 
+            }
+        });
+    };
+
+    loadStudents();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
