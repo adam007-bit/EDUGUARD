@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        :root { --p-navy: #1e293b; --p-blue: #4361ee; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; }
+        :root { --p-navy: #1e293b; --p-blue: #4361ee; --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc; --supervisor: #059669; }
         
         body { 
             background: var(--bg); 
@@ -21,32 +21,33 @@
             padding-bottom: 80px; 
         }
 
-        /* --- Sidebar & Layout --- */
+        /* --- Layout & Nav --- */
         .sidebar { background: var(--p-navy); color: white; min-height: 100vh; padding: 25px; position: fixed; width: 260px; display: none; z-index: 1001; }
         .main-content { padding: 20px; transition: 0.3s; }
         @media (min-width: 992px) { .sidebar { display: block; } .main-content { margin-left: 260px; padding: 40px; } .bottom-nav { display: none !important; } }
 
-        /* --- Navigation --- */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid #e2e8f0; }
-        .nav-item-app { text-align: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 600; }
+        .nav-item-app { text-align: center; color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; }
         .nav-item-app.active { color: var(--p-blue); }
         .nav-item-app i { font-size: 1.4rem; display: block; margin-bottom: 2px; }
 
-        /* --- UI Components --- */
+        /* --- Cards --- */
         .card-stats { border: none; border-radius: 20px; padding: 20px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 10px; }
         .critical-border { border-left: 6px solid var(--danger); }
         .warning-border { border-left: 6px solid var(--warning); }
         .mobile-data-card { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #eef2f6; display: flex; justify-content: space-between; align-items: center; }
 
-        /* --- Chat System Styles --- */
+        /* --- Chat --- */
         #chatBox { height: 400px; overflow-y: auto; padding: 15px; background: #f1f5f9; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }
         .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; position: relative; }
         .msg-counselor { align-self: flex-end; background: var(--p-blue); color: white; border-bottom-right-radius: 2px; }
         .msg-student { align-self: flex-start; background: white; color: var(--p-navy); border-bottom-left-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg-supervisor { align-self: flex-start; background: var(--supervisor); color: white; border-bottom-left-radius: 2px; }
         .msg-time { font-size: 0.65rem; opacity: 0.7; display: block; margin-top: 4px; text-align: right; }
         
-        .lang-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 15px; border-radius: 10px; width: 100%; text-align: left; transition: 0.2s; }
-        .lang-btn:hover { background: rgba(255,255,255,0.2); }
+        .lang-btn, .sup-sidebar-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 15px; border-radius: 10px; width: 100%; text-align: left; transition: 0.2s; margin-bottom: 10px; font-size: 0.9rem; }
+        .lang-btn:hover, .sup-sidebar-btn:hover { background: rgba(255,255,255,0.2); }
+        .sup-sidebar-btn { border: 1px solid var(--supervisor); color: #10b981; }
 
         #chatBox::-webkit-scrollbar { width: 5px; }
         #chatBox::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -56,18 +57,24 @@
 
 <div class="sidebar shadow">
     <h4 class="fw-bold text-primary mb-5"><i class="bi bi-shield-lock-fill me-2"></i>EduGuard AI</h4>
-    <nav class="nav flex-column gap-3">
-        <a class="nav-link text-white fw-bold active" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> Ringkasan</a>
+    <nav class="nav flex-column">
+        <a class="nav-link text-white fw-bold active mb-3" href="#"><i class="bi bi-grid-1x2-fill me-2"></i> <span id="side-home">Ringkasan</span></a>
+        
+        <button class="sup-sidebar-btn fw-bold mb-3" onclick="openSupervisorChat()">
+            <i class="bi bi-person-badge-fill me-2"></i> <span id="side-sup">Chat Supervisor</span>
+        </button>
+
         <button class="lang-btn" onclick="toggleLanguage()">
             <i class="bi bi-translate me-2"></i><span id="langText">English</span>
         </button>
         <hr class="opacity-25">
-        <a class="nav-link text-white-50 mt-2" href="#" onclick="logout()"><i class="bi bi-box-arrow-left me-2"></i> Keluar</a>
+        <a class="nav-link text-white-50 mt-2" href="#" onclick="logout()"><i class="bi bi-box-arrow-left me-2"></i> <span id="side-exit">Keluar</span></a>
     </nav>
 </div>
 
 <div class="bottom-nav">
     <a href="#" class="nav-item-app active"><i class="bi bi-house-door-fill"></i><span id="m-nav1">Rumah</span></a>
+    <a onclick="openSupervisorChat()" class="nav-item-app text-success"><i class="bi bi-person-badge-fill"></i><span id="m-nav2">Supervisor</span></a>
     <a href="javascript:void(0)" class="nav-item-app" onclick="toggleLanguage()"><i class="bi bi-translate"></i><span id="m-lang">EN/BM</span></a>
     <a href="#" class="nav-item-app text-danger" onclick="logout()"><i class="bi bi-box-arrow-left"></i><span id="m-nav3">Keluar</span></a>
 </div>
@@ -104,7 +111,7 @@
 <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header border-0 bg-primary text-white rounded-top-4">
+            <div id="chatHeader" class="modal-header border-0 bg-primary text-white rounded-top-4">
                 <h6 class="modal-title fw-bold" id="chatTargetName">Chat</h6>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -139,7 +146,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let activeStudentID = null;
+    let activeChatID = null;
+    let chatType = "student"; 
     let unsubscribeChat = null;
 
     window.currentLang = 'ms';
@@ -147,7 +155,8 @@
         en: {
             pageTitle: "Intervention Panel", pageSubTitle: "AI Active Monitoring",
             lblCrit: "CRITICAL", lblMed: "MEDIUM", lblTotal: "TOTAL CASES",
-            mNav1: "Home", mNav3: "Exit",
+            mNav1: "Home", mNav2: "Supervisor", mNav3: "Exit",
+            sideHome: "Summary", sideSup: "Supervisor Chat", sideExit: "Logout",
             searchPlaceholder: "Search student name...",
             tblStressTitle: "Student Welfare List",
             chatHint: "Type a message...",
@@ -156,7 +165,8 @@
         ms: {
             pageTitle: "Panel Intervensi", pageSubTitle: "Pemantauan AI Aktif",
             lblCrit: "KRITIKAL", lblMed: "SEDERHANA", lblTotal: "JUMLAH KES",
-            mNav1: "Rumah", mNav3: "Keluar",
+            mNav1: "Rumah", mNav2: "Supervisor", mNav3: "Keluar",
+            sideHome: "Ringkasan", sideSup: "Chat Supervisor", sideExit: "Keluar",
             searchPlaceholder: "Cari nama pelajar...",
             tblStressTitle: "Senarai Kebajikan Pelajar",
             chatHint: "Tulis mesej...",
@@ -167,21 +177,17 @@
     // --- LOAD DATA PELAJAR ---
     async function loadStudents() {
         const q = query(collection(db, "assessments"), orderBy("timestamp", "desc"));
-        
         onSnapshot(q, (snap) => {
             const list = document.getElementById('riskList');
             list.innerHTML = '';
             let c = 0, m = 0, t = 0;
-
             snap.forEach(doc => {
                 const data = doc.data();
                 t++;
                 if(data.riskLevel === 'CRITICAL') c++;
                 if(data.riskLevel === 'MEDIUM') m++;
-
                 const riskClass = data.riskLevel === 'CRITICAL' ? 'critical-border' : (data.riskLevel === 'MEDIUM' ? 'warning-border' : 'border-primary border-start border-5');
                 const badgeColor = data.riskLevel === 'CRITICAL' ? 'bg-danger' : (data.riskLevel === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info');
-
                 list.innerHTML += `
                     <div class="mobile-data-card shadow-sm ${riskClass} animate__animated animate__fadeInUp">
                         <div>
@@ -194,73 +200,67 @@
                         </button>
                     </div>`;
             });
-
             document.getElementById('critCount').innerText = c;
             document.getElementById('medCount').innerText = m;
             document.getElementById('totalCount').innerText = t;
         });
     }
 
-    // --- SISTEM CHAT ---
+    // --- CHAT LOGIC ---
     window.openChat = function(id, name) {
-        activeStudentID = id;
+        activeChatID = id;
+        chatType = "student";
         document.getElementById('chatTargetName').innerText = name;
+        document.getElementById('chatHeader').className = "modal-header border-0 bg-primary text-white rounded-top-4";
         const modal = new bootstrap.Modal(document.getElementById('chatModal'));
         modal.show();
+        startChatListener("notifications", "studentID", id);
+    };
 
+    window.openSupervisorChat = function() {
+        activeChatID = "SUPERVISOR_GENERAL"; 
+        chatType = "supervisor";
+        document.getElementById('chatTargetName').innerText = "Supervisor Panel";
+        document.getElementById('chatHeader').className = "modal-header border-0 bg-success text-white rounded-top-4";
+        const modal = new bootstrap.Modal(document.getElementById('chatModal'));
+        modal.show();
+        startChatListener("supervisor_chats", "type", "management");
+    };
+
+    function startChatListener(collName, field, value) {
         if (unsubscribeChat) unsubscribeChat();
-
         const chatBox = document.getElementById('chatBox');
-        chatBox.innerHTML = '<div class="text-center p-3 small text-muted">Memulakan sembang...</div>';
-
-        const qChat = query(
-            collection(db, "notifications"), 
-            where("studentID", "==", id),
-            orderBy("timestamp", "asc")
-        );
-
+        chatBox.innerHTML = '<div class="text-center p-3 small text-muted">Loading...</div>';
+        const qChat = query(collection(db, collName), where(field, "==", value), orderBy("timestamp", "asc"));
         unsubscribeChat = onSnapshot(qChat, (snap) => {
             chatBox.innerHTML = '';
             snap.forEach(doc => {
                 const m = doc.data();
-                const isCounselor = m.sender === "Counselor";
-                const time = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
-                
+                const isMe = m.sender === "Counselor";
+                let msgClass = isMe ? "msg-counselor" : (chatType === "supervisor" ? "msg-supervisor" : "msg-student");
                 chatBox.innerHTML += `
-                    <div class="msg ${isCounselor ? 'msg-counselor' : 'msg-student'} animate__animated animate__fadeIn">
+                    <div class="msg ${msgClass} animate__animated animate__fadeIn">
                         ${m.message}
-                        <span class="msg-time ${isCounselor ? 'text-white-50' : 'text-muted'}">${time}</span>
+                        <span class="msg-time">${m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</span>
                     </div>`;
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
-    };
+    }
 
     document.getElementById('sendChatBtn').onclick = async () => {
         const input = document.getElementById('chatInput');
         const msg = input.value.trim();
-        if(!msg || !activeStudentID) return;
-
+        if(!msg || !activeChatID) return;
+        const coll = chatType === "student" ? "notifications" : "supervisor_chats";
+        const data = { message: msg, sender: "Counselor", timestamp: serverTimestamp() };
+        if(chatType === "student") { data.studentID = activeChatID; data.status = "unread"; }
+        else { data.type = "management"; }
         input.value = '';
-        try {
-            await addDoc(collection(db, "notifications"), {
-                studentID: activeStudentID,
-                message: msg,
-                sender: "Counselor",
-                status: "unread",
-                timestamp: serverTimestamp()
-            });
-        } catch(e) { 
-            console.error("Gagal hantar:", e);
-            Swal.fire('Ralat', 'Gagal menghantar mesej', 'error');
-        }
+        try { await addDoc(collection(db, coll), data); } catch(e) { console.error(e); }
     };
 
-    document.getElementById('chatInput').onkeypress = (e) => {
-        if(e.key === 'Enter') document.getElementById('sendChatBtn').click();
-    };
-
-    // --- UTILITI & UI ---
+    // --- UI UTILS ---
     window.toggleLanguage = () => {
         window.currentLang = (window.currentLang === 'ms') ? 'en' : 'ms';
         updateUI();
@@ -274,10 +274,15 @@
         document.getElementById('lblMed').innerText = t.lblMed;
         document.getElementById('lblTotal').innerText = t.lblTotal;
         document.getElementById('m-nav1').innerText = t.mNav1;
+        document.getElementById('m-nav2').innerText = t.mNav2;
         document.getElementById('m-nav3').innerText = t.mNav3;
+        document.getElementById('side-home').innerText = t.sideHome;
+        document.getElementById('side-sup').innerText = t.sideSup;
+        document.getElementById('side-exit').innerText = t.sideExit;
         document.getElementById('searchInput').placeholder = t.searchPlaceholder;
         document.getElementById('chatInput').placeholder = t.chatHint;
         document.getElementById('langText').innerText = t.langLabel;
+        document.getElementById('tblStressTitle').innerText = t.tblStressTitle;
     }
 
     window.filterTable = () => {
@@ -288,17 +293,8 @@
     };
 
     window.logout = () => { 
-        Swal.fire({
-            title: window.currentLang === 'ms' ? 'Log Keluar?' : 'Logout?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            confirmButtonText: window.currentLang === 'ms' ? 'Ya, Keluar' : 'Yes, Logout'
-        }).then((res) => {
-            if(res.isConfirmed) {
-                sessionStorage.clear(); 
-                window.location.href = "index.html"; 
-            }
+        Swal.fire({ title: window.currentLang === 'ms' ? 'Log Keluar?' : 'Logout?', icon: 'warning', showCancelButton: true }).then((res) => {
+            if(res.isConfirmed) { sessionStorage.clear(); window.location.href = "index.html"; }
         });
     };
 
