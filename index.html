@@ -21,15 +21,19 @@
         .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; transition: 0.3s; }
         .input-group-text { border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; border-left: none; }
         .password-input { border-radius: 12px 0 0 12px !important; }
+        #langSwitcher { cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
-    <div class="container">
+    <div class="container d-flex justify-content-between">
         <a class="navbar-brand fw-bold text-primary" href="#">
             <i class="bi bi-shield-check"></i> EduGuard <span class="text-warning">AI</span>
         </a>
+        <button class="btn btn-outline-secondary btn-sm" id="langSwitcher" onclick="toggleLanguage()">
+            <i class="bi bi-translate"></i> <span id="langText">Bahasa Melayu</span>
+        </button>
     </div>
 </nav>
 
@@ -38,7 +42,7 @@
         <div class="auth-header">
             <i class="bi bi-person-circle fs-1 mb-2 d-block"></i>
             <h3 class="fw-bold mb-1" id="authTitle">RPS Log In</h3>
-            <p class="small mb-0 opacity-75">Please enter your account details.</p>
+            <p class="small mb-0 opacity-75" id="authSubTitle">Please enter your account details.</p>
         </div>
 
         <div class="p-4">
@@ -51,17 +55,17 @@
 
             <form id="authForm">
                 <div class="mb-3" id="nameField" style="display: none;">
-                    <label class="fw-semibold small mb-2">Full Name</label>
+                    <label class="fw-semibold small mb-2" id="lblFullName">Full Name</label>
                     <input type="text" id="fullName" class="form-control" placeholder="Your full name">
                 </div>
 
                 <div class="mb-3">
-                    <label class="fw-semibold small mb-2">Email Address</label>
+                    <label class="fw-semibold small mb-2" id="lblEmail">Email Address</label>
                     <input type="email" id="email" class="form-control" placeholder="example@email.com" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="fw-semibold small mb-2">Password</label>
+                    <label class="fw-semibold small mb-2" id="lblPassword">Password</label>
                     <div class="input-group">
                         <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
                         <span class="input-group-text" id="btnTogglePassword">
@@ -82,6 +86,7 @@
 </div>
 
 <script type="module">
+    // Firebase Config remains the same...
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
@@ -99,23 +104,90 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // --- Translation Logic ---
+    window.currentLang = 'en';
+    const translations = {
+        en: {
+            subTitle: "Please enter your account details.",
+            lblFullName: "Full Name",
+            lblEmail: "Email Address",
+            lblPassword: "Password",
+            login: "Log In",
+            register: "Register",
+            loginBtn: "LOG IN",
+            registerBtn: "REGISTER NOW",
+            noAccount: "Don't have an account?",
+            haveAccount: "Already have an account?",
+            regHere: "Register Here",
+            student: "Student",
+            counselor: "Counselor",
+            host: "Course Coordinator",
+            wait: "Please wait...",
+            success: "Success!",
+            failed: "Failed"
+        },
+        ms: {
+            subTitle: "Sila masukkan butiran akaun anda.",
+            lblFullName: "Nama Penuh",
+            lblEmail: "Alamat Emel",
+            lblPassword: "Kata Laluan",
+            login: "Log Masuk",
+            register: "Daftar",
+            loginBtn: "LOG MASUK",
+            registerBtn: "DAFTAR SEKARANG",
+            noAccount: "Belum mempunyai akaun?",
+            haveAccount: "Sudah mempunyai akaun?",
+            regHere: "Daftar di Sini",
+            student: "Pelajar",
+            counselor: "Kaunselor",
+            host: "Penyelaras Kursus",
+            wait: "Sila tunggu...",
+            success: "Berjaya!",
+            failed: "Gagal"
+        }
+    };
+
+    window.toggleLanguage = function() {
+        window.currentLang = (window.currentLang === 'en') ? 'ms' : 'en';
+        document.getElementById('langText').innerText = (window.currentLang === 'en') ? 'Bahasa Melayu' : 'English';
+        window.updateUI();
+    };
+
     window.isLoginMode = true;
     window.currentRole = 'supervisor';
 
     window.updateUI = function() {
-        const titleMap = { 
+        const t = translations[window.currentLang];
+        const roleNames = { 
             'supervisor': 'RPS', 
-            'student': 'Student', 
-            'host': 'Course Coordinator',
-            'counselor': 'Counselor' 
+            'student': t.student, 
+            'host': t.host, 
+            'counselor': t.counselor 
         };
         
-        document.getElementById('authTitle').innerText = (window.isLoginMode ? 'Log In ' : 'Register ') + titleMap[window.currentRole];
-        document.getElementById('authBtn').innerText = window.isLoginMode ? 'LOG IN' : 'REGISTER NOW';
+        // Dynamic Title & Buttons
+        const actionText = window.isLoginMode ? t.login : t.register;
+        document.getElementById('authTitle').innerText = `${actionText} ${roleNames[window.currentRole]}`;
+        document.getElementById('authBtn').innerText = window.isLoginMode ? t.loginBtn : t.registerBtn;
+        
+        // Labels & Static Text
+        document.getElementById('authSubTitle').innerText = t.subTitle;
+        document.getElementById('lblFullName').innerText = t.lblFullName;
+        document.getElementById('lblEmail').innerText = t.lblEmail;
+        document.getElementById('lblPassword').innerText = t.lblPassword;
+        
+        // Footer Toggle
+        document.getElementById('toggleText').innerText = window.isLoginMode ? t.noAccount : t.haveAccount;
+        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? t.regHere : t.login;
+
+        // Visibility
         document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
         document.getElementById('fullName').required = !window.isLoginMode;
-        document.getElementById('toggleText').innerText = window.isLoginMode ? "Don't have an account?" : "Already have an account?";
-        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? 'Register Here' : 'Log In';
+        
+        // Update Role Buttons Text (Optional but better)
+        document.getElementById('btn-student').innerText = t.student;
+        document.getElementById('btn-counselor').innerText = t.counselor;
+        document.getElementById('btn-host').innerText = t.host;
     };
 
     window.switchRole = function(role) {
@@ -125,6 +197,7 @@
         window.updateUI();
     };
 
+    // Keep your Event Listeners and Firebase Submit Logic below...
     document.getElementById('btnTogglePassword').addEventListener('click', () => {
         const passInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eyeIcon');
@@ -144,11 +217,12 @@
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const t = translations[window.currentLang];
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const fullName = document.getElementById('fullName').value.trim();
 
-        Swal.fire({ title: 'Please wait...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: t.wait, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
             if (window.isLoginMode) {
@@ -158,19 +232,12 @@
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    
                     sessionStorage.setItem("activeUser", user.uid);
-                    sessionStorage.setItem("tempRegName", userData.name);
-                    sessionStorage.setItem("tempRegID", user.uid);
-
-                    Swal.fire({ icon: 'success', title: 'Success!', text: `Welcome, ${userData.name}`, timer: 1500, showConfirmButton: false })
+                    Swal.fire({ icon: 'success', title: t.success, text: `Welcome, ${userData.name}`, timer: 1500, showConfirmButton: false })
                     .then(() => {
+                        // Redirect Logic remains the same
                         if (userData.role === 'student') {
-                            if (userData.registrationStatus === 'complete') {
-                                window.location.href = "student-view.html";
-                            } else {
-                                window.location.href = "register_course.html";
-                            }
+                            window.location.href = userData.registrationStatus === 'complete' ? "student-view.html" : "register_course.html";
                         } else if (userData.role === 'supervisor') {
                             window.location.href = "dashboard.html";
                         } else if (userData.role === 'counselor') {
@@ -180,7 +247,7 @@
                         }
                     });
                 } else {
-                    throw new Error("User profile not found in database.");
+                    throw new Error("Profile error.");
                 }
             } else {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -192,13 +259,13 @@
                     registrationStatus: 'pending',
                     createdAt: new Date().toISOString()
                 });
-                Swal.fire('Success!', 'Account registered. Please log in.', 'success').then(() => {
+                Swal.fire(t.success, 'Account registered.', 'success').then(() => {
                     window.isLoginMode = true;
                     window.updateUI();
                 });
             }
         } catch (error) {
-            Swal.fire('Failed', error.message, 'error');
+            Swal.fire(t.failed, error.message, 'error');
         }
     });
 
