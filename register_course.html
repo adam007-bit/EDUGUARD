@@ -9,34 +9,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
         .reg-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); background: white; width: 100%; max-width: 450px; padding: 30px; }
         .form-control, .form-select { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc; }
         .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; width: 100%; transition: 0.3s; }
         .btn-primary:hover { background: #3046bd; transform: translateY(-2px); }
+        .lang-btn { position: absolute; top: 20px; right: 20px; }
     </style>
 </head>
 <body>
 
+<div class="lang-btn">
+    <button onclick="toggleLanguage()" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold bg-white shadow-sm">
+        <i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span>
+    </button>
+</div>
+
 <div class="reg-card">
     <div class="text-center mb-4">
         <div class="bg-primary text-white d-inline-block p-3 rounded-circle mb-3">
-            <i class="bi bi-journal-plus fs-3"></i>
+            <i class="bi bi-person-badge fs-3"></i>
         </div>
-        <h3 class="fw-bold">Course Registration</h3>
-        <p class="text-muted small">Please select your course and supervisor.</p>
+        <h3 class="fw-bold" data-i18n="regTitle">Course Registration</h3>
+        <p class="text-muted small" data-i18n="regSubtitle">Please select your course and supervisor.</p>
     </div>
 
     <form id="courseRegForm">
         <div class="mb-3">
-            <label class="fw-semibold small mb-2">Student ID</label>
-            <input type="text" id="displayID" class="form-control fw-bold text-primary" readonly>
+            <label class="fw-semibold small mb-2" data-i18n="labelID">Username/Email</label>
+            <input type="text" id="displayID" class="form-control fw-bold text-muted" readonly>
         </div>
 
         <div class="mb-3">
-            <label class="fw-semibold small mb-2">Select Course</label>
+            <label class="fw-semibold small mb-2" data-i18n="labelCourse">Select Course</label>
             <select id="course" class="form-select" required>
-                <option value="">-- Choose Course --</option>
+                <option value="" data-i18n="optChooseCourse">-- Choose Course --</option>
                 <option value="Software Engineering">Software Engineering</option>
                 <option value="IoT Systems">IoT Systems</option>
                 <option value="Data AI & Robotics">Data AI & Robotics</option>
@@ -45,14 +52,14 @@
         </div>
 
         <div class="mb-4">
-            <label class="fw-semibold small mb-2">Supervisor (RPS)</label>
+            <label class="fw-semibold small mb-2" data-i18n="labelSupervisor">Supervisor (RPS)</label>
             <select id="supervisor" class="form-select" required>
-                <option value="">Loading list...</option>
+                <option value="" data-i18n="optLoading">Loading list...</option>
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary shadow-sm">CONFIRM REGISTRATION</button>
-        <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small" onclick="window.location.href='student-view.html'">Cancel & Return</button>
+        <button type="submit" class="btn btn-primary shadow-sm" data-i18n="btnConfirm">CONFIRM REGISTRATION</button>
+        <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small" onclick="window.location.href='student-view.html'" data-i18n="btnCancel">Cancel & Return</button>
     </form>
 </div>
 
@@ -72,47 +79,88 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const activeID = sessionStorage.getItem("activeUser");
-    
-    // Ensure we get the student name from Firestore if tempName is missing
-    let studentFullName = sessionStorage.getItem("tempRegName") || "Student";
+    // Multi-Language Setup
+    let currentLang = 'en';
+    const translations = {
+        en: {
+            regTitle: "Course Registration", regSubtitle: "Register your academic profile.",
+            labelID: "Username / Log-in ID", labelCourse: "Select Course", optChooseCourse: "-- Choose Course --",
+            labelSupervisor: "Supervisor (RPS)", optLoading: "Loading...", optChooseSV: "-- Choose Supervisor --",
+            btnConfirm: "CONFIRM REGISTRATION", btnCancel: "Cancel & Return",
+            swalSaving: "Generating Student ID...", swalSuccess: "Registered Successfully!",
+            swalText: "Your Official ID is:", swalError: "Error loading data"
+        },
+        ms: {
+            regTitle: "Pendaftaran Kursus", regSubtitle: "Daftar profil akademik anda.",
+            labelID: "ID Nama Pengguna / Log-masuk", labelCourse: "Pilih Kursus", optChooseCourse: "-- Pilih Kursus --",
+            labelSupervisor: "Penyelia (RPS)", optLoading: "Memuatkan...", optChooseSV: "-- Pilih Penyelia --",
+            btnConfirm: "SAHKAN PENDAFTARAN", btnCancel: "Batal & Kembali",
+            swalSaving: "Menjana ID Pelajar...", swalSuccess: "Pendaftaran Berjaya!",
+            swalText: "ID Rasmi anda ialah:", swalError: "Ralat memuatkan data"
+        }
+    };
 
-    if (!activeID) {
-        window.location.href = "index.html";
-    } else {
-        document.getElementById('displayID').value = activeID;
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'en' ? 'ms' : 'en';
+        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
+        applyTranslations();
+        loadSupervisors();
+    };
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.innerText = translations[currentLang][el.getAttribute('data-i18n')];
+        });
     }
 
+    const activeID = sessionStorage.getItem("activeUser");
+    let studentFullName = sessionStorage.getItem("tempRegName") || "Student";
+
+    if (!activeID) window.location.href = "index.html";
+    else document.getElementById('displayID').value = activeID;
+
+    // Load Supervisors from Firestore
     async function loadSupervisors() {
         const svDropdown = document.getElementById('supervisor');
         try {
             const q = query(collection(db, "users"), where("role", "==", "supervisor"));
             const snap = await getDocs(q);
-            svDropdown.innerHTML = '<option value="">-- Choose Supervisor --</option>';
+            svDropdown.innerHTML = `<option value="">${translations[currentLang].optChooseSV}</option>`;
             snap.forEach(doc => {
                 svDropdown.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`;
             });
-        } catch (e) {
-            svDropdown.innerHTML = '<option>Error loading data</option>';
-        }
+        } catch (e) { svDropdown.innerHTML = `<option>${translations[currentLang].swalError}</option>`; }
     }
     loadSupervisors();
 
+    // ID Generator Function (ST001, ST002...)
+    const generateSTID = (count) => {
+        const nextNum = (count + 1).toString().padStart(3, '0');
+        return `ST${nextNum}`;
+    };
+
+    // Handle Submission
     document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const selectedCourse = document.getElementById('course').value;
         const selectedSupervisor = document.getElementById('supervisor').value;
-        
-        // UNIQUE: Combination of Student ID + Course Name (allows registering for multiple different courses)
-        const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}`;
 
-        Swal.fire({ title: 'Saving Registration...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: translations[currentLang].swalSaving, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            // 1. Save registration record in 'course_registrations' collection
+            // 1. Get current count to generate ST-ID
+            const snapshot = await getDocs(collection(db, "course_registrations"));
+            const totalDocs = snapshot.size;
+            const newSTID = generateSTID(totalDocs);
+
+            // 2. Create unique Document ID (User_Course)
+            const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}`;
+
+            // 3. Save Registration
             await setDoc(doc(db, "course_registrations", uniqueDocID), {
-                studentID: activeID,
+                studentID: activeID,        // Original login ID (Email/IC)
+                studentRefID: newSTID,      // New formatted ID (ST001)
                 studentName: studentFullName,
                 course: selectedCourse,
                 supervisorEmail: selectedSupervisor,
@@ -122,25 +170,24 @@
                 timestamp: serverTimestamp()
             });
 
-            // 2. Update main user profile
-            // Save the last selected supervisorEmail as a primary reference for assessments
+            // 4. Update User Profile
             await updateDoc(doc(db, "users", activeID), {
                 registrationStatus: "complete",
+                assignedID: newSTID,
                 supervisorEmail: selectedSupervisor 
             });
 
             Swal.fire({ 
                 icon: 'success', 
-                title: 'Success!', 
-                text: `You have successfully registered for the course: ${selectedCourse}`, 
-                timer: 2000, 
-                showConfirmButton: false 
-            })
-            .then(() => {
+                title: translations[currentLang].swalSuccess, 
+                text: `${translations[currentLang].swalText} ${newSTID}`, 
+                confirmButtonText: 'OK'
+            }).then(() => {
                 window.location.href = "student-view.html";
             });
+
         } catch (error) {
-            Swal.fire('Failed', 'Please try again: ' + error.message, 'error');
+            Swal.fire('Failed', error.message, 'error');
         }
     });
 </script>
