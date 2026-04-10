@@ -2,34 +2,184 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa (RPS)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Smart Rakan Pembimbing Siswa (RPS) | EduGuard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-        .navbar { background: white !important; padding: 15px 0; }
-        .main-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); overflow: hidden; background: white; width: 100%; max-width: 500px; }
-        .auth-header { background: linear-gradient(135deg, #4361ee, #4cc9f0); color: white; padding: 40px 30px; text-align: center; }
-        .role-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 25px; }
-        .role-selector .btn { border-radius: 12px; font-weight: 600; border: 1px solid #e2e8f0; color: #64748b; font-size: 0.85rem; padding: 10px 5px; }
-        .role-selector .btn.active { background: #4361ee !important; border-color: #4361ee !important; color: white !important; }
-        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc; }
-        .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; transition: 0.3s; }
-        .input-group-text { border-radius: 0 12px 12px 0; background: #f8fafc; cursor: pointer; border: 1px solid #e2e8f0; border-left: none; }
-        .password-input { border-radius: 12px 0 0 12px !important; }
-        #langSwitcher { cursor: pointer; font-weight: 600; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2ff 0%, #f9fafc 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.96) !important;
+            backdrop-filter: blur(8px);
+            padding: 14px 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.45rem;
+            background: linear-gradient(135deg, #1e3c72, #2b3b6e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .navbar-brand i {
+            background: none;
+            -webkit-background-clip: unset;
+            color: #3b82f6;
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+
+        .auth-card {
+            border: none;
+            border-radius: 2rem;
+            background: #ffffff;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0,0,0,0.02);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .auth-header {
+            background: linear-gradient(125deg, #0f2b4d, #1e4a76);
+            padding: 38px 28px;
+            text-align: center;
+            position: relative;
+        }
+
+        .auth-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: white;
+            border-radius: 40px 40px 0 0;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .role-selector .btn {
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 10px 4px;
+            border: 1.5px solid #e2edff;
+            background: #f8fbff;
+            color: #2c3e66;
+            transition: all 0.2s;
+        }
+
+        .role-selector .btn.active {
+            background: #1e4a76 !important;
+            border-color: #1e4a76 !important;
+            color: white !important;
+            box-shadow: 0 6px 12px -8px rgba(0, 70, 150, 0.4);
+        }
+
+        .form-control {
+            border-radius: 18px;
+            padding: 12px 16px;
+            border: 1.5px solid #e9edf4;
+            background-color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+        }
+
+        .input-group-text {
+            border-radius: 0 18px 18px 0;
+            background: white;
+            border: 1.5px solid #e9edf4;
+            border-left: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            border-radius: 40px;
+            padding: 14px;
+            font-weight: 700;
+            background: #1e4a76;
+            border: none;
+            transition: 0.25s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            background: #0f3b5c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30,74,118,0.3);
+        }
+
+        .toggle-link {
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline !important;
+            color: #1e4a76 !important;
+        }
+
+        #langSwitcher {
+            border-radius: 40px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            background: #f1f5f9;
+            border: none;
+            font-weight: 500;
+        }
+
+        @media (max-width: 500px) {
+            .role-selector { gap: 6px; }
+            .role-selector .btn { font-size: 0.7rem; padding: 8px 2px; }
+            .auth-header { padding: 28px 20px; }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm">
-    <div class="container d-flex justify-content-between">
-        <a class="navbar-brand fw-bold text-primary" href="#">
-            <i class="bi bi-shield-check"></i> Smart Rakan Pembimbing Siswa <span class="text-warning">(RPS)</span>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="bi bi-shield-lock-fill text-primary me-1"></i> Smart Rakan Pembimbing Siswa <span class="fw-light text-secondary">(RPS)</span>
         </a>
         <button class="btn btn-outline-secondary btn-sm" id="langSwitcher" onclick="toggleLanguage()">
             <i class="bi bi-translate"></i> <span id="langText">Bahasa Melayu</span>
@@ -40,34 +190,34 @@
 <div class="main-wrapper mt-5">
     <div class="auth-card">
         <div class="auth-header">
-            <i class="bi bi-person-circle fs-1 mb-2 d-block"></i>
-            <h3 class="fw-bold mb-1" id="authTitle">RPS Log In</h3>
-            <p class="small mb-0 opacity-75" id="authSubTitle">Please enter your account details.</p>
+            <i class="bi bi-person-badge fs-1 mb-2 d-block text-white"></i>
+            <h3 class="fw-bold mb-1 text-white" id="authTitle">RPS Log In</h3>
+            <p class="small mb-0 text-white-50" id="authSubTitle">Please enter your account details.</p>
         </div>
 
-        <div class="p-4">
+        <div class="p-4 p-xl-5">
             <div class="role-selector">
                 <button type="button" id="btn-supervisor" class="btn active" onclick="switchRole('supervisor')">RPS</button>
                 <button type="button" id="btn-student" class="btn" onclick="switchRole('student')">Student</button>
                 <button type="button" id="btn-counselor" class="btn" onclick="switchRole('counselor')">Counselor</button>
-                <button type="button" id="btn-host" class="btn" onclick="switchRole('host')">Course Coordinator</button>
+                <button type="button" id="btn-host" class="btn" onclick="switchRole('host')">Coordinator</button>
             </div>
 
             <form id="authForm">
                 <div class="mb-3" id="nameField" style="display: none;">
                     <label class="fw-semibold small mb-2" id="lblFullName">Full Name</label>
-                    <input type="text" id="fullName" class="form-control" placeholder="Your full name">
+                    <input type="text" id="fullName" class="form-control" placeholder="Nur Aisyah Binti Abdullah" autocomplete="name">
                 </div>
 
                 <div class="mb-3">
                     <label class="fw-semibold small mb-2" id="lblEmail">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="example@email.com" required>
+                    <input type="email" id="email" class="form-control" placeholder="name@university.edu.my" required autocomplete="email">
                 </div>
 
                 <div class="mb-4">
                     <label class="fw-semibold small mb-2" id="lblPassword">Password</label>
                     <div class="input-group">
-                        <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required>
+                        <input type="password" id="password" class="form-control password-input" placeholder="••••••••" required autocomplete="current-password">
                         <span class="input-group-text" id="btnTogglePassword">
                             <i class="bi bi-eye" id="eyeIcon"></i>
                         </span>
@@ -77,9 +227,9 @@
                 <button type="submit" id="authBtn" class="btn btn-primary w-100 shadow-sm">LOG IN</button>
             </form>
 
-            <div class="text-center mt-4">
+            <div class="text-center mt-4 pt-2">
                 <span id="toggleText" class="text-muted small">Don't have an account?</span> 
-                <a href="javascript:void(0)" id="toggleAuthLink" class="text-primary fw-bold text-decoration-none small ms-1">Register Here</a>
+                <a href="javascript:void(0)" id="toggleAuthLink" class="text-primary fw-bold text-decoration-none small ms-1 toggle-link">Register Here</a>
             </div>
         </div>
     </div>
@@ -103,96 +253,117 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- Translation Logic ---
+    // --- GLOBAL STATE ---
     window.currentLang = 'en';
+    window.isLoginMode = true;
+    window.currentRole = 'supervisor';   // supervisor = RPS
+
     const translations = {
         en: {
-            subTitle: "Please enter your account details.",
+            subTitle: "Access the mentorship hub with your role credentials.",
             lblFullName: "Full Name",
             lblEmail: "Email Address",
             lblPassword: "Password",
             login: "Log In",
             register: "Register",
-            loginBtn: "LOG IN",
-            registerBtn: "REGISTER NOW",
+            loginBtn: "LOG IN →",
+            registerBtn: "CREATE ACCOUNT",
             noAccount: "Don't have an account?",
-            haveAccount: "Already have an account?",
+            haveAccount: "Already registered?",
             regHere: "Register Here",
             student: "Student",
             counselor: "Counselor",
-            host: "Course Coordinator",
-            wait: "Please wait...",
-            success: "Success!",
-            failed: "Failed",
-            roleError: "Your account is not registered under this role."
+            host: "Coordinator",
+            wait: "Authenticating...",
+            success: "Welcome!",
+            failed: "Access Denied",
+            roleError: "Your registered role does not match the selected role. Please select the correct role or contact admin.",
+            regSuccessMsg: "Account created successfully! Please login using your credentials.",
+            missingName: "Please enter your full name to register."
         },
         ms: {
-            subTitle: "Sila masukkan butiran akaun anda.",
+            subTitle: "Akses pusat bimbingan dengan peranan anda.",
             lblFullName: "Nama Penuh",
             lblEmail: "Alamat Emel",
             lblPassword: "Kata Laluan",
             login: "Log Masuk",
             register: "Daftar",
-            loginBtn: "LOG MASUK",
-            registerBtn: "DAFTAR SEKARANG",
-            noAccount: "Belum mempunyai akaun?",
-            haveAccount: "Sudah mempunyai akaun?",
-            regHere: "Daftar di Sini",
+            loginBtn: "LOG MASUK →",
+            registerBtn: "DAFTAR AKAUN",
+            noAccount: "Tiada akaun?",
+            haveAccount: "Sudah berdaftar?",
+            regHere: "Daftar di sini",
             student: "Pelajar",
             counselor: "Kaunselor",
-            host: "Penyelaras Kursus",
-            wait: "Sila tunggu...",
-            success: "Berjaya!",
-            failed: "Gagal",
-            roleError: "Akaun anda tidak didaftarkan di bawah peranan ini."
+            host: "Penyelaras",
+            wait: "Sedang mengesahkan...",
+            success: "Selamat Datang!",
+            failed: "Akses Ditolak",
+            roleError: "Peranan akaun anda tidak sepadan dengan pilihan semasa. Sila pilih peranan yang betul.",
+            regSuccessMsg: "Akaun berjaya didaftarkan! Sila log masuk.",
+            missingName: "Sila masukkan nama penuh untuk pendaftaran."
         }
     };
 
+    // Helper: get current translation
+    function t(key) {
+        return translations[window.currentLang][key] || translations.en[key];
+    }
+
+    // Update UI text based on current mode & role
+    window.updateUI = function() {
+        const roleDisplayNames = {
+            'supervisor': 'RPS',
+            'student': t('student'),
+            'counselor': t('counselor'),
+            'host': t('host')
+        };
+        const actionLabel = window.isLoginMode ? t('login') : t('register');
+        const roleName = roleDisplayNames[window.currentRole] || window.currentRole;
+        document.getElementById('authTitle').innerText = `${actionLabel} ${roleName}`;
+        document.getElementById('authBtn').innerText = window.isLoginMode ? t('loginBtn') : t('registerBtn');
+        document.getElementById('authSubTitle').innerText = t('subTitle');
+        document.getElementById('lblFullName').innerText = t('lblFullName');
+        document.getElementById('lblEmail').innerText = t('lblEmail');
+        document.getElementById('lblPassword').innerText = t('lblPassword');
+        document.getElementById('toggleText').innerText = window.isLoginMode ? t('noAccount') : t('haveAccount');
+        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? t('regHere') : t('login');
+        
+        // show/hide full name field only in register mode
+        const nameFieldDiv = document.getElementById('nameField');
+        nameFieldDiv.style.display = window.isLoginMode ? 'none' : 'block';
+        if (!window.isLoginMode) {
+            document.getElementById('fullName').required = true;
+        } else {
+            document.getElementById('fullName').required = false;
+        }
+        
+        // Update role buttons text for BM/EN without losing active state
+        document.getElementById('btn-student').innerText = t('student');
+        document.getElementById('btn-counselor').innerText = t('counselor');
+        document.getElementById('btn-host').innerText = t('host');
+        // supervisor (RPS) remains 'RPS' but we keep it explicit
+        document.getElementById('btn-supervisor').innerText = 'RPS';
+    };
+
+    // Role switcher (called from onclick)
+    window.switchRole = function(role) {
+        window.currentRole = role;
+        // Update active class
+        document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
+        const targetBtn = document.getElementById(`btn-${role}`);
+        if (targetBtn) targetBtn.classList.add('active');
+        window.updateUI();
+    };
+
+    // Language Toggle
     window.toggleLanguage = function() {
-        window.currentLang = (window.currentLang === 'en') ? 'ms' : 'en';
+        window.currentLang = window.currentLang === 'en' ? 'ms' : 'en';
         document.getElementById('langText').innerText = (window.currentLang === 'en') ? 'Bahasa Melayu' : 'English';
         window.updateUI();
     };
 
-    window.isLoginMode = true;
-    window.currentRole = 'supervisor';
-
-    window.updateUI = function() {
-        const t = translations[window.currentLang];
-        const roleNames = { 
-            'supervisor': 'RPS', 
-            'student': t.student, 
-            'host': t.host, 
-            'counselor': t.counselor 
-        };
-        
-        const actionText = window.isLoginMode ? t.login : t.register;
-        document.getElementById('authTitle').innerText = `${actionText} ${roleNames[window.currentRole]}`;
-        document.getElementById('authBtn').innerText = window.isLoginMode ? t.loginBtn : t.registerBtn;
-        
-        document.getElementById('authSubTitle').innerText = t.subTitle;
-        document.getElementById('lblFullName').innerText = t.lblFullName;
-        document.getElementById('lblEmail').innerText = t.lblEmail;
-        document.getElementById('lblPassword').innerText = t.lblPassword;
-        
-        document.getElementById('toggleText').innerText = window.isLoginMode ? t.noAccount : t.haveAccount;
-        document.getElementById('toggleAuthLink').innerText = window.isLoginMode ? t.regHere : t.login;
-
-        document.getElementById('nameField').style.display = window.isLoginMode ? 'none' : 'block';
-        document.getElementById('fullName').required = !window.isLoginMode;
-        
-        document.getElementById('btn-student').innerText = t.student;
-        document.getElementById('btn-counselor').innerText = t.counselor;
-        document.getElementById('btn-host').innerText = t.host;
-    };
-
-    window.switchRole = function(role) {
-        window.currentRole = role;
-        document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${role}`).classList.add('active');
-        window.updateUI();
-    };
-
+    // Toggle password visibility
     document.getElementById('btnTogglePassword').addEventListener('click', () => {
         const passInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eyeIcon');
@@ -205,77 +376,133 @@
         }
     });
 
+    // Toggle between login & register
     document.getElementById('toggleAuthLink').addEventListener('click', () => {
         window.isLoginMode = !window.isLoginMode;
+        // clear any previous errors / reset form fields slightly
+        document.getElementById('authForm').reset();
         window.updateUI();
     });
 
+    // Form submission handler
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const t = translations[window.currentLang];
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const fullName = document.getElementById('fullName').value.trim();
 
-        Swal.fire({ title: t.wait, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        if (!window.isLoginMode && !fullName) {
+            Swal.fire({ icon: 'warning', title: t('failed'), text: t('missingName') });
+            return;
+        }
+
+        Swal.fire({ title: t('wait'), allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
             if (window.isLoginMode) {
+                // LOGIN PROCESS
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userDocRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userDocRef);
                 
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-
-                    // --- SEMAKAN PERANAN (ROLE CHECK) ---
-                    if (userData.role !== window.currentRole) {
-                        await signOut(auth); // Sign out user jika role salah
-                        Swal.fire({ icon: 'error', title: t.failed, text: t.roleError });
-                        return;
-                    }
-
-                    sessionStorage.setItem("activeUser", user.uid);
-                    Swal.fire({ icon: 'success', title: t.success, text: `Welcome, ${userData.name}`, timer: 1500, showConfirmButton: false })
-                    .then(() => {
-                        // --- LOGIK HALA TUJU (REDIRECT) ---
-                        if (userData.role === 'student') {
-                            window.location.href = userData.registrationStatus === 'complete' ? "student-view.html" : "register_course.html";
-                        } else if (userData.role === 'supervisor') {
-                            window.location.href = "dashboard.html";
-                        } else if (userData.role === 'counselor') {
-                            window.location.href = "counselor_dashboard.html";
-                        } else if (userData.role === 'host') {
-                            window.location.href = "host.html";
-                        } else {
-                            window.location.href = "host.html";
-                        }
-                    });
-                } else {
-                    throw new Error("Profile error.");
+                if (!userSnap.exists()) {
+                    await signOut(auth);
+                    Swal.fire({ icon: 'error', title: t('failed'), text: "Profile not found. Please contact admin." });
+                    return;
                 }
-            } else {
-                // Proses Pendaftaran
+                
+                const userData = userSnap.data();
+                // Strict role verification: stored role must exactly match selected role
+                if (userData.role !== window.currentRole) {
+                    await signOut(auth);
+                    Swal.fire({ icon: 'error', title: t('failed'), text: t('roleError') });
+                    return;
+                }
+                
+                // Store user info for session redirection
+                sessionStorage.setItem("activeUser", user.uid);
+                sessionStorage.setItem("userRole", userData.role);
+                
+                Swal.fire({ icon: 'success', title: t('success'), text: `Welcome, ${userData.name || user.email}`, timer: 1500, showConfirmButton: false });
+                
+                // REDIRECTION LOGIC based on role & registrationStatus
+                setTimeout(() => {
+                    if (userData.role === 'student') {
+                        // If student hasn't completed course registration -> register_course.html, else student-view
+                        const target = (userData.registrationStatus === 'complete') ? "student-view.html" : "register_course.html";
+                        window.location.href = target;
+                    } 
+                    else if (userData.role === 'supervisor') {
+                        window.location.href = "dashboard.html";
+                    }
+                    else if (userData.role === 'counselor') {
+                        window.location.href = "counselor_dashboard.html";
+                    }
+                    else if (userData.role === 'host') {
+                        window.location.href = "host.html";
+                    }
+                    else {
+                        window.location.href = "index.html";
+                    }
+                }, 1200);
+                
+            } 
+            else {
+                // REGISTRATION PROCESS
+                // Check if email already in use? Firebase will throw error, we handle gracefully
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                await setDoc(doc(db, "users", user.uid), {
+                // Store user metadata in Firestore
+                const newUserData = {
                     name: fullName,
                     email: email,
                     role: window.currentRole,
-                    registrationStatus: 'pending',
-                    createdAt: new Date().toISOString()
-                });
-                Swal.fire(t.success, 'Account registered.', 'success').then(() => {
+                    registrationStatus: (window.currentRole === 'student') ? 'pending' : 'active',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                await setDoc(doc(db, "users", user.uid), newUserData);
+                
+                // Auto sign out after registration to enforce fresh login with correct role
+                await signOut(auth);
+                Swal.fire({ icon: 'success', title: t('success'), text: t('regSuccessMsg') }).then(() => {
+                    // switch to login mode automatically after successful registration
                     window.isLoginMode = true;
                     window.updateUI();
+                    document.getElementById('authForm').reset();
+                    // Keep current role as selected but user must re-login with role
                 });
             }
         } catch (error) {
-            Swal.fire(t.failed, error.message, 'error');
+            let errorMessage = error.message;
+            // Humanize Firebase errors
+            if (errorMessage.includes("auth/email-already-in-use")) errorMessage = "Email already registered. Please login or use another email.";
+            else if (errorMessage.includes("auth/weak-password")) errorMessage = "Password should be at least 6 characters.";
+            else if (errorMessage.includes("auth/invalid-email")) errorMessage = "Invalid email format.";
+            else if (errorMessage.includes("auth/user-not-found")) errorMessage = "No account found with this email.";
+            else if (errorMessage.includes("auth/wrong-password")) errorMessage = "Incorrect password. Try again.";
+            Swal.fire({ icon: 'error', title: t('failed'), text: errorMessage });
         }
     });
 
+    // additional: reset active class according to currentRole on load
+    function syncRoleButton() {
+        document.querySelectorAll('.role-selector .btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`btn-${window.currentRole}`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+    
+    // set initial language text
+    document.getElementById('langText').innerText = 'Bahasa Melayu';
     window.updateUI();
+    syncRoleButton();
+    
+    // If any previous session? just clean up
+    if (sessionStorage.getItem("activeUser")) {
+        // optional: we can ignore, but not auto logout. just clear if you want fresh state
+        // but keep as is
+    }
 </script>
 </body>
 </html>
