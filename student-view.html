@@ -103,21 +103,28 @@
 
         <div class="col-lg-5">
             <h5 class="section-title"><i class="bi bi-person-circle"></i> <span data-i18n="profile">My Profile</span></h5>
-            <div class="glass-card mb-4 text-center"><div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3"><i class="bi bi-person-circle fs-1 text-primary"></i></div><h5 id="profileName" class="fw-bold">-</h5><p id="profileEmail" class="text-muted small">-</p><p id="profileSupervisor" class="small"><i class="bi bi-person-badge me-1"></i> Supervisor: <span>-</span></p><button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button></div>
+            <div class="glass-card mb-4 text-center">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3"><i class="bi bi-person-circle fs-1 text-primary"></i></div>
+                <h5 id="profileName" class="fw-bold">-</h5>
+                <p id="profileEmail" class="text-muted small">-</p>
+                <p id="profileSupervisor" class="small"><i class="bi bi-person-badge me-1"></i> Supervisor: <span>-</span></p>
+                <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
+                <!-- Register New Course Button -->
+                <div class="mt-3">
+                    <button class="btn btn-outline-success btn-sm rounded-pill w-100" onclick="openCourseRegistration()">
+                        <i class="bi bi-plus-circle me-1"></i> <span data-i18n="registerNewCourse">Register New Course</span>
+                    </button>
+                </div>
+            </div>
 
             <!-- SECURE QR CODE SECTION -->
             <h5 class="section-title"><i class="bi bi-qr-code-scan text-primary"></i> <span data-i18n="attendanceTitle">Secure Attendance QR</span></h5>
             <div class="glass-card text-center mb-4">
-                <div class="mb-2">
-                    <span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Dynamic QR - Changes Every 30s</span>
-                </div>
+                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Dynamic QR - Changes Every 30s</span></div>
                 <div class="mb-2"><div class="bg-light rounded-4 d-inline-flex p-3 mb-2"><i class="bi bi-qr-code fs-1 text-primary"></i></div><h6 class="fw-bold mb-1" data-i18n="qrTitle">Your Secure Attendance QR</h6><p class="text-muted small mb-3" data-i18n="qrDesc">This QR code refreshes every 30 seconds for security.</p></div>
                 <div id="studentQRCode" class="d-flex justify-content-center mb-3"><div class="qr-container shadow-sm"><div id="qrcodeContainer" class="d-flex justify-content-center"></div></div></div>
                 <div id="qrTimerDisplay" class="mt-2"></div>
-                <div class="alert alert-warning small mt-2">
-                    <i class="bi bi-shield-lock-fill me-2"></i>
-                    <span data-i18n="secureNote">For security, this QR code changes every 30 seconds. Screenshots will not work.</span>
-                </div>
+                <div class="alert alert-warning small mt-2"><i class="bi bi-shield-lock-fill me-2"></i><span data-i18n="secureNote">For security, this QR code changes every 30 seconds. Screenshots will not work.</span></div>
                 <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="downloadQR()"><i class="bi bi-download me-1"></i> <span data-i18n="downloadQR">Save QR Code</span></button>
                 <button class="btn btn-outline-secondary btn-sm rounded-pill ms-2" onclick="refreshQRNow()"><i class="bi bi-arrow-repeat me-1"></i> Refresh Now</button>
             </div>
@@ -131,6 +138,38 @@
 
             <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> <span data-i18n="titleMaterials">Learning Resources</span></h5>
             <div id="materialList"><div class="text-center py-5 bg-white rounded-4 border" style="border-style: dashed !important;"><p class="small text-muted mb-0" data-i18n="noMaterials">No resources available.</p></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Register New Course Modal -->
+<div class="modal fade" id="registerCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 bg-primary text-white rounded-top-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-journal-plus me-2"></i> <span data-i18n="registerNewCourse">Register New Course</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold" data-i18n="labelCourse">Select Course</label>
+                    <select id="newCourseSelect" class="form-select">
+                        <option value="" data-i18n="selectCourse">-- Select Course --</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="IoT Systems">IoT Systems</option>
+                        <option value="Data Analytics">Data Analytics</option>
+                        <option value="AI Solutions">AI Solutions</option>
+                    </select>
+                </div>
+                <div class="alert alert-info small">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <span data-i18n="regNote">Your current supervisor will be assigned to this course automatically.</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill" onclick="submitNewCourse()" data-i18n="confirmRegister">Register Course</button>
+            </div>
         </div>
     </div>
 </div>
@@ -176,11 +215,67 @@
     const SECRET_KEY = "RPS_SECURE_KEY_2024";
 
     const translations = {
-        en: { welcomeText: "Welcome back", loading: "Loading data...", totalCourses: "Courses", avgGrade: "Average", stressStatus: "Wellness", messages: "Messages", titleAcademic: "Academic Performance", titleAI: "Wellness Check", gradeTrend: "Grade Trend", profile: "My Profile", wbTitle: "Mental Health Assessment", wbDesc: "AI-powered analysis to identify stress patterns.", latestResult: "Last Assessment:", btnAI: "Start Assessment", btnAIUpdate: "Update Assessment", titleMaterials: "Learning Resources", noMaterials: "No resources available.", counselorMsg: "All Messages", noMessages: "No messages yet.", chatWith: "Supervisor Chat", hostAnnounce: "Course Announcements", openNotes: "Open Resource", attendanceTitle: "Secure Attendance QR", qrTitle: "Your Secure Attendance QR", qrDesc: "This QR code refreshes every 30 seconds for security.", qrNote: "This QR code is unique to your student ID.", downloadQR: "Save QR Code", attendanceHistory: "Attendance History", present: "Present", noAttendance: "No attendance records yet.", secureNote: "For security, this QR code changes every 30 seconds. Screenshots will not work.", q1: "Feeling overwhelmed by workload?", q2: "Difficulty sleeping?", q3: "Lost interest in studies?", q4: "Worried about failing?", q5: "No one to talk to?", opt0: "Never", opt1: "Rarely", opt2: "Often", opt3: "Very Often", swalTitle: "Wellness Check", swalVal: "Please select an answer!", levelCritical: "CRITICAL", levelMedium: "MEDIUM", levelNormal: "NORMAL", noAnnouncements: "No course announcements yet.", qrExpiresIn: "QR expires in", seconds: "seconds" },
-        ms: { welcomeText: "Selamat kembali", loading: "Memuatkan...", totalCourses: "Kursus", avgGrade: "Purata", stressStatus: "Kesihatan", messages: "Mesej", titleAcademic: "Prestasi Akademik", titleAI: "Saringan Kesihatan", gradeTrend: "Trend Gred", profile: "Profil Saya", wbTitle: "Penilaian Kesihatan Mental", wbDesc: "Analisis AI untuk mengenal pasti corak tekanan.", latestResult: "Penilaian Terkini:", btnAI: "Mulakan Penilaian", btnAIUpdate: "Kemaskini Penilaian", titleMaterials: "Sumber Pembelajaran", noMaterials: "Tiada sumber tersedia.", counselorMsg: "Semua Mesej", noMessages: "Tiada mesej lagi.", chatWith: "Sembang Penyelia", hostAnnounce: "Hebahan Kursus", openNotes: "Buka Sumber", attendanceTitle: "QR Kehadiran Selamat", qrTitle: "QR Kehadiran Selamat Anda", qrDesc: "QR code ini berubah setiap 30 saat untuk keselamatan.", qrNote: "QR code ini unik untuk ID pelajar anda.", downloadQR: "Simpan QR Code", attendanceHistory: "Rekod Kehadiran", present: "Hadir", noAttendance: "Tiada rekod kehadiran lagi.", secureNote: "Untuk keselamatan, QR code ini berubah setiap 30 saat. Tangkapan skrin tidak akan berfungsi.", q1: "Rasa terbeban dengan tugasan?", q2: "Sukar untuk tidur?", q3: "Hilang minat belajar?", q4: "Bimbang akan gagal?", q5: "Tiada teman bicara?", opt0: "Tidak Pernah", opt1: "Jarang", opt2: "Sering", opt3: "Sangat Sering", swalTitle: "Saringan Kesihatan", swalVal: "Sila pilih jawapan!", levelCritical: "KRITIKAL", levelMedium: "SEDERHANA", levelNormal: "NORMAL", noAnnouncements: "Tiada hebahan kursus lagi.", qrExpiresIn: "QR tamat dalam", seconds: "saat" }
+        en: { welcomeText: "Welcome back", loading: "Loading data...", totalCourses: "Courses", avgGrade: "Average", stressStatus: "Wellness", messages: "Messages", titleAcademic: "Academic Performance", titleAI: "Wellness Check", gradeTrend: "Grade Trend", profile: "My Profile", wbTitle: "Mental Health Assessment", wbDesc: "AI-powered analysis to identify stress patterns.", latestResult: "Last Assessment:", btnAI: "Start Assessment", btnAIUpdate: "Update Assessment", titleMaterials: "Learning Resources", noMaterials: "No resources available.", counselorMsg: "All Messages", noMessages: "No messages yet.", chatWith: "Supervisor Chat", hostAnnounce: "Course Announcements", openNotes: "Open Resource", attendanceTitle: "Secure Attendance QR", qrTitle: "Your Secure Attendance QR", qrDesc: "This QR code refreshes every 30 seconds for security.", qrNote: "This QR code is unique to your student ID.", downloadQR: "Save QR Code", attendanceHistory: "Attendance History", present: "Present", noAttendance: "No attendance records yet.", secureNote: "For security, this QR code changes every 30 seconds. Screenshots will not work.", q1: "Feeling overwhelmed by workload?", q2: "Difficulty sleeping?", q3: "Lost interest in studies?", q4: "Worried about failing?", q5: "No one to talk to?", opt0: "Never", opt1: "Rarely", opt2: "Often", opt3: "Very Often", swalTitle: "Wellness Check", swalVal: "Please select an answer!", levelCritical: "CRITICAL", levelMedium: "MEDIUM", levelNormal: "NORMAL", noAnnouncements: "No course announcements yet.", qrExpiresIn: "QR expires in", seconds: "seconds", registerNewCourse: "Register New Course", selectCourse: "-- Select Course --", confirmRegister: "Register Course", cancel: "Cancel", regNote: "Your current supervisor will be assigned to this course automatically." },
+        ms: { welcomeText: "Selamat kembali", loading: "Memuatkan...", totalCourses: "Kursus", avgGrade: "Purata", stressStatus: "Kesihatan", messages: "Mesej", titleAcademic: "Prestasi Akademik", titleAI: "Saringan Kesihatan", gradeTrend: "Trend Gred", profile: "Profil Saya", wbTitle: "Penilaian Kesihatan Mental", wbDesc: "Analisis AI untuk mengenal pasti corak tekanan.", latestResult: "Penilaian Terkini:", btnAI: "Mulakan Penilaian", btnAIUpdate: "Kemaskini Penilaian", titleMaterials: "Sumber Pembelajaran", noMaterials: "Tiada sumber tersedia.", counselorMsg: "Semua Mesej", noMessages: "Tiada mesej lagi.", chatWith: "Sembang Penyelia", hostAnnounce: "Hebahan Kursus", openNotes: "Buka Sumber", attendanceTitle: "QR Kehadiran Selamat", qrTitle: "QR Kehadiran Selamat Anda", qrDesc: "QR code ini berubah setiap 30 saat untuk keselamatan.", qrNote: "QR code ini unik untuk ID pelajar anda.", downloadQR: "Simpan QR Code", attendanceHistory: "Rekod Kehadiran", present: "Hadir", noAttendance: "Tiada rekod kehadiran lagi.", secureNote: "Untuk keselamatan, QR code ini berubah setiap 30 saat. Tangkapan skrin tidak akan berfungsi.", q1: "Rasa terbeban dengan tugasan?", q2: "Sukar untuk tidur?", q3: "Hilang minat belajar?", q4: "Bimbang akan gagal?", q5: "Tiada teman bicara?", opt0: "Tidak Pernah", opt1: "Jarang", opt2: "Sering", opt3: "Sangat Sering", swalTitle: "Saringan Kesihatan", swalVal: "Sila pilih jawapan!", levelCritical: "KRITIKAL", levelMedium: "SEDERHANA", levelNormal: "NORMAL", noAnnouncements: "Tiada hebahan kursus lagi.", qrExpiresIn: "QR tamat dalam", seconds: "saat", registerNewCourse: "Daftar Kursus Baru", selectCourse: "-- Pilih Kursus --", confirmRegister: "Daftar Kursus", cancel: "Batal", regNote: "Penyelia semasa anda akan ditugaskan untuk kursus ini secara automatik." }
     };
 
     function t(key) { return translations[currentLang][key] || key; }
+
+    // ============ REGISTER NEW COURSE FUNCTIONS ============
+    window.openCourseRegistration = () => {
+        const modal = new bootstrap.Modal(document.getElementById('registerCourseModal'));
+        modal.show();
+    };
+
+    window.submitNewCourse = async () => {
+        const selectedCourse = document.getElementById('newCourseSelect').value;
+        
+        if (!selectedCourse) {
+            Swal.fire('Error', 'Please select a course', 'error');
+            return;
+        }
+        
+        Swal.fire({ title: 'Registering...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        try {
+            // Check if already registered for this course
+            const existingQuery = query(
+                collection(db, "course_registrations"), 
+                where("studentID", "==", activeID), 
+                where("course", "==", selectedCourse)
+            );
+            const existingSnap = await getDocs(existingQuery);
+            
+            if (!existingSnap.empty) {
+                Swal.fire('Warning', 'You are already registered for this course!', 'warning');
+                return;
+            }
+            
+            // Create new registration with SAME supervisor
+            const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}_${Date.now()}`;
+            
+            await setDoc(doc(db, "course_registrations", uniqueDocID), {
+                studentID: activeID,
+                studentName: currentUserData.name,
+                studentRefID: currentUserData.assignedID,
+                course: selectedCourse,
+                supervisorEmail: currentUserData.supervisorEmail, // Use existing supervisor
+                quiz: 0, test: 0, midterm: 0,
+                totalMark: 0, grade: "-", status: "Pending",
+                registeredAt: serverTimestamp()
+            });
+            
+            Swal.fire({ icon: 'success', title: 'Registered!', text: `Successfully registered for ${selectedCourse}`, timer: 2000, showConfirmButton: false });
+            
+            // Close modal and refresh data
+            bootstrap.Modal.getInstance(document.getElementById('registerCourseModal')).hide();
+            document.getElementById('newCourseSelect').value = '';
+            loadAcademicData(); // Refresh the course list
+            
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
+    };
 
     // ============ SECURE QR CODE FUNCTIONS ============
     function generateSecureToken(studentId) {
@@ -233,12 +328,8 @@
         generateSecureQR();
         if (qrInterval) clearInterval(qrInterval);
         if (countdownInterval) clearInterval(countdownInterval);
-        qrInterval = setInterval(() => {
-            generateSecureQR();
-        }, 30000);
-        countdownInterval = setInterval(() => {
-            updateQRCountdown();
-        }, 1000);
+        qrInterval = setInterval(() => { generateSecureQR(); }, 30000);
+        countdownInterval = setInterval(() => { updateQRCountdown(); }, 1000);
     }
 
     function stopSecureQR() {
