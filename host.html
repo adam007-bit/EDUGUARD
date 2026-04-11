@@ -3,64 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa (RPS)| Host Control Panel</title>
+    <title>EduGuard | Course Coordinator Control Panel</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
             --primary: #4361ee;
-            --primary-light: #4895ef;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --warning: #f1c40f;
-            --dark: #1e293b;
-            --bg-body: #f1f5f9;
+            --primary-dark: #2b3b6e;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --bg-body: #f0f2f8;
         }
 
         body { 
             background-color: var(--bg-body); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #334155;
-            overflow-x: hidden;
         }
 
         .host-header {
-            background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
             color: white;
-            padding: 40px 0 100px 0;
-            border-radius: 0 0 30px 30px;
-            position: relative;
+            padding: 35px 0 90px 0;
+            border-radius: 0 0 35px 35px;
         }
 
-        .main-container { margin-top: -60px; position: relative; z-index: 10; }
+        .main-container { margin-top: -55px; position: relative; z-index: 10; }
         
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: white;
             border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px -6px rgba(0,0,0,0.05);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(0,0,0,0.03);
         }
 
-        .stat-card { border-bottom: 5px solid transparent; padding: 20px; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .border-primary { border-bottom-color: var(--primary) !important; }
-        .border-success { border-bottom-color: var(--success) !important; }
-        .border-danger { border-bottom-color: var(--danger) !important; }
-        .border-warning { border-bottom-color: var(--warning) !important; }
+        .stat-card { 
+            border-left: 5px solid transparent; 
+            padding: 20px 24px;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card.primary { border-left-color: var(--primary); }
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.danger { border-left-color: var(--danger); }
+        .stat-card.warning { border-left-color: var(--warning); }
 
         .form-control, .form-select {
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            background-color: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            background-color: #ffffff;
             transition: 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67,97,238,0.1);
         }
 
         .btn-primary {
@@ -69,79 +74,125 @@
             border-radius: 14px;
             padding: 12px 24px;
             font-weight: 600;
+            transition: 0.2s;
         }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
 
         .table-custom thead th {
-            background: transparent;
-            border-bottom: 2px solid #f1f5f9;
-            color: #64748b;
-            font-size: 0.75rem;
+            background: #f8fafd;
+            border-bottom: 2px solid #eef2f6;
+            color: #475569;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 18px;
+            letter-spacing: 0.5px;
+            padding: 16px;
         }
 
         .grade-badge {
             padding: 6px 14px;
-            border-radius: 10px;
+            border-radius: 40px;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
         .badge-a { background: #dcfce7; color: #166534; }
+        .badge-b { background: #dbeafe; color: #1e40af; }
+        .badge-c { background: #fef3c7; color: #92400e; }
         .badge-f { background: #fee2e2; color: #991b1b; }
-        .badge-pending { background: #fef9c3; color: #854d0e; }
+        .badge-pending { background: #f1f5f9; color: #64748b; }
 
-        .progress { height: 8px; border-radius: 10px; background: #f1f5f9; }
-
-        #hostForm { border-top: 8px solid var(--primary); display: none; }
-
+        .progress { height: 8px; border-radius: 10px; background: #e2e8f0; }
+        
+        #editForm { 
+            border-top: 5px solid var(--primary); 
+            display: none; 
+            transition: all 0.3s;
+        }
+        
+        .material-item {
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .material-item:hover { background: #f8fafc; border-left-color: var(--primary); }
+        
         .lang-switcher {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
+        }
+        
+        .filter-chip {
+            padding: 8px 18px;
+            border-radius: 40px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .stat-card { padding: 15px; }
+            .stat-card h3 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="lang-switcher">
-    <button onclick="toggleLanguage()" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
+<div class="lang-switcher no-print">
+    <button onclick="toggleLanguage()" class="btn btn-light shadow-sm btn-sm rounded-pill px-3 fw-bold">
         <i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span>
     </button>
 </div>
 
-<div class="host-header text-center">
-    <div class="container animate__animated animate__fadeIn">
-        <h1 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill text-info me-2"></i>EduGuard</h1>
-        <p class="mb-0 fw-bold"><span data-i18n="welcome">Welcome</span>, <span id="hostName" class="text-info">...</span></p>
-        <p class="opacity-75 small" data-i18n="headerSubtitle">Strategic Evaluation System & Digital Archive</p>
+<div class="host-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold mb-1"><i class="bi bi-shield-check-fill text-primary me-2"></i>EduGuard <span style="font-size: 0.9rem;">Coordinator Suite</span></h1>
+                <p class="opacity-75 small mb-0">Course Management & Student Performance Analytics</p>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold" id="hostName">Loading...</div>
+                <button onclick="handleLogout()" class="btn btn-outline-light btn-sm mt-1 rounded-pill">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="container main-container mb-5">
-    <div class="row g-3 mb-4 animate__animated animate__fadeInUp">
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card glass-card stat-card border-primary">
-                <small class="text-muted fw-bold d-block" data-i18n="statAvg">OVERALL AVERAGE</small>
+            <div class="glass-card stat-card primary">
+                <small class="text-muted fw-bold d-block"><i class="bi bi-graph-up me-1"></i> <span data-i18n="statAvg">AVERAGE SCORE</span></small>
                 <h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card glass-card stat-card border-success">
-                <small class="text-muted fw-bold d-block" data-i18n="statPass">STUDENTS PASSED</small>
+            <div class="glass-card stat-card success">
+                <small class="text-muted fw-bold d-block"><i class="bi bi-check-circle-fill me-1"></i> <span data-i18n="statPass">PASSED</span></small>
                 <h3 class="fw-bold mb-0 text-success" id="statPass">0</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card glass-card stat-card border-danger">
-                <small class="text-muted fw-bold d-block" data-i18n="statFail">STUDENTS FAILED</small>
+            <div class="glass-card stat-card danger">
+                <small class="text-muted fw-bold d-block"><i class="bi bi-exclamation-triangle-fill me-1"></i> <span data-i18n="statFail">AT RISK</span></small>
                 <h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card glass-card stat-card border-warning">
-                <small class="text-muted fw-bold d-block" data-i18n="statPending">PENDING EVALUATION</small>
+            <div class="glass-card stat-card warning">
+                <small class="text-muted fw-bold d-block"><i class="bi bi-hourglass-split me-1"></i> <span data-i18n="statPending">PENDING</span></small>
                 <h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3>
             </div>
         </div>
@@ -149,74 +200,121 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card glass-card p-4 mb-4 border-0">
-                <h5 class="fw-bold mb-4" data-i18n="dirTitle">Student Performance Directory</h5>
+            <!-- Course Selector & Filters -->
+            <div class="glass-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bookmark-check-fill text-primary me-2"></i><span data-i18n="dirTitle">Student Performance Directory</span></h5>
                 
-                <div class="row g-2 mb-4">
-                    <div class="col-md-9">
-                        <select id="courseSelect" class="form-select shadow-sm border-0">
-                            <option value="" data-i18n="selectSubject">-- Select Subject Program --</option>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <select id="courseSelect" class="form-select shadow-sm">
+                            <option value="" data-i18n="selectSubject">-- Select Course --</option>
                             <option value="Software Engineering">Software Engineering</option>
                             <option value="IoT Systems">IoT Systems</option>
                             <option value="Data Analytics">Data Analytics</option>
                             <option value="AI Solutions">AI Solutions</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100" onclick="searchBySubject()" data-i18n="btnView">View</button>
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary w-100" onclick="searchBySubject()" data-i18n="btnView">
+                                <i class="bi bi-search me-1"></i> View
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="exportGradebook()" title="Export CSV">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-danger w-100" onclick="sendClassAnnouncement()" data-i18n="btnAnnounce">
+                            <i class="bi bi-megaphone"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Grade Filter Chips -->
+                <div class="d-flex flex-wrap gap-2 mb-4 no-print">
+                    <span class="filter-chip active" data-filter="all" onclick="setGradeFilter('all')">All</span>
+                    <span class="filter-chip" data-filter="A" onclick="setGradeFilter('A')">A (Excellent)</span>
+                    <span class="filter-chip" data-filter="B" onclick="setGradeFilter('B')">B (Good)</span>
+                    <span class="filter-chip" data-filter="C" onclick="setGradeFilter('C')">C (Satisfactory)</span>
+                    <span class="filter-chip" data-filter="FAILED" onclick="setGradeFilter('FAILED')">⚠️ At Risk</span>
+                    <span class="filter-chip" data-filter="pending" onclick="setGradeFilter('pending')">⏳ Pending</span>
                 </div>
 
                 <div id="searchResults">
                     <div class="text-center py-5">
-                        <p class="text-muted small" data-i18n="initialMsg">Please select a subject to begin data analysis.</p>
+                        <i class="bi bi-folder2-open text-muted fs-1"></i>
+                        <p class="text-muted small mt-2" data-i18n="initialMsg">Select a course to begin analysis.</p>
                     </div>
                 </div>
             </div>
 
-            <form id="hostForm" class="card glass-card p-4 mb-4 animate__animated animate__slideInUp">
+            <!-- Grade Edit Form -->
+            <div id="editForm" class="glass-card p-4 mb-4 animate__animated animate__fadeInUp">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h6 class="fw-bold mb-0"><span data-i18n="formTitle">Grade Input:</span> <span id="displayStudentName" class="text-primary"></span></h6>
-                    <button type="button" class="btn-close" onclick="document.getElementById('hostForm').style.display='none'"></button>
+                    <h6 class="fw-bold mb-0"><span data-i18n="formTitle">Grade Editor:</span> <span id="displayStudentName" class="text-primary fw-bold"></span></h6>
+                    <button type="button" class="btn-close" onclick="closeEditForm()"></button>
                 </div>
                 
                 <div class="row g-3">
                     <input type="hidden" id="currentDocId">
                     <div class="col-md-4">
                         <label class="form-label small fw-bold" data-i18n="labelQuiz">Quiz (20%)</label>
-                        <input type="number" id="quiz" class="form-control" oninput="liveGrade()">
+                        <input type="number" id="quiz" class="form-control" min="0" max="100" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold" data-i18n="labelTest">Test (30%)</label>
-                        <input type="number" id="test" class="form-control" oninput="liveGrade()">
+                        <input type="number" id="test" class="form-control" min="0" max="100" oninput="liveGrade()">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold" data-i18n="labelMid">Midterm (50%)</label>
-                        <input type="number" id="midterm" class="form-control" oninput="liveGrade()">
+                        <input type="number" id="midterm" class="form-control" min="0" max="100" oninput="liveGrade()">
                     </div>
-                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-3">
+                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-2">
                         <div>
-                            <p class="text-muted small mb-0" data-i18n="currentAnalysis">Current Grade Analysis</p>
+                            <p class="text-muted small mb-0" data-i18n="currentAnalysis">Calculated Grade</p>
                             <h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4>
                         </div>
-                        <button type="submit" class="btn btn-primary px-5" data-i18n="btnSave">Save Score</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary" onclick="notifyStudentGrade()">
+                                <i class="bi bi-bell"></i> Notify
+                            </button>
+                            <button type="submit" class="btn btn-primary px-5" onclick="saveGrade()" data-i18n="btnSave">Save Score</button>
+                        </div>
                     </div>
                 </div>
-            </form>
+            </div>
+            
+            <!-- Grade Distribution Chart -->
+            <div class="glass-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Grade Distribution</h6>
+                <canvas id="gradeChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card glass-card p-4 border-0 mb-4">
-                <h5 class="fw-bold mb-4" data-i18n="resTitle">AI Resource Center</h5>
+            <!-- Resource Center -->
+            <div class="glass-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill text-primary me-2"></i><span data-i18n="resTitle">Resource Center</span></h5>
                 <div class="mb-3">
                     <label class="form-label small fw-bold" data-i18n="resMaterial">Material Title</label>
-                    <input type="text" id="postTitle" class="form-control">
+                    <input type="text" id="postTitle" class="form-control" placeholder="e.g., Lecture Notes Week 5">
                 </div>
-                <div class="mb-4">
-                    <label class="form-label small fw-bold" data-i18n="resLink">Access Link / URL</label>
-                    <textarea id="postContent" class="form-control" rows="3"></textarea>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" data-i18n="resLink">Resource Link / URL</label>
+                    <textarea id="postContent" class="form-control" rows="3" placeholder="Google Drive link, PDF URL, or YouTube link..."></textarea>
                 </div>
-                <button class="btn btn-dark w-100 py-3 shadow-sm" onclick="uploadMaterial()" data-i18n="btnPublish">Publish Material</button>
+                <button class="btn btn-primary w-100 py-3 shadow-sm" onclick="uploadMaterial()">
+                    <i class="bi bi-cloud-arrow-up me-2"></i><span data-i18n="btnPublish">Publish Material</span>
+                </button>
+            </div>
+            
+            <!-- Recent Materials List -->
+            <div class="glass-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-files me-2 text-primary"></i>Recent Resources</h6>
+                <div id="materialsList" class="small">
+                    <div class="text-center py-3 text-muted">Loading materials...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -224,7 +322,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, getDoc, addDoc, serverTimestamp, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -237,133 +336,194 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    // Multi-language System
+    // Global state
     let currentLang = 'en';
+    let currentStudentsData = [];
+    let currentGradeFilter = 'all';
+    let gradeChart = null;
+    let studentNameCache = new Map();
+
+    // Translations
     const translations = {
         en: {
-            welcome: "Welcome back",
-            headerSubtitle: "Strategic Evaluation System & Digital Archive",
-            statAvg: "OVERALL AVERAGE", statPass: "STUDENTS PASSED", statFail: "STUDENTS FAILED", statPending: "PENDING EVALUATION",
-            dirTitle: "Student Performance Directory", selectSubject: "-- Select Subject Program --", btnView: "View",
-            initialMsg: "Please select a subject to begin data analysis.", formTitle: "Grade Input:",
-            labelQuiz: "Quiz (20%)", labelTest: "Test (30%)", labelMid: "Midterm (50%)", currentAnalysis: "Current Grade Analysis",
-            btnSave: "Save Score", resTitle: "AI Resource Center", resMaterial: "Material Title", resLink: "Access Link / URL",
-            btnPublish: "Publish Material", colInfo: "Student Information", colStats: "Score Statistics", colGrade: "Grade",
-            colAction: "Action", failed: "FAILED", pending: "NA"
+            statAvg: "AVERAGE SCORE", statPass: "PASSED", statFail: "AT RISK", statPending: "PENDING",
+            dirTitle: "Student Performance Directory", selectSubject: "-- Select Course --", btnView: "View",
+            initialMsg: "Select a course to begin analysis.", formTitle: "Grade Editor:",
+            labelQuiz: "Quiz (20%)", labelTest: "Test (30%)", labelMid: "Midterm (50%)", 
+            currentAnalysis: "Calculated Grade", btnSave: "Save Score", resTitle: "Resource Center",
+            resMaterial: "Material Title", resLink: "Resource Link / URL", btnPublish: "Publish Material",
+            btnAnnounce: "Notify", failed: "FAILED", pending: "PENDING", A: "A", B: "B", C: "C"
         },
         ms: {
-            welcome: "Selamat kembali",
-            headerSubtitle: "Sistem Penilaian Strategik & Arkib Digital",
-            statAvg: "PURATA KESELURUHAN", statPass: "PELAJAR LULUS", statFail: "PELAJAR GAGAL", statPending: "MENUNGGU PENILAIAN",
-            dirTitle: "Direktori Prestasi Pelajar", selectSubject: "-- Pilih Program Subjek --", btnView: "Lihat",
-            initialMsg: "Sila pilih subjek untuk memulakan analisis data.", formTitle: "Input Gred:",
-            labelQuiz: "Kuiz (20%)", labelTest: "Ujian (30%)", labelMid: "Pertengahan (50%)", currentAnalysis: "Analisis Gred Semasa",
-            btnSave: "Simpan Markah", resTitle: "Pusat Sumber AI", resMaterial: "Tajuk Bahan", resLink: "Pautan Akses / URL",
-            btnPublish: "Terbitkan Bahan", colInfo: "Maklumat Pelajar", colStats: "Statistik Markah", colGrade: "Gred",
-            colAction: "Tindakan", failed: "GAGAL", pending: "TIADA"
+            statAvg: "PURATA MARKAH", statPass: "LULUS", statFail: "BERISIKO", statPending: "TUNGGU",
+            dirTitle: "Direktori Prestasi", selectSubject: "-- Pilih Kursus --", btnView: "Cari",
+            initialMsg: "Pilih kursus untuk mulakan analisis.", formTitle: "Edit Gred:",
+            labelQuiz: "Kuiz (20%)", labelTest: "Ujian (30%)", labelMid: "Peperiksaan (50%)",
+            currentAnalysis: "Gred Dikira", btnSave: "Simpan", resTitle: "Pusat Sumber",
+            resMaterial: "Tajuk Bahan", resLink: "Pautan / URL", btnPublish: "Terbitkan",
+            btnAnnounce: "Maklum", failed: "GAGAL", pending: "TIADA", A: "A", B: "B", C: "C"
         }
     };
 
-    // --- FUNGSI AMBIL PROFIL HOST ---
-    async function loadHostProfile() {
-        const uid = sessionStorage.getItem("activeUser");
-        if(uid) {
-            try {
-                const userDoc = await getDoc(doc(db, "users", uid));
-                if(userDoc.exists()) {
-                    document.getElementById('hostName').innerText = userDoc.data().name || "Host";
-                }
-            } catch (e) { console.error("Error loading profile", e); }
+    // Helper functions
+    function t(key) { return translations[currentLang][key] || key; }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+
+    // AUTHENTICATION & ROLE VERIFICATION
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "index.html";
+            return;
         }
+        
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'host') {
+            await signOut(auth);
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'This area is for Course Coordinators only.' });
+            window.location.href = "index.html";
+            return;
+        }
+        
+        document.getElementById('hostName').innerText = userDoc.data().name || 'Coordinator';
+        loadMaterials();
+    });
+
+    async function fetchStudentName(studentId) {
+        if (studentNameCache.has(studentId)) return studentNameCache.get(studentId);
+        try {
+            const snap = await getDoc(doc(db, "users", studentId));
+            const name = snap.exists() ? snap.data().name || studentId : studentId;
+            studentNameCache.set(studentId, name);
+            return name;
+        } catch { return studentId; }
     }
-    loadHostProfile();
 
-    window.toggleLanguage = () => {
-        currentLang = currentLang === 'en' ? 'ms' : 'en';
-        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
-        applyTranslations();
-        if(document.getElementById('courseSelect').value) searchBySubject(); 
-    };
+    async function searchBySubject() {
+        const selected = document.getElementById('courseSelect').value;
+        const resArea = document.getElementById('searchResults');
+        if (!selected) { resArea.innerHTML = `<div class="text-center py-5"><p class="text-muted">${t('selectSubject')}</p></div>`; return; }
 
-    function applyTranslations() {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            el.innerText = translations[currentLang][key];
+        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>`;
+
+        try {
+            const q = query(collection(db, "course_registrations"), where("course", "==", selected));
+            const snap = await getDocs(q);
+            let students = [];
+
+            for (const docSnap of snap.docs) {
+                const data = docSnap.data();
+                const studentName = await fetchStudentName(data.studentID);
+                students.push({ id: docSnap.id, ...data, studentDisplayName: studentName });
+            }
+
+            currentStudentsData = students;
+            renderStudentTable(students);
+            updateStatistics(students);
+            updateGradeChart(students);
+        } catch (e) { console.error(e); resArea.innerHTML = `<div class="text-center py-5 text-danger">Error loading data</div>`; }
+    }
+
+    function renderStudentTable(students) {
+        let filtered = students;
+        if (currentGradeFilter !== 'all') {
+            if (currentGradeFilter === 'pending') filtered = students.filter(s => !s.grade);
+            else filtered = students.filter(s => s.grade === currentGradeFilter);
+        }
+
+        const resArea = document.getElementById('searchResults');
+        if (!filtered.length) {
+            resArea.innerHTML = `<div class="text-center py-5"><p class="text-muted">No students found for this filter.</p></div>`;
+            return;
+        }
+
+        let html = `<div class="table-responsive"><table class="table table-custom align-middle mb-0">
+            <thead><tr>
+                <th>Student</th><th>Performance</th><th class="text-center">Grade</th><th class="text-end">Action</th>
+            </tr></thead><tbody>`;
+
+        filtered.forEach(s => {
+            const mark = parseFloat(s.totalMark) || 0;
+            let badgeClass = 'badge-pending';
+            if (s.grade === 'A') badgeClass = 'badge-a';
+            else if (s.grade === 'B') badgeClass = 'badge-b';
+            else if (s.grade === 'C') badgeClass = 'badge-c';
+            else if (s.grade === 'FAILED' || s.grade === 'GAGAL') badgeClass = 'badge-f';
+            
+            const gradeDisplay = s.grade || t('pending');
+
+            html += `<tr>
+                <td><div class="fw-bold">${escapeHtml(s.studentDisplayName)}</div><small class="text-muted">${s.studentID}</small></td>
+                <td style="min-width: 180px;">
+                    <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2"><div class="progress-bar ${mark >= 40 ? 'bg-primary' : 'bg-danger'}" style="width: ${mark}%"></div></div>
+                        <small class="fw-bold">${mark}%</small>
+                    </div>
+                </td>
+                <td class="text-center"><span class="grade-badge ${badgeClass}">${gradeDisplay}</span></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="prepareEdit('${s.id}', '${escapeHtml(s.studentDisplayName)}', ${s.quiz || 0}, ${s.test || 0}, ${s.midterm || 0})">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+        resArea.innerHTML = html + "</tbody></table></div>";
+    }
+
+    function updateStatistics(students) {
+        let total = 0, pass = 0, fail = 0, pending = 0, sumMarks = 0;
+        students.forEach(s => {
+            const mark = parseFloat(s.totalMark) || 0;
+            total++;
+            if (!s.grade) pending++;
+            else if (s.grade === 'FAILED' || s.grade === 'GAGAL') fail++;
+            else { pass++; sumMarks += mark; }
+        });
+        document.getElementById('statAvg').innerText = total > 0 ? (sumMarks / total).toFixed(1) + '%' : '0%';
+        document.getElementById('statPass').innerText = pass;
+        document.getElementById('statFail').innerText = fail;
+        document.getElementById('statPending').innerText = pending;
+    }
+
+    function updateGradeChart(students) {
+        const grades = { A: 0, B: 0, C: 0, FAILED: 0, pending: 0 };
+        students.forEach(s => {
+            if (!s.grade) grades.pending++;
+            else if (s.grade === 'A') grades.A++;
+            else if (s.grade === 'B') grades.B++;
+            else if (s.grade === 'C') grades.C++;
+            else grades.FAILED++;
+        });
+        
+        const ctx = document.getElementById('gradeChart').getContext('2d');
+        if (gradeChart) gradeChart.destroy();
+        gradeChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['A (Excellent)', 'B (Good)', 'C (Satisfactory)', 'At Risk', 'Pending'], 
+                    datasets: [{ data: [grades.A, grades.B, grades.C, grades.FAILED, grades.pending], 
+                                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#94a3b8'], 
+                                borderWidth: 0 }] },
+            options: { maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
         });
     }
 
-    // Firebase Functions
+    window.setGradeFilter = (filter) => {
+        currentGradeFilter = filter;
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+        document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
+        renderStudentTable(currentStudentsData);
+    };
+
     window.liveGrade = () => {
         const q = Number(document.getElementById('quiz').value) || 0;
         const t = Number(document.getElementById('test').value) || 0;
         const m = Number(document.getElementById('midterm').value) || 0;
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? translations[currentLang].failed : "-");
-        document.getElementById('liveGradeText').innerText = grade + ` (${total.toFixed(1)}%)`;
-    };
-
-    window.searchBySubject = async function() {
-        const selected = document.getElementById('courseSelect').value;
-        const resArea = document.getElementById('searchResults');
-        if (!selected) return;
-
-        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-grow text-primary"></div></div>`;
-
-        try {
-            const q = query(collection(db, "course_registrations"), where("course", "==", selected));
-            const snap = await getDocs(q);
-
-            if (snap.empty) {
-                resArea.innerHTML = `<div class="text-center p-5"><p class="text-muted">No students found.</p></div>`;
-                return;
-            }
-
-            let pass = 0, fail = 0, pending = 0, sumMarks = 0, total = 0;
-            let html = `<div class="table-responsive"><table class="table table-custom">
-                <thead><tr>
-                    <th>${translations[currentLang].colInfo}</th>
-                    <th>${translations[currentLang].colStats}</th>
-                    <th class="text-center">${translations[currentLang].colGrade}</th>
-                    <th class="text-end">${translations[currentLang].colAction}</th>
-                </tr></thead><tbody>`;
-
-            snap.forEach(d => {
-                const data = d.data();
-                const mark = parseFloat(data.totalMark) || 0;
-                total++;
-                if(!data.grade) pending++;
-                else if(data.grade === 'FAILED' || data.grade === 'GAGAL') fail++;
-                else { pass++; sumMarks += mark; }
-
-                html += `<tr>
-                    <td><span class="fw-bold d-block">${data.studentName}</span><code class="small text-muted">${data.studentID}</code></td>
-                    <td style="width: 200px;">
-                        <div class="d-flex align-items-center">
-                            <div class="progress w-100 me-2"><div class="progress-bar ${mark >= 40 ? 'bg-primary':'bg-danger'}" style="width: ${mark}%"></div></div>
-                            <small>${mark}%</small>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <span class="grade-badge ${mark >= 80 ? 'badge-a' : (data.grade === 'FAILED' || data.grade === 'GAGAL' ? 'badge-f' : 'badge-pending')}">
-                            ${data.grade || translations[currentLang].pending}
-                        </span>
-                    </td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-light border rounded-pill" onclick="prepareEdit('${d.id}', '${data.studentName}', ${data.quiz||0}, ${data.test||0}, ${data.midterm||0})">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                    </td>
-                </tr>`;
-            });
-
-            resArea.innerHTML = html + "</tbody></table></div>";
-            document.getElementById('statAvg').innerText = (total > 0 ? (sumMarks/total).toFixed(1) : 0) + "%";
-            document.getElementById('statPass').innerText = pass;
-            document.getElementById('statFail').innerText = fail;
-            document.getElementById('statPending').innerText = pending;
-
-        } catch (e) { console.error(e); }
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? t('failed') : "-");
+        document.getElementById('liveGradeText').innerHTML = `${grade} <span style="font-size:0.9rem;">(${total.toFixed(1)}%)</span>`;
     };
 
     window.prepareEdit = (id, name, q, t, m) => {
@@ -372,45 +532,106 @@
         document.getElementById('quiz').value = q;
         document.getElementById('test').value = t;
         document.getElementById('midterm').value = m;
-        document.getElementById('hostForm').style.display = 'block';
+        document.getElementById('editForm').style.display = 'block';
         liveGrade();
-        window.scrollTo({ top: document.getElementById('hostForm').offsetTop - 80, behavior: 'smooth' });
+        window.scrollTo({ top: document.getElementById('editForm').offsetTop - 100, behavior: 'smooth' });
     };
 
-    document.getElementById('hostForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const q = Number(document.getElementById('quiz').value);
-        const t = Number(document.getElementById('test').value);
-        const m = Number(document.getElementById('midterm').value);
+    window.saveGrade = async () => {
+        const id = document.getElementById('currentDocId').value;
+        if (!id) return;
+        const q = Number(document.getElementById('quiz').value) || 0;
+        const t = Number(document.getElementById('test').value) || 0;
+        const m = Number(document.getElementById('midterm').value) || 0;
         const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
-        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : translations[currentLang].failed;
+        let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : t('failed');
 
         try {
-            await updateDoc(doc(db, "course_registrations", document.getElementById('currentDocId').value), {
+            await updateDoc(doc(db, "course_registrations", id), {
                 quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
-                status: "Marked", lastUpdated: serverTimestamp()
+                lastUpdated: serverTimestamp()
             });
-            Swal.fire({ icon: 'success', title: currentLang === 'en' ? 'Saved!' : 'Disimpan!', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'Saved!', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+            closeEditForm();
             searchBySubject();
-            document.getElementById('hostForm').style.display = 'none';
-        } catch (e) { alert(e.message); }
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
     };
+
+    window.notifyStudentGrade = async () => {
+        const studentName = document.getElementById('displayStudentName').innerText;
+        const grade = document.getElementById('liveGradeText').innerText;
+        Swal.fire({ title: `Notify ${studentName}`, text: `Grade updated: ${grade}`, icon: 'info', confirmButtonText: 'Send' });
+    };
+
+    window.closeEditForm = () => { document.getElementById('editForm').style.display = 'none'; };
+    window.sendClassAnnouncement = () => { Swal.fire({ title: 'Class Announcement', input: 'textarea', inputLabel: 'Message to all students', confirmButtonText: 'Broadcast' }); };
+
+    window.exportGradebook = () => {
+        if (!currentStudentsData.length) return Swal.fire('No data', 'Please load a course first', 'warning');
+        let csv = "Student ID,Student Name,Quiz,Test,Midterm,Total (%),Grade\n";
+        currentStudentsData.forEach(s => {
+            csv += `"${s.studentID}","${s.studentDisplayName}",${s.quiz || 0},${s.test || 0},${s.midterm || 0},${s.totalMark || 0},${s.grade || 'Pending'}\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `gradebook_${document.getElementById('courseSelect').value}.csv`; a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    async function loadMaterials() {
+        const q = query(collection(db, "materials"), orderBy("datePosted", "desc"));
+        const snap = await getDocs(q);
+        const container = document.getElementById('materialsList');
+        if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted">No resources yet.</div>'; return; }
+        let html = '<div class="list-group list-group-flush">';
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            html += `<div class="list-group-item px-0 material-item">
+                        <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                        <strong>${escapeHtml(data.title || 'Untitled')}</strong>
+                        <a href="${escapeHtml(data.content)}" target="_blank" class="text-muted small d-block text-truncate">${escapeHtml(data.content)}</a>
+                     </div>`;
+        });
+        container.innerHTML = html + '</div>';
+    }
 
     window.uploadMaterial = async () => {
         const title = document.getElementById('postTitle').value;
         const content = document.getElementById('postContent').value;
-        if(!title || !content) return Swal.fire('Error', 'Please fill all fields', 'error');
-
+        if (!title || !content) return Swal.fire('Error', 'Please fill all fields', 'error');
         try {
             await addDoc(collection(db, "materials"), {
                 title, content, course: document.getElementById('courseSelect').value || "General",
-                category: "Lecture", datePosted: serverTimestamp()
+                datePosted: serverTimestamp()
             });
-            Swal.fire('Success', 'Material Published', 'success');
+            Swal.fire('Success', 'Material published', 'success');
             document.getElementById('postTitle').value = "";
             document.getElementById('postContent').value = "";
-        } catch (e) { alert(e.message); }
+            loadMaterials();
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
     };
+
+    window.toggleLanguage = () => {
+        currentLang = currentLang === 'en' ? 'ms' : 'en';
+        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
+        applyTranslations();
+        if (document.getElementById('courseSelect').value) searchBySubject();
+    };
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerText = t(key);
+        });
+        document.getElementById('courseSelect').querySelector('option[value=""]').innerText = t('selectSubject');
+    }
+
+    window.handleLogout = async () => { await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+
+    // Expose globals
+    window.searchBySubject = searchBySubject;
+    applyTranslations();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
