@@ -3,65 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa | Student Oversight Dashboard</title>
+    <title>Smart RPS | Supervisor Intelligence Dashboard</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
-        body { background: #f0f2f8; font-family: 'Inter', sans-serif; }
-        .navbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
-        .stat-card { background: white; border-radius: 20px; padding: 20px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .table-container { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .badge-risk { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; }
-    </style>
-</head>
-<body>
-
-<nav class="navbar">
-    <div class="container d-flex justify-content-between">
-        <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check-fill me-2"></i>Smart RPS | Supervisor Dashboard</a>
-        <div><span id="svName" class="fw-bold me-3">Supervisor</span><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button></div>
-    </div>
-</nav>
-
-<div class="container py-4">
-    <div class="row g-4 mb-4">
-        <div class="col-md-3"><div class="stat-card"><i class="bi bi-people-fill text-primary fs-2 mb-2 d-block"></i><h3 id="totalStudents" class="fw-bold">0</h3><small>Total Students</small></div></div>
-        <div class="col-md-3"><div class="stat-card"><i class="bi bi-exclamation-triangle-fill text-danger fs-2 mb-2 d-block"></i><h3 id="criticalRisk" class="fw-bold">0</h3><small>Critical Risk</small></div></div>
-        <div class="col-md-3"><div class="stat-card"><i class="bi bi-book-half text-warning fs-2 mb-2 d-block"></i><h3 id="academicRisk" class="fw-bold">0</h3><small>Academic Risk</small></div></div>
-        <div class="col-md-3"><div class="stat-card"><i class="bi bi-check-circle-fill text-success fs-2 mb-2 d-block"></i><h3 id="avgGrade" class="fw-bold">0%</h3><small>Avg Grade</small></div></div>
-    </div>
-
-    <div class="table-container"><h5 class="fw-bold mb-3"><i class="bi bi-grid-fill me-2"></i>Student Performance Overview</h5><div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>Student Name</th><th>Student ID</th><th>Courses</th><th>Avg Score</th><th>Mental Risk</th><th class="text-center">Action</th></tr></thead><tbody id="studentTable"><tr><td colspan="6" class="text-center py-5">Loading...</td></tr></tbody></table></div></div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    const firebaseConfig = { apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", authDomain: "eduguard-ai-2742b.firebaseapp.com", projectId: "eduguard-ai-2742b", storageBucket: "eduguard-ai-2742b.firebasestorage.app", messagingSenderId: "96233022148", appId: "1:96233022148:web:1f903d72b3f79690409f91" };
-    const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
-    onAuthStateChanged(auth, async (user) => { if (!user) window.location.href = "index.html"; else { const userDoc = await getDoc(doc(db, "users", user.uid)); if (userDoc.data()?.role !== 'supervisor') window.location.href = "index.html"; else document.getElementById('svName').innerText = userDoc.data().name || 'Supervisor'; loadData(user.email); } });
-    async function loadData(svEmail) { const regSnap = await getDocs(query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail))); const studentsMap = new Map(); regSnap.forEach(doc => { const data = doc.data(); if (!studentsMap.has(data.studentID)) studentsMap.set(data.studentID, { id: data.studentID, name: data.studentName, courses: [], totalMarks: 0 }); const student = studentsMap.get(data.studentID); student.courses.push(data); student.totalMarks += parseFloat(data.totalMark) || 0; }); const assessSnap = await getDocs(collection(db, "assessments")); const assessments = {}; assessSnap.forEach(doc => { const data = doc.data(); assessments[data.studentID] = data; }); let totalStudents = 0, criticalRisk = 0, academicRisk = 0, totalAvg = 0; const tbody = document.getElementById('studentTable'); tbody.innerHTML = ''; for (const [id, student] of studentsMap) { totalStudents++; const avg = student.courses.length > 0 ? (student.totalMarks / student.courses.length).toFixed(1) : 0; totalAvg += parseFloat(avg); const mentalRisk = assessments[id]?.riskLevel || 'NORMAL'; if (mentalRisk === 'CRITICAL') criticalRisk++; if (avg < 40) academicRisk++; tbody.innerHTML += `<tr><td class="fw-bold">${student.name}</td><td>${id}</td><td>${student.courses.length}</td><td class="${avg < 40 ? 'text-danger fw-bold' : ''}">${avg}%</td><td><span class="badge-risk ${mentalRisk === 'CRITICAL' ? 'bg-danger text-white' : (mentalRisk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success text-white')}">${mentalRisk}</span></td><td class="text-center"><button class="btn btn-sm btn-outline-primary rounded-pill" onclick="contactStudent('${id}', '${student.name}')"><i class="bi bi-chat"></i> Message</button></td></tr>`; } document.getElementById('totalStudents').innerText = totalStudents; document.getElementById('criticalRisk').innerText = criticalRisk; document.getElementById('academicRisk').innerText = academicRisk; document.getElementById('avgGrade').innerText = totalStudents > 0 ? (totalAvg / totalStudents).toFixed(1) + '%' : '0%'; }
-    window.contactStudent = async (id, name) => { const { value: msg } = await Swal.fire({ title: `Contact: ${name}`, input: 'textarea', inputLabel: 'Message', showCancelButton: true }); if (msg) { await addDoc(collection(db, "notifications"), { studentID: id, message: msg, sender: "Supervisor", status: "unread", timestamp: new Date() }); Swal.fire('Sent!', 'Message sent to student', 'success'); } };
-    window.logout = () => { signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
-</script>
-</body>
-</html>        .chart-container { position: relative; height: 260px; width: 100%; }
+        :root { --p-blue: #4361ee; --p-red: #ef4444; --p-orange: #f59e0b; --p-green: #10b981; }
+        body { background: #f0f2f8; font-family: 'Inter', sans-serif; color: #1e293b; }
         
-        .filter-chip { padding: 6px 16px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+        .navbar { background: white !important; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
+        .navbar-brand { font-weight: 800; background: linear-gradient(135deg, #4361ee, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .stat-card { border: none; border-radius: 24px; background: white; padding: 20px 24px; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.05); transition: all 0.25s ease; border: 1px solid rgba(0,0,0,0.03); }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1); }
+        .icon-box { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+        
+        .master-row { cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; }
+        .master-row:hover { background-color: #f8fafc !important; transform: translateX(2px); }
+        .row-critical { border-left-color: var(--p-red); background: linear-gradient(90deg, #fff1f2 0%, #ffffff 100%); }
+        
+        .table thead th { background: #f8fafd; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; border: none; padding: 16px; font-weight: 700; }
+        .badge-custom { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; display: inline-block; }
+        
+        .detail-pane { background: linear-gradient(135deg, #fafcff 0%, #f8fafc 100%); padding: 28px !important; border-top: 1px solid #e2e8f0; }
+        .inner-table-card { border-radius: 20px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 8px 20px -12px rgba(0,0,0,0.08); }
+        .score-cell { background: #f1f5f9; font-weight: 600; color: #4361ee; border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; display: inline-block; }
+        .progress { background-color: #e2e8f0; border-radius: 50px; overflow: hidden; }
+        .chart-container { position: relative; height: 260px; width: 100%; }
+        
+        .filter-chip { padding: 8px 18px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s; }
         .filter-chip.active { background: #4361ee; color: white; border-color: #4361ee; }
         .filter-chip:hover { background: #eef2ff; }
         
         .live-badge { display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
         
         @media print { .no-print { display: none !important; } .stat-card { border: 1px solid #ddd; } }
-        
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } }
     </style>
 </head>
 <body id="dashboardContent">
@@ -69,7 +51,7 @@
 <nav class="navbar navbar-expand-lg sticky-top mb-4 py-3 shadow-sm no-print">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <i class="bi bi-shield-check-fill me-2 fs-3" style="background: linear-gradient(135deg, #4361ee, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+            <i class="bi bi-shield-check-fill me-2 fs-3" style="color: #4361ee;"></i>
             <span style="font-weight: 800;">Smart Rakan Pembimbing Siswa <span style="color: #f59e0b;">(RPS)</span></span>
         </a>
         <div class="d-flex align-items-center gap-3">
@@ -159,7 +141,7 @@
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="6" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Loading student data...</td></tr>
+                    <tr><td colspan="6" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Loading student data...<\/td></tr>
                 </tbody>
             </table>
         </div>
@@ -190,7 +172,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -219,7 +201,6 @@
             return;
         }
         
-        // Verify user is SUPERVISOR (RPS)
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (!userDoc.exists() || userDoc.data().role !== 'supervisor') {
             await signOut(auth);
@@ -234,7 +215,6 @@
     });
 
     function loadData(svEmail) {
-        // Clean up previous listeners
         if (unsubscribeReg) unsubscribeReg();
         if (unsubscribeAssess) unsubscribeAssess();
         
@@ -265,12 +245,11 @@
         globalGroupedData = groups;
         globalAssessMap = aMap;
 
-        // Calculate statistics
         let s_high = 0, s_fail = 0, s_norm = 0, s_excel = 0;
         let m_low = 0, m_med = 0, m_high = 0;
 
         Object.values(groups).forEach((stu) => {
-            const assess = aMap.get(stu.id) || { riskLevel: 'NONE', feedbackText: 'No screening completed yet.' };
+            const assess = aMap.get(stu.id) || { riskLevel: 'NONE' };
             const risk = assess.riskLevel || 'NONE';
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark) || 0), 0) / stu.courses.length).toFixed(1);
             
@@ -308,7 +287,7 @@
         });
         
         if (filteredEntries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students match the selected filter.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students match the selected filter.<\/td><\/tr>';
             return;
         }
         
@@ -340,22 +319,22 @@
                                 <small class="text-muted" style="font-size:0.7rem;">ID: ${id}</small>
                             </div>
                         </div>
-                    </td>
+                     </td>
                     <td class="text-center"><span class="badge bg-light text-dark border px-3 py-2">${stu.courses.length} Courses</span></td>
                     <td class="text-center fw-bold ${parseFloat(avg) < 40 ? 'text-danger fs-5' : 'text-dark'}">${avg}%</td>
                     <td class="text-center">
                         <span class="badge-custom ${risk === 'CRITICAL' || risk === 'HIGH' ? 'bg-danger text-white' : (risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info text-white')}">
                             ${risk}
                         </span>
-                    </td>
+                     </td>
                     <td class="text-center">${statusBadge}</td>
                     <td class="text-end pe-4">
                         <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="event.stopPropagation(); sendIntervention('${id}', '${escapeHtml(stu.name)}')">
                             <i class="bi bi-chat-dots me-1"></i> Message
                         </button>
                         <i class="bi bi-chevron-down ms-2 text-muted"></i>
-                    </td>
-                </tr>
+                     </td>
+                 </tr>
                 <tr class="collapse" id="${collId}">
                     <td colspan="6" class="detail-pane">
                         <div class="inner-table-card p-4">
@@ -365,14 +344,7 @@
                                     <div class="table-responsive">
                                         <table class="table table-sm align-middle" style="font-size: 0.8rem;">
                                             <thead class="table-light">
-                                                <tr>
-                                                    <th>Course Code</th>
-                                                    <th class="text-center">Quiz (20%)</th>
-                                                    <th class="text-center">Test (30%)</th>
-                                                    <th class="text-center">Midterm (50%)</th>
-                                                    <th class="text-center">Total</th>
-                                                    <th class="text-center">Grade</th>
-                                                </tr>
+                                                <tr><th>Course Code</th><th class="text-center">Quiz (20%)</th><th class="text-center">Test (30%)</th><th class="text-center">Midterm (50%)</th><th class="text-center">Total</th><th class="text-center">Grade</th></tr>
                                             </thead>
                                             <tbody>
                                                 ${stu.courses.map(c => `
@@ -408,13 +380,12 @@
                                 </div>
                             </div>
                         </div>
-                    </td>
-                </tr>
+                     </td>
+                 <\/tr>
             `;
         });
     }
 
-    // Send intervention message (Supervisor action)
     window.sendIntervention = async (studentId, studentName) => {
         const { value: message } = await Swal.fire({
             title: `Contact: ${studentName}`,
@@ -427,9 +398,7 @@
         });
         if (message && message.trim()) {
             try {
-                const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-                const dbLocal = getFirestore(app);
-                await addDoc(collection(dbLocal, "notifications"), {
+                await addDoc(collection(db, "notifications"), {
                     studentID: studentId,
                     message: message.trim(),
                     sender: "Supervisor (RPS)",
@@ -452,7 +421,6 @@
 
     window.refreshDataManually = () => {
         Swal.fire({ toast: true, icon: 'success', title: 'Syncing with Firebase...', timer: 1000, showConfirmButton: false });
-        // Force refresh by re-triggering listeners
         const user = auth.currentUser;
         if (user) loadData(user.email);
     };
@@ -504,7 +472,7 @@
         } catch (e) { Swal.close(); Swal.fire('Error', 'Failed to capture image.', 'error'); }
     };
 
-    window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
+    window.handleLogout = async () => { await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
 </script>
