@@ -38,10 +38,15 @@
         body.dark-mode .glass-card,
         body.dark-mode .material-card,
         body.dark-mode .nav-custom,
-        body.dark-mode .stat-card {
+        body.dark-mode .stat-card,
+        body.dark-mode .announcement-card {
             background: #1e293b;
             border-color: #334155;
             color: #e2e8f0;
+        }
+        
+        body.dark-mode .bg-light {
+            background: #334155 !important;
         }
         
         .nav-custom { 
@@ -82,6 +87,19 @@
         }
         
         .material-card:hover { transform: translateX(5px); background: #f8fafc; }
+        
+        .announcement-card {
+            border-left: 4px solid var(--p-orange);
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+        
+        .announcement-card:hover { transform: translateX(5px); background: #fffbeb; }
+        
+        body.dark-mode .announcement-card:hover { background: #2d2a1e; }
         
         .grade-circle { 
             width: 60px; 
@@ -146,12 +164,19 @@
         
         .dark-mode .msg-them { background: #334155; color: #e2e8f0; }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .announcement-badge {
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-weight: 600;
         }
         
-        .pulse-animation { animation: pulse 2s infinite; }
+        body.dark-mode .announcement-badge {
+            background: #422b00;
+            color: #fbbf24;
+        }
         
         @media (max-width: 768px) {
             .chat-container { width: 300px; height: 400px; right: 10px; bottom: 80px; }
@@ -296,6 +321,15 @@
                 </button>
             </div>
 
+            <!-- NEW: Host / Course Coordinator Announcements Section -->
+            <h5 class="section-title mt-4"><i class="bi bi-megaphone-fill text-warning"></i> <span data-i18n="hostAnnounce">Course Announcements</span></h5>
+            <div id="hostAnnouncements" class="glass-card p-3 mb-4">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary spinner-border-sm"></div>
+                    <div class="mt-2 small text-muted" data-i18n="loading">Loading announcements...</div>
+                </div>
+            </div>
+
             <!-- Materials & Notes -->
             <h5 class="section-title"><i class="bi bi-collection-play-fill"></i> <span data-i18n="titleMaterials">Learning Resources</span></h5>
             <div id="materialList">
@@ -331,12 +365,12 @@
     </form>
 </div>
 
-<!-- Inbox Modal -->
+<!-- Inbox Modal (for all messages including counselor) -->
 <div class="modal fade" id="inboxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow">
             <div class="modal-header border-0 bg-light rounded-top-4">
-                <h5 class="fw-bold mb-0"><i class="bi bi-envelope-paper-heart me-2 text-primary"></i> <span data-i18n="counselorMsg">Messages from Counselor</span></h5>
+                <h5 class="fw-bold mb-0"><i class="bi bi-envelope-paper-heart me-2 text-primary"></i> <span data-i18n="counselorMsg">All Messages</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
@@ -379,8 +413,9 @@
     let currentLang = 'en';
     let gradeChart = null;
     let chatUnsubscribe = null;
+    let hostAnnounceUnsubscribe = null;
 
-    // Translations
+    // Translations with new keys
     const translations = {
         en: {
             welcomeText: "Welcome back", loading: "Loading data...", totalCourses: "Courses",
@@ -390,13 +425,16 @@
             wbTitle: "Mental Health Assessment", wbDesc: "AI-powered analysis to identify stress patterns.",
             latestResult: "Last Assessment:", btnAI: "Start Assessment", btnAIUpdate: "Update Assessment",
             titleMaterials: "Learning Resources", noMaterials: "No resources available.",
-            counselorMsg: "Messages from Counselor", noMessages: "No messages yet.",
-            chatWith: "Supervisor Chat", q1: "Feeling overwhelmed by workload?",
+            counselorMsg: "All Messages", noMessages: "No messages yet.",
+            chatWith: "Supervisor Chat", hostAnnounce: "Course Announcements",
+            openNotes: "Open Resource",
+            q1: "Feeling overwhelmed by workload?",
             q2: "Difficulty sleeping?", q3: "Lost interest in studies?",
             q4: "Worried about failing?", q5: "No one to talk to?",
             opt0: "Never", opt1: "Rarely", opt2: "Often", opt3: "Very Often",
             swalTitle: "Wellness Check", swalVal: "Please select an answer!",
-            levelCritical: "CRITICAL", levelMedium: "MEDIUM", levelNormal: "NORMAL"
+            levelCritical: "CRITICAL", levelMedium: "MEDIUM", levelNormal: "NORMAL",
+            noAnnouncements: "No course announcements yet."
         },
         ms: {
             welcomeText: "Selamat kembali", loading: "Memuatkan...", totalCourses: "Kursus",
@@ -406,13 +444,16 @@
             wbTitle: "Penilaian Kesihatan Mental", wbDesc: "Analisis AI untuk mengenal pasti corak tekanan.",
             latestResult: "Penilaian Terkini:", btnAI: "Mulakan Penilaian", btnAIUpdate: "Kemaskini Penilaian",
             titleMaterials: "Sumber Pembelajaran", noMaterials: "Tiada sumber tersedia.",
-            counselorMsg: "Mesej dari Kaunselor", noMessages: "Tiada mesej lagi.",
-            chatWith: "Sembang Penyelia", q1: "Rasa terbeban dengan tugasan?",
+            counselorMsg: "Semua Mesej", noMessages: "Tiada mesej lagi.",
+            chatWith: "Sembang Penyelia", hostAnnounce: "Hebahan Kursus",
+            openNotes: "Buka Sumber",
+            q1: "Rasa terbeban dengan tugasan?",
             q2: "Sukar untuk tidur?", q3: "Hilang minat belajar?",
             q4: "Bimbang akan gagal?", q5: "Tiada teman bicara?",
             opt0: "Tidak Pernah", opt1: "Jarang", opt2: "Sering", opt3: "Sangat Sering",
             swalTitle: "Saringan Kesihatan", swalVal: "Sila pilih jawapan!",
-            levelCritical: "KRITIKAL", levelMedium: "SEDERHANA", levelNormal: "NORMAL"
+            levelCritical: "KRITIKAL", levelMedium: "SEDERHANA", levelNormal: "NORMAL",
+            noAnnouncements: "Tiada hebahan kursus lagi."
         }
     };
 
@@ -482,7 +523,7 @@
             label.innerText = userData.stressLevel;
             label.className = `fw-bold mb-0 ${colorClass}`;
             document.getElementById('btnPsiko').innerHTML = `<i class="bi bi-robot me-2"></i> ${t('btnAIUpdate')}`;
-            document.getElementById('stressLevel').innerText = userData.stressLevel === 'CRITICAL' ? '⚠️' : (userData.stressLevel === 'MEDIUM' ? '🟡' : '✅');
+            document.getElementById('stressLevel').innerHTML = userData.stressLevel === 'CRITICAL' ? '⚠️' : (userData.stressLevel === 'MEDIUM' ? '🟡' : '✅');
         }
         return true;
     }
@@ -514,7 +555,7 @@
             cContainer.innerHTML += `
                 <div class="glass-card mb-3 d-flex align-items-center justify-content-between animate__animated animate__fadeInLeft">
                     <div>
-                        <h6 class="fw-bold mb-1">${data.course}</h6>
+                        <h6 class="fw-bold mb-1">${escapeHtml(data.course)}</h6>
                         <span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'} rounded-pill px-3">${data.status || 'Pending'}</span>
                     </div>
                     <div class="d-flex align-items-center gap-3">
@@ -554,13 +595,61 @@
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1" style="font-size: 0.65rem;">${m.category || 'Resource'}</span>
                         </div>
-                        <h6 class="fw-bold mb-2">${m.title}</h6>
-                        <a href="${m.content}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-pill py-2">
-                            <i class="bi bi-box-arrow-up-right me-1"></i> ${t('openNotes') || 'Open'}
+                        <h6 class="fw-bold mb-2">${escapeHtml(m.title)}</h6>
+                        <a href="${escapeHtml(m.content)}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-pill py-2">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> ${t('openNotes')}
                         </a>
                     </div>`;
             });
         }
+    }
+
+    // NEW: Load Host/Course Coordinator Announcements (separate section)
+    function loadHostAnnouncements() {
+        const q = query(
+            collection(db, "notifications"), 
+            where("studentID", "==", activeID),
+            where("senderType", "==", "host"),
+            orderBy("timestamp", "desc")
+        );
+        
+        if (hostAnnounceUnsubscribe) hostAnnounceUnsubscribe();
+        hostAnnounceUnsubscribe = onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('hostAnnouncements');
+            if (snapshot.empty) {
+                container.innerHTML = `<div class="text-center py-4 text-muted small">📭 ${t('noAnnouncements')}</div>`;
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate().toLocaleDateString('en-MY') || 'Just now';
+                // Parse the message (format from host: "📢 Title\n\nMessage")
+                let title = 'Announcement';
+                let content = data.message;
+                if (data.message && data.message.startsWith('📢')) {
+                    const parts = data.message.substring(2).split('\n\n');
+                    title = parts[0] || 'Announcement';
+                    content = parts[1] || data.message;
+                }
+                
+                html += `
+                    <div class="announcement-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <span class="announcement-badge me-2">📢 ${escapeHtml(data.course || 'Course')}</span>
+                                <strong class="small">${escapeHtml(title)}</strong>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.7rem;">${date}</small>
+                        </div>
+                        <div class="small text-muted mb-2">From: ${escapeHtml(data.sender || 'Course Coordinator')}</div>
+                        <div style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.4;">${escapeHtml(content)}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
     }
 
     // Chat System
@@ -597,7 +686,7 @@
         input.value = '';
     };
 
-    // Notifications
+    // Notifications (All messages including counselor and host)
     function listenToNotifications() {
         const qNotify = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc"));
         onSnapshot(qNotify, (snapshot) => {
@@ -610,6 +699,7 @@
             if (messages.length === 0) { 
                 inboxList.innerHTML = `<div class="text-center py-5 text-muted small">${t('noMessages')}</div>`;
                 badge.style.display = 'none';
+                document.getElementById('unreadCount').innerText = '0';
                 return;
             }
             
@@ -617,10 +707,13 @@
             messages.forEach((msg) => {
                 const isUnread = msg.status === "unread";
                 if (isUnread) unreadCount++;
+                const senderIcon = msg.senderType === 'host' ? '📢' : '💬';
+                const senderLabel = msg.senderType === 'host' ? 'Course Coordinator' : (msg.sender || 'Counselor');
+                
                 inboxList.innerHTML += `
                     <div class="list-group-item p-3 border-0 border-bottom ${isUnread ? 'bg-primary bg-opacity-10' : ''}">
                         <div class="d-flex justify-content-between mb-1">
-                            <small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'}">📬 Message</small>
+                            <small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'}">${senderIcon} ${escapeHtml(senderLabel)}</small>
                             ${isUnread ? '<span class="badge bg-primary rounded-pill">New</span>' : ''}
                         </div>
                         <p class="mb-0 small">${escapeHtml(msg.message)}</p>
@@ -675,7 +768,16 @@
     };
 
     window.viewProfile = () => {
-        Swal.fire({ title: 'Student Profile', html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>Email:</strong> ${activeID}<br><strong>Student ID:</strong> ${currentUserData.assignedID}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`, icon: 'info' });
+        Swal.fire({ 
+            title: 'Student Profile', 
+            html: `<div class="text-start">
+                <strong>Name:</strong> ${currentUserData.name}<br>
+                <strong>Email:</strong> ${activeID}<br>
+                <strong>Student ID:</strong> ${currentUserData.assignedID}<br>
+                <strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}
+            </div>`, 
+            icon: 'info' 
+        });
     };
 
     window.logout = async () => { await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
@@ -686,6 +788,7 @@
     await verifyUser();
     loadAcademicData();
     listenToNotifications();
+    loadHostAnnouncements();  // NEW: Load host announcements separately
     applyTranslations();
 </script>
 </body>
