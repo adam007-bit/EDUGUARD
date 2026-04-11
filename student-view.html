@@ -49,6 +49,7 @@
         .qr-timer-warning { color: #dc2626; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .secure-badge { background: #10b981; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 30px; display: inline-block; margin-bottom: 8px; }
+        .chat-badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
         @media (max-width: 768px) { .chat-container { width: 300px; height: 400px; right: 10px; bottom: 80px; } .floating-btn { width: 48px; height: 48px; } }
     </style>
 </head>
@@ -107,9 +108,8 @@
                 <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3"><i class="bi bi-person-circle fs-1 text-primary"></i></div>
                 <h5 id="profileName" class="fw-bold">-</h5>
                 <p id="profileEmail" class="text-muted small">-</p>
-                <p id="profileSupervisor" class="small"><i class="bi bi-person-badge me-1"></i> Supervisor: <span>-</span></p>
+                <p id="profileSupervisor" class="small"><i class="bi bi-person-badge me-1"></i> Supervisor: <span id="supervisorEmailDisplay">-</span></p>
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
-                <!-- Register New Course Button -->
                 <div class="mt-3">
                     <button class="btn btn-outline-success btn-sm rounded-pill w-100" onclick="openCourseRegistration()">
                         <i class="bi bi-plus-circle me-1"></i> <span data-i18n="registerNewCourse">Register New Course</span>
@@ -175,17 +175,45 @@
 </div>
 
 <div style="position: fixed; bottom: 25px; right: 25px; z-index: 1050; display: flex; flex-direction: column; gap: 12px;">
-    <button class="btn btn-success floating-btn shadow-lg" onclick="toggleChat()"><i class="bi bi-chat-dots-fill fs-4"></i></button>
-    <button class="btn btn-primary floating-btn shadow-lg position-relative" onclick="openInbox()"><i class="bi bi-bell-fill fs-4"></i><span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">0</span></button>
+    <button class="btn btn-success floating-btn shadow-lg position-relative" onclick="toggleChat()" id="chatBtn">
+        <i class="bi bi-chat-dots-fill fs-4"></i>
+        <span id="chatUnreadBadge" class="chat-badge" style="display: none;">0</span>
+    </button>
+    <button class="btn btn-primary floating-btn shadow-lg position-relative" onclick="openInbox()">
+        <i class="bi bi-bell-fill fs-4"></i>
+        <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; display: none;">0</span>
+    </button>
 </div>
 
 <div id="chatBox" class="chat-container">
-    <div class="chat-header d-flex justify-content-between align-items-center"><span><i class="bi bi-person-circle me-2"></i> <span data-i18n="chatWith">Supervisor Chat</span></span><button class="btn btn-sm text-white p-0" onclick="toggleChat()"><i class="bi bi-x-lg"></i></button></div>
-    <div id="chatMessages" class="chat-messages"></div>
-    <form id="chatForm" class="chat-input-area d-flex gap-2"><input type="text" id="chatInput" class="form-control form-control-sm rounded-pill" placeholder="Type message..." required><button type="submit" class="btn btn-primary btn-sm rounded-circle"><i class="bi bi-send"></i></button></form>
+    <div class="chat-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person-circle me-2"></i> <span data-i18n="chatWith">Supervisor Chat</span></span>
+        <button class="btn btn-sm text-white p-0" onclick="toggleChat()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+        <div class="text-center text-muted p-3">Loading messages...</div>
+    </div>
+    <form id="chatForm" class="chat-input-area d-flex gap-2">
+        <input type="text" id="chatInput" class="form-control form-control-sm rounded-pill" placeholder="Type message..." required>
+        <button type="submit" class="btn btn-primary btn-sm rounded-circle"><i class="bi bi-send"></i></button>
+    </form>
 </div>
 
-<div class="modal fade" id="inboxModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 rounded-4 shadow"><div class="modal-header border-0 bg-light rounded-top-4"><h5 class="fw-bold mb-0"><i class="bi bi-envelope-paper-heart me-2 text-primary"></i> <span data-i18n="counselorMsg">All Messages</span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div id="inboxList" class="list-group list-group-flush" style="max-height: 450px; overflow-y: auto;"><div class="text-center py-5 text-muted small" data-i18n="noMessages">No messages yet.</div></div></div></div></div></div>
+<div class="modal fade" id="inboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 bg-light rounded-top-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-envelope-paper-heart me-2 text-primary"></i> <span data-i18n="counselorMsg">All Messages</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="inboxList" class="list-group list-group-flush" style="max-height: 450px; overflow-y: auto;">
+                    <div class="text-center py-5 text-muted small" data-i18n="noMessages">No messages yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -208,6 +236,7 @@
     let gradeChart = null;
     let chatUnsubscribe = null;
     let hostAnnounceUnsubscribe = null;
+    let chatUnreadCount = 0;
     
     // ============ SECURE QR CODE VARIABLES ============
     let qrInterval = null;
@@ -229,49 +258,28 @@
 
     window.submitNewCourse = async () => {
         const selectedCourse = document.getElementById('newCourseSelect').value;
-        
         if (!selectedCourse) {
             Swal.fire('Error', 'Please select a course', 'error');
             return;
         }
-        
         Swal.fire({ title: 'Registering...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        
         try {
-            // Check if already registered for this course
-            const existingQuery = query(
-                collection(db, "course_registrations"), 
-                where("studentID", "==", activeID), 
-                where("course", "==", selectedCourse)
-            );
+            const existingQuery = query(collection(db, "course_registrations"), where("studentID", "==", activeID), where("course", "==", selectedCourse));
             const existingSnap = await getDocs(existingQuery);
-            
             if (!existingSnap.empty) {
                 Swal.fire('Warning', 'You are already registered for this course!', 'warning');
                 return;
             }
-            
-            // Create new registration with SAME supervisor
             const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}_${Date.now()}`;
-            
             await setDoc(doc(db, "course_registrations", uniqueDocID), {
-                studentID: activeID,
-                studentName: currentUserData.name,
-                studentRefID: currentUserData.assignedID,
-                course: selectedCourse,
-                supervisorEmail: currentUserData.supervisorEmail, // Use existing supervisor
-                quiz: 0, test: 0, midterm: 0,
-                totalMark: 0, grade: "-", status: "Pending",
-                registeredAt: serverTimestamp()
+                studentID: activeID, studentName: currentUserData.name, studentRefID: currentUserData.assignedID,
+                course: selectedCourse, supervisorEmail: currentUserData.supervisorEmail,
+                quiz: 0, test: 0, midterm: 0, totalMark: 0, grade: "-", status: "Pending", registeredAt: serverTimestamp()
             });
-            
             Swal.fire({ icon: 'success', title: 'Registered!', text: `Successfully registered for ${selectedCourse}`, timer: 2000, showConfirmButton: false });
-            
-            // Close modal and refresh data
             bootstrap.Modal.getInstance(document.getElementById('registerCourseModal')).hide();
             document.getElementById('newCourseSelect').value = '';
-            loadAcademicData(); // Refresh the course list
-            
+            loadAcademicData();
         } catch (error) {
             Swal.fire('Error', error.message, 'error');
         }
@@ -288,24 +296,14 @@
         if (!currentUserData) return;
         const studentId = currentUserData?.assignedID || activeID;
         const secureToken = generateSecureToken(studentId);
-        
         const qrContainer = document.getElementById('qrcodeContainer');
         qrContainer.innerHTML = '';
-        
         sessionStorage.setItem('qrToken', secureToken);
         sessionStorage.setItem('qrExpiry', Date.now() + 30000);
-        
         QRCode.toCanvas(document.createElement('canvas'), secureToken, { width: 180, margin: 2 }, (error, canvas) => {
-            if (error) {
-                qrContainer.innerHTML = `<div class="bg-light p-4 rounded-4"><code class="fs-6">${studentId}</code></div>`;
-            } else {
-                canvas.style.width = '180px';
-                canvas.style.height ='180px';
-                qrContainer.innerHTML = '';
-                qrContainer.appendChild(canvas);
-            }
+            if (error) { qrContainer.innerHTML = `<div class="bg-light p-4 rounded-4"><code class="fs-6">${studentId}</code></div>`; }
+            else { canvas.style.width = '180px'; canvas.style.height = '180px'; qrContainer.innerHTML = ''; qrContainer.appendChild(canvas); }
         });
-        
         updateQRCountdown();
     }
 
@@ -315,72 +313,28 @@
             const remaining = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
             const timerDiv = document.getElementById('qrTimerDisplay');
             if (timerDiv) {
-                if (remaining <= 5) {
-                    timerDiv.innerHTML = `<div class="qr-timer qr-timer-warning"><i class="bi bi-hourglass-bottom me-1"></i> ${t('qrExpiresIn')}: ${remaining} ${t('seconds')} ⚠️</div>`;
-                } else {
-                    timerDiv.innerHTML = `<div class="qr-timer text-muted"><i class="bi bi-hourglass-split me-1"></i> ${t('qrExpiresIn')}: ${remaining} ${t('seconds')}</div>`;
-                }
+                if (remaining <= 5) { timerDiv.innerHTML = `<div class="qr-timer qr-timer-warning"><i class="bi bi-hourglass-bottom me-1"></i> ${t('qrExpiresIn')}: ${remaining} ${t('seconds')} ⚠️</div>`; }
+                else { timerDiv.innerHTML = `<div class="qr-timer text-muted"><i class="bi bi-hourglass-split me-1"></i> ${t('qrExpiresIn')}: ${remaining} ${t('seconds')}</div>`; }
             }
         }
     }
 
-    function startSecureQR() {
-        generateSecureQR();
-        if (qrInterval) clearInterval(qrInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-        qrInterval = setInterval(() => { generateSecureQR(); }, 30000);
-        countdownInterval = setInterval(() => { updateQRCountdown(); }, 1000);
-    }
-
-    function stopSecureQR() {
-        if (qrInterval) clearInterval(qrInterval);
-        if (countdownInterval) clearInterval(countdownInterval);
-    }
-
-    window.refreshQRNow = () => {
-        generateSecureQR();
-        Swal.fire({ icon: 'success', title: 'QR Refreshed!', toast: true, timer: 1500, showConfirmButton: false });
-    };
-
-    window.downloadQR = () => {
-        const canvas = document.querySelector('#qrcodeContainer canvas');
-        if (canvas) {
-            const link = document.createElement('a');
-            link.download = `Secure_QR_${currentUserData?.assignedID || activeID}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-            Swal.fire({ icon: 'success', title: 'Downloaded!', text: 'Note: This QR will expire in 30 seconds.', toast: true, timer: 2000, showConfirmButton: false });
-        } else {
-            Swal.fire('Info', 'QR Code not ready yet', 'info');
-        }
-    };
+    function startSecureQR() { generateSecureQR(); if (qrInterval) clearInterval(qrInterval); if (countdownInterval) clearInterval(countdownInterval); qrInterval = setInterval(() => { generateSecureQR(); }, 30000); countdownInterval = setInterval(() => { updateQRCountdown(); }, 1000); }
+    function stopSecureQR() { if (qrInterval) clearInterval(qrInterval); if (countdownInterval) clearInterval(countdownInterval); }
+    window.refreshQRNow = () => { generateSecureQR(); Swal.fire({ icon: 'success', title: 'QR Refreshed!', toast: true, timer: 1500, showConfirmButton: false }); };
+    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `Secure_QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); Swal.fire({ icon: 'success', title: 'Downloaded!', toast: true, timer: 2000, showConfirmButton: false }); } else { Swal.fire('Info', 'QR Code not ready yet', 'info'); } };
 
     // ============ ATTENDANCE HISTORY ============
     function loadAttendanceHistory() { 
         const attendanceRef = ref(rtdb, 'kehadiran_unimap'); 
         onValue(attendanceRef, (snapshot) => { 
             const container = document.getElementById('attendanceList'); 
-            if (!snapshot.exists()) { 
-                container.innerHTML = `<div class="text-center py-3 text-muted small">${t('noAttendance')}</div>`; 
-                return; 
-            } 
+            if (!snapshot.exists()) { container.innerHTML = `<div class="text-center py-3 text-muted small">${t('noAttendance')}</div>`; return; } 
             let records = []; 
-            snapshot.forEach((dateSnap) => { 
-                const date = dateSnap.key; 
-                const dayData = dateSnap.val(); 
-                if (dayData && dayData[activeID]) { 
-                    records.push({ date: date, ...dayData[activeID] }); 
-                } 
-            }); 
+            snapshot.forEach((dateSnap) => { const date = dateSnap.key; const dayData = dateSnap.val(); if (dayData && dayData[activeID]) { records.push({ date: date, ...dayData[activeID] }); } }); 
             records.sort((a, b) => b.date.localeCompare(a.date)); 
-            if (records.length === 0) { 
-                container.innerHTML = `<div class="text-center py-3 text-muted small">${t('noAttendance')}</div>`; 
-                return; 
-            } 
-            let html = ''; 
-            records.slice(0, 10).forEach(rec => { 
-                html += `<div class="border-bottom pb-2 mb-2"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold small">📅 ${rec.date}</div><div class="small text-muted">⏰ ${rec.masa || '--:--'}</div></div><span class="badge bg-success">✅ ${t('present')}</span></div><div class="small text-muted">📍 ${rec.lokasi || 'Kampus'}</div></div>`; 
-            }); 
+            if (records.length === 0) { container.innerHTML = `<div class="text-center py-3 text-muted small">${t('noAttendance')}</div>`; return; } 
+            let html = ''; records.slice(0, 10).forEach(rec => { html += `<div class="border-bottom pb-2 mb-2"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold small">📅 ${rec.date}</div><div class="small text-muted">⏰ ${rec.masa || '--:--'}</div></div><span class="badge bg-success">✅ ${t('present')}</span></div><div class="small text-muted">📍 ${rec.lokasi || 'Kampus'}</div></div>`; }); 
             container.innerHTML = html; 
         }); 
     }
@@ -388,26 +342,32 @@
     // ============ USER VERIFICATION ============
     async function verifyUser() { 
         const userDoc = await getDoc(doc(db, "users", activeID)); 
-        if (!userDoc.exists()) { 
-            await signOut(auth); 
-            window.location.href = "index.html"; 
-            return false; 
-        } 
+        if (!userDoc.exists()) { await signOut(auth); window.location.href = "index.html"; return false; } 
         const userData = userDoc.data(); 
-        if (userData.role !== 'student') { 
-            window.location.href = "index.html"; 
-            return false; 
-        } 
-        if (userData.registrationStatus !== 'complete') { 
-            window.location.href = "register_course.html"; 
-            return false; 
-        } 
+        if (userData.role !== 'student') { window.location.href = "index.html"; return false; } 
+        if (userData.registrationStatus !== 'complete') { window.location.href = "register_course.html"; return false; } 
+        
+        // Ensure supervisor email exists
+        if (!userData.supervisorEmail) {
+            const courseQuery = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
+            const courseSnap = await getDocs(courseQuery);
+            if (!courseSnap.empty) {
+                const firstCourse = courseSnap.docs[0].data();
+                if (firstCourse.supervisorEmail) {
+                    await updateDoc(doc(db, "users", activeID), { supervisorEmail: firstCourse.supervisorEmail });
+                    userData.supervisorEmail = firstCourse.supervisorEmail;
+                }
+            }
+        }
+        
         currentUserData = userData; 
         document.getElementById('studentNameDisplay').innerText = userData.name || 'Student'; 
         document.getElementById('studentIDDisplay').innerText = userData.assignedID || activeID; 
         document.getElementById('profileName').innerText = userData.name || 'Student'; 
         document.getElementById('profileEmail').innerText = activeID; 
+        document.getElementById('supervisorEmailDisplay').innerText = userData.supervisorEmail || 'Not assigned';
         document.getElementById('profileSupervisor').innerHTML = `<i class="bi bi-person-badge me-1"></i> Supervisor: ${userData.supervisorEmail || 'Not assigned'}`; 
+        
         if (userData.psikoStatus === 'done') { 
             const resArea = document.getElementById('stressResultArea'); 
             const label = document.getElementById('stressLevelLabel'); 
@@ -432,10 +392,7 @@
         const snapC = await getDocs(qC); 
         const cContainer = document.getElementById('courseList'); 
         const mContainer = document.getElementById('materialList'); 
-        if (snapC.empty) { 
-            cContainer.innerHTML = `<div class="alert alert-warning rounded-4 p-4 text-center small">${t('noMaterials')}</div>`; 
-            return; 
-        } 
+        if (snapC.empty) { cContainer.innerHTML = `<div class="alert alert-warning rounded-4 p-4 text-center small">${t('noMaterials')}</div>`; return; } 
         let courses = [], totalMarks = 0, gradeData = []; 
         cContainer.innerHTML = ''; 
         snapC.forEach(d => { 
@@ -470,56 +427,104 @@
         if (hostAnnounceUnsubscribe) hostAnnounceUnsubscribe(); 
         hostAnnounceUnsubscribe = onSnapshot(q, (snapshot) => { 
             const container = document.getElementById('hostAnnouncements'); 
-            if (snapshot.empty) { 
-                container.innerHTML = `<div class="text-center py-4 text-muted small">📭 ${t('noAnnouncements')}</div>`; 
-                return; 
-            } 
+            if (snapshot.empty) { container.innerHTML = `<div class="text-center py-4 text-muted small">📭 ${t('noAnnouncements')}</div>`; return; } 
             let html = ''; 
             snapshot.forEach(doc => { 
                 const data = doc.data(); 
                 const date = data.timestamp?.toDate().toLocaleDateString('en-MY') || 'Just now'; 
                 let title = 'Announcement', content = data.message; 
-                if (data.message && data.message.startsWith('📢')) { 
-                    const parts = data.message.substring(2).split('\n\n'); 
-                    title = parts[0] || 'Announcement'; 
-                    content = parts[1] || data.message; 
-                } 
+                if (data.message && data.message.startsWith('📢')) { const parts = data.message.substring(2).split('\n\n'); title = parts[0] || 'Announcement'; content = parts[1] || data.message; } 
                 html += `<div class="announcement-card"><div class="d-flex justify-content-between align-items-start mb-2"><div><span class="announcement-badge me-2">📢 ${escapeHtml(data.course || 'Course')}</span><strong class="small">${escapeHtml(title)}</strong></div><small class="text-muted" style="font-size: 0.7rem;">${date}</small></div><div class="small text-muted mb-2">From: ${escapeHtml(data.sender || 'Course Coordinator')}</div><div style="white-space: pre-wrap; font-size: 0.85rem;">${escapeHtml(content)}</div></div>`; 
             }); 
             container.innerHTML = html; 
         }); 
     }
 
-    // ============ CHAT SYSTEM ============
+    // ============ CHAT SYSTEM (FIXED) ============
+    let chatMessagesSeen = true;
+    
     window.toggleChat = () => { 
         const box = document.getElementById('chatBox'); 
-        box.style.display = box.style.display === 'flex' ? 'none' : 'flex'; 
-        if (box.style.display === 'flex') loadChat(); 
+        const isOpening = box.style.display !== 'flex';
+        box.style.display = isOpening ? 'flex' : 'none'; 
+        if (isOpening) {
+            chatMessagesSeen = true;
+            document.getElementById('chatUnreadBadge').style.display = 'none';
+            chatUnreadCount = 0;
+            loadChat(); 
+        }
     };
+    
     function loadChat() { 
-        if (!currentUserData?.supervisorEmail) return; 
+        if (!currentUserData?.supervisorEmail) {
+            document.getElementById('chatMessages').innerHTML = '<div class="text-center text-muted p-3">No supervisor assigned yet. Please register for a course first.</div>';
+            return; 
+        }
+        
         const msgDiv = document.getElementById('chatMessages'); 
         const q = query(collection(db, "chats"), where("studentID", "==", activeID), where("supervisorEmail", "==", currentUserData.supervisorEmail), orderBy("timestamp", "asc")); 
         if (chatUnsubscribe) chatUnsubscribe(); 
         chatUnsubscribe = onSnapshot(q, (snap) => { 
             msgDiv.innerHTML = ''; 
+            if (snap.empty) {
+                msgDiv.innerHTML = '<div class="text-center text-muted p-3">No messages yet. Start a conversation with your supervisor!</div>';
+            }
+            let newMessages = false;
             snap.forEach(doc => { 
                 const m = doc.data(); 
                 const isMe = m.sender === activeID; 
-                msgDiv.innerHTML += `<div class="msg ${isMe ? 'msg-me' : 'msg-them'}">${escapeHtml(m.text)}</div>`; 
+                const senderName = isMe ? 'You' : 'Supervisor';
+                const isRead = m.read || isMe;
+                if (!isRead && !isMe && !chatMessagesSeen) {
+                    newMessages = true;
+                }
+                msgDiv.innerHTML += `
+                    <div class="msg ${isMe ? 'msg-me' : 'msg-them'} animate__animated animate__fadeInUp">
+                        <div class="small fw-bold mb-1">${senderName}</div>
+                        <div>${escapeHtml(m.text)}</div>
+                        <div class="small opacity-50 mt-1" style="font-size: 0.6rem;">${m.timestamp?.toDate().toLocaleTimeString() || 'Just now'}</div>
+                    </div>
+                `; 
             }); 
-            msgDiv.scrollTop = msgDiv.scrollHeight; 
+            msgDiv.scrollTop = msgDiv.scrollHeight;
+            
+            if (newMessages && document.getElementById('chatBox').style.display !== 'flex') {
+                chatUnreadCount++;
+                document.getElementById('chatUnreadBadge').style.display = 'flex';
+                document.getElementById('chatUnreadBadge').innerText = chatUnreadCount;
+            }
         }); 
     }
+    
     document.getElementById('chatForm').onsubmit = async (e) => { 
         e.preventDefault(); 
         const input = document.getElementById('chatInput'); 
-        if (!input.value.trim() || !currentUserData?.supervisorEmail) return; 
-        await addDoc(collection(db, "chats"), { studentID: activeID, supervisorEmail: currentUserData.supervisorEmail, sender: activeID, text: input.value, timestamp: serverTimestamp() }); 
-        input.value = ''; 
+        if (!input.value.trim()) {
+            Swal.fire({ icon: 'warning', title: 'Empty message', text: 'Please type a message first.', toast: true, timer: 1500 });
+            return;
+        }
+        if (!currentUserData?.supervisorEmail) {
+            Swal.fire({ icon: 'error', title: 'No Supervisor', text: 'You don\'t have a supervisor assigned yet. Please register for a course first.' });
+            return;
+        }
+        try {
+            await addDoc(collection(db, "chats"), { 
+                studentID: activeID, 
+                supervisorEmail: currentUserData.supervisorEmail, 
+                sender: activeID, 
+                senderName: currentUserData.name || 'Student',
+                text: input.value, 
+                timestamp: serverTimestamp(),
+                read: false
+            }); 
+            input.value = ''; 
+            chatMessagesSeen = true;
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Failed', text: 'Message could not be sent.' });
+        }
     };
 
-    // ============ NOTIFICATIONS ============
+    // ============ NOTIFICATIONS (FIXED - includes counselor messages) ============
     function listenToNotifications() { 
         const qNotify = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc")); 
         onSnapshot(qNotify, (snapshot) => { 
@@ -528,25 +533,55 @@
             let unreadCount = 0; 
             let messages = []; 
             snapshot.forEach(doc => messages.push({ id: doc.id, ...doc.data() })); 
+            
             if (messages.length === 0) { 
                 inboxList.innerHTML = `<div class="text-center py-5 text-muted small">${t('noMessages')}</div>`; 
                 badge.style.display = 'none'; 
                 document.getElementById('unreadCount').innerText = '0'; 
                 return; 
             } 
+            
             inboxList.innerHTML = ''; 
             messages.forEach((msg) => { 
                 const isUnread = msg.status === "unread"; 
                 if (isUnread) unreadCount++; 
-                const senderIcon = msg.senderType === 'host' ? '📢' : '💬'; 
-                const senderLabel = msg.senderType === 'host' ? 'Course Coordinator' : (msg.sender || 'Counselor'); 
-                inboxList.innerHTML += `<div class="list-group-item p-3 border-0 border-bottom ${isUnread ? 'bg-primary bg-opacity-10' : ''}"><div class="d-flex justify-content-between mb-1"><small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'}">${senderIcon} ${escapeHtml(senderLabel)}</small>${isUnread ? '<span class="badge bg-primary rounded-pill">New</span>' : ''}</div><p class="mb-0 small">${escapeHtml(msg.message)}</p><small class="text-muted" style="font-size: 0.65rem;">${msg.timestamp?.toDate().toLocaleString() || 'Just now'}</small></div>`; 
+                
+                let senderIcon = '💬';
+                let senderLabel = msg.sender || 'Unknown';
+                let senderColor = '';
+                
+                if (msg.senderType === 'host') {
+                    senderIcon = '📢';
+                    senderLabel = 'Course Coordinator';
+                    senderColor = 'text-warning';
+                } else if (msg.sender === 'Counselor' || msg.senderType === 'counselor') {
+                    senderIcon = '💚';
+                    senderLabel = 'Counselor';
+                    senderColor = 'text-success';
+                } else if (msg.sender === 'Supervisor (RPS)' || msg.senderType === 'supervisor') {
+                    senderIcon = '👨‍🏫';
+                    senderLabel = 'Supervisor (RPS)';
+                    senderColor = 'text-primary';
+                }
+                
+                inboxList.innerHTML += `
+                    <div class="list-group-item p-3 border-0 border-bottom ${isUnread ? 'bg-primary bg-opacity-10' : ''}">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="fw-bold ${isUnread ? 'text-primary' : 'text-muted'} ${senderColor}">${senderIcon} ${escapeHtml(senderLabel)}</small>
+                            ${isUnread ? '<span class="badge bg-primary rounded-pill">New</span>' : ''}
+                        </div>
+                        <p class="mb-0 small" style="white-space: pre-wrap;">${escapeHtml(msg.message)}</p>
+                        <small class="text-muted" style="font-size: 0.65rem;">${msg.timestamp?.toDate().toLocaleString() || 'Just now'}</small>
+                    </div>
+                `; 
             }); 
+            
             badge.innerText = unreadCount; 
             badge.style.display = unreadCount > 0 ? 'inline-block' : 'none'; 
             document.getElementById('unreadCount').innerText = unreadCount; 
         }); 
     }
+    
     window.openInbox = async () => { 
         new bootstrap.Modal(document.getElementById('inboxModal')).show(); 
         const q = query(collection(db, "notifications"), where("studentID", "==", activeID), where("status", "==", "unread")); 
@@ -576,38 +611,18 @@
     window.viewProfile = () => { 
         Swal.fire({ title: 'Student Profile', html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>Email:</strong> ${activeID}<br><strong>Student ID:</strong> ${currentUserData.assignedID}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`, icon: 'info' }); 
     };
-    window.logout = async () => { 
-        stopSecureQR();
-        await signOut(auth); 
-        sessionStorage.clear(); 
-        window.location.href = "index.html"; 
-    };
-    window.toggleLanguage = () => { 
-        currentLang = currentLang === 'en' ? 'ms' : 'en'; 
-        document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN'; 
-        applyTranslations(); 
-        loadAcademicData(); 
-    };
+    window.logout = async () => { stopSecureQR(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+    window.toggleLanguage = () => { currentLang = currentLang === 'en' ? 'ms' : 'en'; document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN'; applyTranslations(); loadAcademicData(); };
     function applyTranslations() { 
-        document.querySelectorAll('[data-i18n]').forEach(el => { 
-            const key = el.getAttribute('data-i18n'); 
-            if (el.tagName === 'INPUT' && el.placeholder) el.placeholder = t(key); 
-            else el.innerText = t(key); 
-        }); 
+        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (el.tagName === 'INPUT' && el.placeholder) el.placeholder = t(key); else el.innerText = t(key); }); 
         document.getElementById('chatInput').placeholder = t('chatWith') + "..."; 
         if (currentUserData?.psikoStatus === 'done') document.getElementById('btnPsiko').innerHTML = `<i class="bi bi-robot me-2"></i> ${t('btnAIUpdate')}`; 
     }
-    window.toggleDarkMode = () => { 
-        document.body.classList.toggle('dark-mode'); 
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); 
-    };
+    window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
-    function escapeHtml(str) { 
-        if (!str) return ''; 
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); 
-    }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
     // ============ INITIALIZATION ============
     await verifyUser();
