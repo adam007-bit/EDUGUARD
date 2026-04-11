@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGuard | Course Coordinator Control Panel</title>
+    <title>Smart Rakan Pembimbing Siswa (RPS) | Course Coordinator Control Panel</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -138,6 +138,14 @@
             border-color: var(--primary);
         }
         
+        /* Announcement history styles */
+        .announcement-item {
+            transition: all 0.2s;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .announcement-item:last-child { border-bottom: none; }
+        .announcement-item:hover { background: #f8fafc; }
+        
         @media (max-width: 768px) {
             .stat-card { padding: 15px; }
             .stat-card h3 { font-size: 1.5rem; }
@@ -225,7 +233,7 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-outline-danger w-100" onclick="sendClassAnnouncement()" data-i18n="btnAnnounce">
+                        <button class="btn btn-outline-danger w-100" onclick="openAnnouncementModal()" data-i18n="btnAnnounce">
                             <i class="bi bi-megaphone"></i>
                         </button>
                     </div>
@@ -293,6 +301,40 @@
         </div>
 
         <div class="col-lg-4">
+            <!-- ANNOUNCEMENT SECTION - NEW! -->
+            <div class="glass-card p-4 mb-4" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: none;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i><span data-i18n="announceTitle">Send Announcement</span></h5>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" data-i18n="selectCourse">Course</label>
+                    <select id="announceCourse" class="form-select">
+                        <option value="all">📢 All Courses</option>
+                        <option value="Software Engineering">💻 Software Engineering</option>
+                        <option value="IoT Systems">📡 IoT Systems</option>
+                        <option value="Data Analytics">📊 Data Analytics</option>
+                        <option value="AI Solutions">🤖 AI Solutions</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" data-i18n="announceTitleLabel">Title</label>
+                    <input type="text" id="announceTitle" class="form-control" placeholder="e.g., Assignment Deadline Extended">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" data-i18n="announceMessageLabel">Message</label>
+                    <textarea id="announceMessage" class="form-control" rows="3" placeholder="Write your announcement here..."></textarea>
+                </div>
+                <button class="btn btn-warning w-100 py-3 fw-bold shadow-sm" onclick="sendAnnouncement()">
+                    <i class="bi bi-send me-2"></i> <span data-i18n="btnSendAnnounce">Send to Students</span>
+                </button>
+            </div>
+            
+            <!-- Announcement History - NEW! -->
+            <div class="glass-card p-4 mb-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Announcements</h6>
+                <div id="announcementHistory" class="small">
+                    <div class="text-center py-3 text-muted">No announcements sent yet.</div>
+                </div>
+            </div>
+
             <!-- Resource Center -->
             <div class="glass-card p-4 mb-4">
                 <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill text-primary me-2"></i><span data-i18n="resTitle">Resource Center</span></h5>
@@ -344,8 +386,9 @@
     let currentGradeFilter = 'all';
     let gradeChart = null;
     let studentNameCache = new Map();
+    let currentUserEmail = '';
 
-    // Translations
+    // Translations (updated with new keys)
     const translations = {
         en: {
             statAvg: "AVERAGE SCORE", statPass: "PASSED", statFail: "AT RISK", statPending: "PENDING",
@@ -354,7 +397,11 @@
             labelQuiz: "Quiz (20%)", labelTest: "Test (30%)", labelMid: "Midterm (50%)", 
             currentAnalysis: "Calculated Grade", btnSave: "Save Score", resTitle: "Resource Center",
             resMaterial: "Material Title", resLink: "Resource Link / URL", btnPublish: "Publish Material",
-            btnAnnounce: "Notify", failed: "FAILED", pending: "PENDING", A: "A", B: "B", C: "C"
+            btnAnnounce: "Announce", failed: "FAILED", pending: "PENDING", A: "A", B: "B", C: "C",
+            announceTitle: "Send Announcement", selectCourse: "Course", announceTitleLabel: "Title",
+            announceMessageLabel: "Message", btnSendAnnounce: "Send to Students",
+            announceSuccess: "Announcement Sent!", announceSuccessText: "sent to students",
+            announceFailed: "Failed to send"
         },
         ms: {
             statAvg: "PURATA MARKAH", statPass: "LULUS", statFail: "BERISIKO", statPending: "TUNGGU",
@@ -363,7 +410,11 @@
             labelQuiz: "Kuiz (20%)", labelTest: "Ujian (30%)", labelMid: "Peperiksaan (50%)",
             currentAnalysis: "Gred Dikira", btnSave: "Simpan", resTitle: "Pusat Sumber",
             resMaterial: "Tajuk Bahan", resLink: "Pautan / URL", btnPublish: "Terbitkan",
-            btnAnnounce: "Maklum", failed: "GAGAL", pending: "TIADA", A: "A", B: "B", C: "C"
+            btnAnnounce: "Hebahan", failed: "GAGAL", pending: "TIADA", A: "A", B: "B", C: "C",
+            announceTitle: "Hantar Hebahan", selectCourse: "Kursus", announceTitleLabel: "Tajuk",
+            announceMessageLabel: "Mesej", btnSendAnnounce: "Hantar ke Pelajar",
+            announceSuccess: "Hebahan Dihantar!", announceSuccessText: "dihantar kepada pelajar",
+            announceFailed: "Gagal menghantar"
         }
     };
 
@@ -386,9 +437,124 @@
             return;
         }
         
+        currentUserEmail = user.email;
         document.getElementById('hostName').innerText = userDoc.data().name || 'Coordinator';
         loadMaterials();
+        loadAnnouncementHistory();
     });
+
+    // ============ NEW: SEND ANNOUNCEMENT FUNCTION ============
+    window.sendAnnouncement = async () => {
+        const course = document.getElementById('announceCourse').value;
+        const title = document.getElementById('announceTitle').value.trim();
+        const message = document.getElementById('announceMessage').value.trim();
+        
+        if (!title || !message) {
+            Swal.fire('Error', 'Please fill both title and message', 'error');
+            return;
+        }
+        
+        Swal.fire({ title: t('announceSuccess'), text: 'Sending...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        try {
+            // Get all students in the selected course
+            let studentsQuery;
+            if (course === 'all') {
+                studentsQuery = query(collection(db, "course_registrations"));
+            } else {
+                studentsQuery = query(collection(db, "course_registrations"), where("course", "==", course));
+            }
+            
+            const studentsSnap = await getDocs(studentsQuery);
+            const studentIds = [...new Set(studentsSnap.docs.map(doc => doc.data().studentID))];
+            
+            if (studentIds.length === 0) {
+                Swal.fire('Info', 'No students found for this course', 'info');
+                return;
+            }
+            
+            // Send notification to each student
+            const notifications = studentIds.map(studentId => 
+                addDoc(collection(db, "notifications"), {
+                    studentID: studentId,
+                    message: `📢 **${title}**\n\n${message}`,
+                    sender: "Course Coordinator",
+                    senderType: "host",
+                    course: course === 'all' ? 'All Courses' : course,
+                    status: "unread",
+                    timestamp: serverTimestamp()
+                })
+            );
+            
+            // Also save to announcement history
+            await addDoc(collection(db, "announcements"), {
+                title: title,
+                message: message,
+                course: course,
+                sender: currentUserEmail,
+                recipientCount: studentIds.length,
+                timestamp: serverTimestamp()
+            });
+            
+            await Promise.all(notifications);
+            
+            Swal.fire({
+                icon: 'success',
+                title: t('announceSuccess'),
+                text: `Announcement sent to ${studentIds.length} students`,
+                timer: 2500,
+                showConfirmButton: false
+            });
+            
+            // Clear form
+            document.getElementById('announceTitle').value = '';
+            document.getElementById('announceMessage').value = '';
+            
+            // Refresh announcement history
+            loadAnnouncementHistory();
+            
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', error.message, 'error');
+        }
+    };
+    
+    // ============ NEW: LOAD ANNOUNCEMENT HISTORY ============
+    async function loadAnnouncementHistory() {
+        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+        const container = document.getElementById('announcementHistory');
+        
+        if (snap.empty) {
+            container.innerHTML = '<div class="text-center py-3 text-muted">No announcements sent yet.</div>';
+            return;
+        }
+        
+        let html = '';
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now';
+            const courseName = data.course === 'all' ? 'All Courses' : data.course;
+            
+            html += `
+                <div class="announcement-item py-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="fw-bold text-primary" style="font-size: 0.8rem;">📢 ${escapeHtml(data.title)}</div>
+                        <small class="text-muted">${date}</small>
+                    </div>
+                    <div class="text-muted small mb-1">To: ${courseName} (${data.recipientCount || 0} students)</div>
+                    <div class="small text-dark" style="white-space: pre-wrap;">${escapeHtml(data.message.substring(0, 100))}${data.message.length > 100 ? '...' : ''}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    // ============ OPEN ANNOUNCEMENT MODAL (simple scroll) ============
+    window.openAnnouncementModal = () => {
+        document.getElementById('announceTitle').focus();
+        window.scrollTo({ top: document.querySelector('.glass-card[style*="background: linear-gradient"]').offsetTop - 80, behavior: 'smooth' });
+    };
 
     async function fetchStudentName(studentId) {
         if (studentNameCache.has(studentId)) return studentNameCache.get(studentId);
@@ -519,18 +685,18 @@
 
     window.liveGrade = () => {
         const q = Number(document.getElementById('quiz').value) || 0;
-        const t = Number(document.getElementById('test').value) || 0;
+        const tVal = Number(document.getElementById('test').value) || 0;
         const m = Number(document.getElementById('midterm').value) || 0;
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
+        const total = (q * 0.2) + (tVal * 0.3) + (m * 0.5);
         let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? t('failed') : "-");
         document.getElementById('liveGradeText').innerHTML = `${grade} <span style="font-size:0.9rem;">(${total.toFixed(1)}%)</span>`;
     };
 
-    window.prepareEdit = (id, name, q, t, m) => {
+    window.prepareEdit = (id, name, q, tVal, m) => {
         document.getElementById('currentDocId').value = id;
         document.getElementById('displayStudentName').innerText = name;
         document.getElementById('quiz').value = q;
-        document.getElementById('test').value = t;
+        document.getElementById('test').value = tVal;
         document.getElementById('midterm').value = m;
         document.getElementById('editForm').style.display = 'block';
         liveGrade();
@@ -541,14 +707,14 @@
         const id = document.getElementById('currentDocId').value;
         if (!id) return;
         const q = Number(document.getElementById('quiz').value) || 0;
-        const t = Number(document.getElementById('test').value) || 0;
+        const tVal = Number(document.getElementById('test').value) || 0;
         const m = Number(document.getElementById('midterm').value) || 0;
-        const total = (q * 0.2) + (t * 0.3) + (m * 0.5);
+        const total = (q * 0.2) + (tVal * 0.3) + (m * 0.5);
         let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : t('failed');
 
         try {
             await updateDoc(doc(db, "course_registrations", id), {
-                quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade,
+                quiz: q, test: tVal, midterm: m, totalMark: total.toFixed(2), grade,
                 lastUpdated: serverTimestamp()
             });
             Swal.fire({ icon: 'success', title: 'Saved!', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
@@ -564,7 +730,6 @@
     };
 
     window.closeEditForm = () => { document.getElementById('editForm').style.display = 'none'; };
-    window.sendClassAnnouncement = () => { Swal.fire({ title: 'Class Announcement', input: 'textarea', inputLabel: 'Message to all students', confirmButtonText: 'Broadcast' }); };
 
     window.exportGradebook = () => {
         if (!currentStudentsData.length) return Swal.fire('No data', 'Please load a course first', 'warning');
