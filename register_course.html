@@ -3,69 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa (RPS)| Course Registration</title>
+    <title>Smart RPS | Student Course Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
-        .reg-card { border: none; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); background: white; width: 100%; max-width: 450px; padding: 30px; }
-        .form-control, .form-select { border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; background-color: #f8fafc; }
-        .btn-primary { border-radius: 12px; padding: 14px; font-weight: 700; background: #4361ee; border: none; width: 100%; transition: 0.3s; }
-        .btn-primary:hover { background: #3046bd; transform: translateY(-2px); }
-        .lang-btn { position: absolute; top: 20px; right: 20px; }
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            position: relative;
+        }
+        
+        .reg-card { 
+            border: none; 
+            border-radius: 32px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
+            background: white; 
+            width: 100%; 
+            max-width: 550px; 
+            padding: 35px;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-control, .form-select { 
+            border-radius: 14px; 
+            padding: 12px 16px; 
+            border: 1.5px solid #e2e8f0; 
+            background-color: #ffffff; 
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            outline: none;
+        }
+        
+        .btn-primary { 
+            border-radius: 14px; 
+            padding: 14px; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none; 
+            width: 100%; 
+            transition: all 0.3s; 
+        }
+        
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 20px -5px rgba(102,126,234,0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+        
+        .course-option {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .course-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .course-option.selected {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-left: 4px solid #667eea;
+        }
+        
+        .lang-btn { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+        }
+        
+        .step .circle {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+        
+        .step.active .circle {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+        }
+        
+        .step.completed .circle {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step .label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        
+        .step.active .label {
+            color: #667eea;
+        }
+        
+        .info-badge {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 1.5s infinite;
+        }
     </style>
 </head>
 <body>
 
 <div class="lang-btn">
-    <button onclick="toggleLanguage()" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold bg-white shadow-sm">
+    <button onclick="toggleLanguage()" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold shadow-sm">
         <i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span>
     </button>
 </div>
 
 <div class="reg-card">
-    <div class="text-center mb-4">
-        <div class="bg-primary text-white d-inline-block p-3 rounded-circle mb-3">
-            <i class="bi bi-person-badge fs-3"></i>
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step active" id="step1">
+            <div class="circle">1</div>
+            <div class="label" data-i18n="stepProfile">Profile</div>
         </div>
-        <h3 class="fw-bold" data-i18n="regTitle">Course Registration</h3>
-        <p class="text-muted small" data-i18n="regSubtitle">Please select your course and supervisor.</p>
+        <div class="step" id="step2">
+            <div class="circle">2</div>
+            <div class="label" data-i18n="stepCourse">Course</div>
+        </div>
+        <div class="step" id="step3">
+            <div class="circle">3</div>
+            <div class="label" data-i18n="stepConfirm">Confirm</div>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <div class="bg-gradient-to-br text-white d-inline-block p-3 rounded-3 mb-3" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <i class="bi bi-journal-bookmark-fill fs-2"></i>
+        </div>
+        <h3 class="fw-bold mb-1" data-i18n="regTitle">Academic Registration</h3>
+        <p class="text-muted small" data-i18n="regSubtitle">Complete your profile to begin your learning journey</p>
     </div>
 
     <form id="courseRegForm">
-        <div class="mb-3">
-            <label class="fw-semibold small mb-2" data-i18n="labelID">Username/Email</label>
-            <input type="text" id="displayID" class="form-control fw-bold text-muted" readonly>
+        <!-- Step 1: Personal Information -->
+        <div id="step1Content">
+            <div class="info-badge">
+                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                <small class="text-muted" data-i18n="infoMsg">Please provide your full name as it will appear on your official records.</small>
+            </div>
+            
+            <div class="mb-3">
+                <label class="fw-semibold small mb-2" data-i18n="labelFullName">Full Name</label>
+                <input type="text" id="fullName" class="form-control" placeholder="Ahmad bin Abdullah" required>
+                <small class="text-muted" style="font-size: 0.7rem;">This will be your display name</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-semibold small mb-2" data-i18n="labelEmail">Email Address</label>
+                <input type="text" id="displayID" class="form-control fw-bold text-muted" readonly>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label class="fw-semibold small mb-2" data-i18n="labelCourse">Select Course</label>
-            <select id="course" class="form-select" required>
-                <option value="" data-i18n="optChooseCourse">-- Choose Course --</option>
-                <option value="Software Engineering">Software Engineering</option>
-                <option value="IoT Systems">IoT Systems</option>
-                <option value="Data AI & Robotics">Data AI & Robotics</option>
-                <option value="Cyber Security">Cyber Security</option>
-            </select>
+        <!-- Step 2: Course & Supervisor Selection -->
+        <div id="step2Content" style="display: none;">
+            <div class="mb-3">
+                <label class="fw-semibold small mb-2" data-i18n="labelCourse">Select Your Program</label>
+                <div id="courseList" class="d-flex flex-column gap-2">
+                    <!-- Dynamic course cards will appear here -->
+                </div>
+                <input type="hidden" id="selectedCourse" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="fw-semibold small mb-2" data-i18n="labelSupervisor">Academic Supervisor (RPS)</label>
+                <select id="supervisor" class="form-select" required>
+                    <option value="" data-i18n="optLoading">Loading supervisors...</option>
+                </select>
+                <small class="text-muted" style="font-size: 0.7rem;">Your assigned academic advisor will guide you throughout the program</small>
+            </div>
         </div>
 
-        <div class="mb-4">
-            <label class="fw-semibold small mb-2" data-i18n="labelSupervisor">Supervisor (RPS)</label>
-            <select id="supervisor" class="form-select" required>
-                <option value="" data-i18n="optLoading">Loading list...</option>
-            </select>
+        <!-- Step 3: Confirmation -->
+        <div id="step3Content" style="display: none;">
+            <div class="info-badge bg-primary bg-opacity-10 border-0">
+                <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                <strong data-i18n="confirmTitle">Please review your information</strong>
+            </div>
+            
+            <div class="border rounded-3 p-3 mb-3">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted" data-i18n="confirmName">Full Name:</span>
+                    <span id="confirmFullName" class="fw-bold">-</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted" data-i18n="confirmEmail">Email ID:</span>
+                    <span id="confirmEmail" class="fw-bold">-</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted" data-i18n="confirmCourse">Program:</span>
+                    <span id="confirmCourse" class="fw-bold text-primary">-</span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted" data-i18n="confirmSupervisor">Supervisor:</span>
+                    <span id="confirmSupervisor" class="fw-bold">-</span>
+                </div>
+            </div>
+            
+            <div class="alert alert-warning small">
+                <i class="bi bi-shield-exclamation me-2"></i>
+                <span data-i18n="confirmWarning">Please ensure all information is correct. Changes cannot be made after submission.</span>
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-primary shadow-sm" data-i18n="btnConfirm">CONFIRM REGISTRATION</button>
-        <button type="button" class="btn btn-link w-100 mt-2 text-decoration-none text-muted small" onclick="window.location.href='student-view.html'" data-i18n="btnCancel">Cancel & Return</button>
+        <!-- Navigation Buttons -->
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" id="prevBtn" class="btn btn-outline-secondary" style="display: none;" onclick="prevStep()">
+                <i class="bi bi-arrow-left me-1"></i> <span data-i18n="btnPrev">Back</span>
+            </button>
+            <button type="button" id="nextBtn" class="btn btn-primary" onclick="nextStep()">
+                <span data-i18n="btnNext">Continue</span> <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+            <button type="submit" id="submitBtn" class="btn btn-primary" style="display: none;">
+                <i class="bi bi-check-lg me-1"></i> <span data-i18n="btnConfirm">Register Now</span>
+            </button>
+        </div>
+        
+        <button type="button" class="btn btn-link w-100 mt-3 text-decoration-none text-muted small" onclick="window.location.href='index.html'">
+            <i class="bi bi-box-arrow-right me-1"></i> <span data-i18n="btnCancel">Cancel & Logout</span>
+        </button>
     </form>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, updateDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, updateDoc, setDoc, collection, query, where, getDocs, runTransaction, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -78,118 +297,331 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     // Multi-Language Setup
     let currentLang = 'en';
+    let currentStep = 1;
+    let selectedCourseObj = null;
+    
     const translations = {
         en: {
-            regTitle: "Course Registration", regSubtitle: "Register your academic profile.",
-            labelID: "Username / Log-in ID", labelCourse: "Select Course", optChooseCourse: "-- Choose Course --",
-            labelSupervisor: "Supervisor (RPS)", optLoading: "Loading...", optChooseSV: "-- Choose Supervisor --",
-            btnConfirm: "CONFIRM REGISTRATION", btnCancel: "Cancel & Return",
-            swalSaving: "Generating Student ID...", swalSuccess: "Registered Successfully!",
-            swalText: "Your Official ID is:", swalError: "Error loading data"
+            regTitle: "Academic Registration", regSubtitle: "Complete your profile to begin your learning journey",
+            stepProfile: "Profile", stepCourse: "Course", stepConfirm: "Confirm",
+            infoMsg: "Please provide your full name as it will appear on your official records.",
+            labelFullName: "Full Name", labelEmail: "Email Address", labelCourse: "Select Your Program",
+            labelSupervisor: "Academic Supervisor (RPS)", optLoading: "Loading supervisors...",
+            optChooseSV: "-- Choose Supervisor --", btnPrev: "Back", btnNext: "Continue",
+            btnConfirm: "Register Now", btnCancel: "Cancel & Logout",
+            confirmTitle: "Please review your information", confirmName: "Full Name:",
+            confirmEmail: "Email ID:", confirmCourse: "Program:", confirmSupervisor: "Supervisor:",
+            confirmWarning: "Please ensure all information is correct. Changes cannot be made after submission.",
+            swalSaving: "Processing Registration...", swalSuccess: "Registration Successful!",
+            swalText: "Your Student ID is:", swalError: "Registration Failed",
+            existingReg: "You have already registered for a course.",
+            invalidRole: "Invalid user role.",
+            missingName: "Please enter your full name.",
+            missingCourse: "Please select a course.",
+            missingSupervisor: "Please select a supervisor.",
+            courseSE: "Software Engineering", courseSEdesc: "Full-stack development, mobile apps, and software architecture",
+            courseIoT: "IoT Systems", courseIoTdesc: "Connected devices, sensors, and embedded systems",
+            courseAI: "Data AI & Robotics", courseAIdesc: "Machine learning, data science, and autonomous systems",
+            courseCyber: "Cyber Security", courseCyberdesc: "Network security, ethical hacking, and digital forensics"
         },
         ms: {
-            regTitle: "Pendaftaran Kursus", regSubtitle: "Daftar profil akademik anda.",
-            labelID: "ID Nama Pengguna / Log-masuk", labelCourse: "Pilih Kursus", optChooseCourse: "-- Pilih Kursus --",
-            labelSupervisor: "Penyelia (RPS)", optLoading: "Memuatkan...", optChooseSV: "-- Pilih Penyelia --",
-            btnConfirm: "SAHKAN PENDAFTARAN", btnCancel: "Batal & Kembali",
-            swalSaving: "Menjana ID Pelajar...", swalSuccess: "Pendaftaran Berjaya!",
-            swalText: "ID Rasmi anda ialah:", swalError: "Ralat memuatkan data"
+            regTitle: "Pendaftaran Akademik", regSubtitle: "Lengkapkan profil anda untuk memulakan pembelajaran",
+            stepProfile: "Profil", stepCourse: "Kursus", stepConfirm: "Sahkan",
+            infoMsg: "Sila berikan nama penuh anda seperti yang akan dipaparkan dalam rekod rasmi.",
+            labelFullName: "Nama Penuh", labelEmail: "Alamat Emel", labelCourse: "Pilih Program Anda",
+            labelSupervisor: "Penyelia Akademik (RPS)", optLoading: "Memuatkan penyelia...",
+            optChooseSV: "-- Pilih Penyelia --", btnPrev: "Kembali", btnNext: "Teruskan",
+            btnConfirm: "Daftar Sekarang", btnCancel: "Batal & Keluar",
+            confirmTitle: "Sila semak maklumat anda", confirmName: "Nama Penuh:",
+            confirmEmail: "ID Emel:", confirmCourse: "Program:", confirmSupervisor: "Penyelia:",
+            confirmWarning: "Pastikan semua maklumat adalah betul. Perubahan tidak boleh dibuat selepas penyerahan.",
+            swalSaving: "Memproses Pendaftaran...", swalSuccess: "Pendaftaran Berjaya!",
+            swalText: "ID Pelajar anda ialah:", swalError: "Pendaftaran Gagal",
+            existingReg: "Anda telah pun berdaftar untuk kursus.",
+            invalidRole: "Peranan pengguna tidak sah.",
+            missingName: "Sila masukkan nama penuh anda.",
+            missingCourse: "Sila pilih kursus.",
+            missingSupervisor: "Sila pilih penyelia.",
+            courseSE: "Kejuruteraan Perisian", courseSEdesc: "Pembangunan full-stack, aplikasi mudah alih, dan seni bina perisian",
+            courseIoT: "Sistem IoT", courseIoTdesc: "Peranti bersambung, penderia, dan sistem terbenam",
+            courseAI: "Data AI & Robotik", courseAIdesc: "Pembelajaran mesin, sains data, dan sistem autonomi",
+            courseCyber: "Keselamatan Siber", courseCyberdesc: "Keselamatan rangkaian, etika hacking, dan forensik digital"
         }
     };
+
+    function t(key) { return translations[currentLang][key] || key; }
 
     window.toggleLanguage = () => {
         currentLang = currentLang === 'en' ? 'ms' : 'en';
         document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN';
         applyTranslations();
+        renderCourseList();
         loadSupervisors();
     };
 
     function applyTranslations() {
         document.querySelectorAll('[data-i18n]').forEach(el => {
-            el.innerText = translations[currentLang][el.getAttribute('data-i18n')];
+            el.innerText = t(el.getAttribute('data-i18n'));
         });
     }
 
-    const activeID = sessionStorage.getItem("activeUser");
-    let studentFullName = sessionStorage.getItem("tempRegName") || "Student";
+    // Courses with icons and descriptions
+    const courses = [
+        { value: "Software Engineering", icon: "bi-code-square", color: "#3b82f6", translationKey: "courseSE" },
+        { value: "IoT Systems", icon: "bi-cpu", color: "#10b981", translationKey: "courseIoT" },
+        { value: "Data AI & Robotics", icon: "bi-robot", color: "#8b5cf6", translationKey: "courseAI" },
+        { value: "Cyber Security", icon: "bi-shield-lock", color: "#ef4444", translationKey: "courseCyber" }
+    ];
 
-    if (!activeID) window.location.href = "index.html";
-    else document.getElementById('displayID').value = activeID;
+    function renderCourseList() {
+        const container = document.getElementById('courseList');
+        container.innerHTML = courses.map(course => `
+            <div class="course-option border rounded-3 p-3 d-flex align-items-center" data-course="${course.value}" onclick="selectCourse('${course.value}')">
+                <div class="rounded-3 p-2 me-3" style="background: ${course.color}20; color: ${course.color}">
+                    <i class="bi ${course.icon} fs-4"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold">${t(course.translationKey)}</div>
+                    <small class="text-muted">${t(course.translationKey + 'desc')}</small>
+                </div>
+                <div class="course-check">
+                    <i class="bi bi-circle text-muted fs-5"></i>
+                </div>
+            </div>
+        `).join('');
+    }
 
-    // Load Supervisors from Firestore
+    window.selectCourse = (courseValue) => {
+        selectedCourseObj = courses.find(c => c.value === courseValue);
+        document.getElementById('selectedCourse').value = courseValue;
+        
+        // Update UI
+        document.querySelectorAll('.course-option').forEach(opt => {
+            opt.classList.remove('selected');
+            const checkIcon = opt.querySelector('.course-check i');
+            checkIcon.className = 'bi bi-circle text-muted fs-5';
+        });
+        const selected = document.querySelector(`.course-option[data-course="${courseValue}"]`);
+        selected.classList.add('selected');
+        const checkIcon = selected.querySelector('.course-check i');
+        checkIcon.className = 'bi bi-check-circle-fill text-primary fs-5';
+    };
+
+    // Load Supervisors
     async function loadSupervisors() {
         const svDropdown = document.getElementById('supervisor');
         try {
             const q = query(collection(db, "users"), where("role", "==", "supervisor"));
             const snap = await getDocs(q);
-            svDropdown.innerHTML = `<option value="">${translations[currentLang].optChooseSV}</option>`;
+            svDropdown.innerHTML = `<option value="">${t('optChooseSV')}</option>`;
             snap.forEach(doc => {
-                svDropdown.innerHTML += `<option value="${doc.data().email}">${doc.data().name}</option>`;
+                svDropdown.innerHTML += `<option value="${doc.data().email}">${doc.data().name} (${doc.data().email})</option>`;
             });
-        } catch (e) { svDropdown.innerHTML = `<option>${translations[currentLang].swalError}</option>`; }
+        } catch (e) { svDropdown.innerHTML = `<option>Error loading</option>`; }
     }
-    loadSupervisors();
 
-    // ID Generator Function (ST001, ST002...)
-    const generateSTID = (count) => {
-        const nextNum = (count + 1).toString().padStart(3, '0');
-        return `ST${nextNum}`;
+    // Generate unique Student ID using counter document
+    async function generateStudentID() {
+        const counterRef = doc(db, "counters", "studentID");
+        try {
+            const result = await runTransaction(db, async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                let newCount = 1;
+                if (counterDoc.exists()) {
+                    newCount = (counterDoc.data().current || 0) + 1;
+                }
+                transaction.set(counterRef, { current: newCount });
+                return `ST${newCount.toString().padStart(3, '0')}`;
+            });
+            return result;
+        } catch (error) {
+            // Fallback: use timestamp
+            return `ST${Date.now().toString().slice(-6)}`;
+        }
+    }
+
+    // Authentication & Authorization
+    const activeID = sessionStorage.getItem("activeUser");
+    
+    if (!activeID) {
+        window.location.href = "index.html";
+    }
+
+    // Check if user is student with pending registration
+    async function verifyUser() {
+        const userDoc = await getDoc(doc(db, "users", activeID));
+        if (!userDoc.exists()) {
+            await signOut(auth);
+            window.location.href = "index.html";
+            return false;
+        }
+        const userData = userDoc.data();
+        if (userData.role !== 'student') {
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: t('invalidRole') });
+            window.location.href = "index.html";
+            return false;
+        }
+        if (userData.registrationStatus === 'complete') {
+            Swal.fire({ icon: 'warning', title: 'Already Registered', text: t('existingReg') });
+            window.location.href = "student-view.html";
+            return false;
+        }
+        // Pre-fill name if exists
+        if (userData.name) {
+            document.getElementById('fullName').value = userData.name;
+        }
+        return true;
+    }
+
+    document.getElementById('displayID').value = activeID;
+    verifyUser();
+
+    // Step Navigation
+    function validateStep(step) {
+        if (step === 1) {
+            const fullName = document.getElementById('fullName').value.trim();
+            if (!fullName) {
+                Swal.fire({ icon: 'warning', title: t('missingName'), toast: true, position: 'top-end', timer: 2000 });
+                return false;
+            }
+            return true;
+        }
+        if (step === 2) {
+            if (!document.getElementById('selectedCourse').value) {
+                Swal.fire({ icon: 'warning', title: t('missingCourse'), toast: true, position: 'top-end', timer: 2000 });
+                return false;
+            }
+            if (!document.getElementById('supervisor').value) {
+                Swal.fire({ icon: 'warning', title: t('missingSupervisor'), toast: true, position: 'top-end', timer: 2000 });
+                return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
+    window.nextStep = () => {
+        if (validateStep(currentStep)) {
+            if (currentStep === 1) {
+                // Update confirmation data
+                document.getElementById('confirmFullName').innerText = document.getElementById('fullName').value.trim();
+                document.getElementById('confirmEmail').innerText = activeID;
+            }
+            if (currentStep === 2) {
+                document.getElementById('confirmCourse').innerText = document.getElementById('selectedCourse').value;
+                const supervisorSelect = document.getElementById('supervisor');
+                const selectedText = supervisorSelect.options[supervisorSelect.selectedIndex]?.text || '';
+                document.getElementById('confirmSupervisor').innerText = selectedText;
+            }
+            
+            // Hide current step content
+            document.getElementById(`step${currentStep}Content`).style.display = 'none';
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep}`).classList.add('completed');
+            
+            currentStep++;
+            
+            // Show new step content
+            document.getElementById(`step${currentStep}Content`).style.display = 'block';
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            if (currentStep === 3) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
     };
 
-    // Handle Submission
+    window.prevStep = () => {
+        if (currentStep > 1) {
+            document.getElementById(`step${currentStep}Content`).style.display = 'none';
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            
+            currentStep--;
+            
+            document.getElementById(`step${currentStep}Content`).style.display = 'block';
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`step${currentStep}`).classList.remove('completed');
+            
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            if (currentStep === 3) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+    };
+
+    // Form Submission
     document.getElementById('courseRegForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const selectedCourse = document.getElementById('course').value;
+        const fullName = document.getElementById('fullName').value.trim();
+        const selectedCourse = document.getElementById('selectedCourse').value;
         const selectedSupervisor = document.getElementById('supervisor').value;
 
-        Swal.fire({ title: translations[currentLang].swalSaving, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: t('swalSaving'), allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            // 1. Get current count to generate ST-ID
-            const snapshot = await getDocs(collection(db, "course_registrations"));
-            const totalDocs = snapshot.size;
-            const newSTID = generateSTID(totalDocs);
-
-            // 2. Create unique Document ID (User_Course)
+            // Generate unique Student ID
+            const newSTID = await generateStudentID();
             const uniqueDocID = `${activeID}_${selectedCourse.replace(/\s+/g, '')}`;
 
-            // 3. Save Registration
+            // Save Registration
             await setDoc(doc(db, "course_registrations", uniqueDocID), {
-                studentID: activeID,        // Original login ID (Email/IC)
-                studentRefID: newSTID,      // New formatted ID (ST001)
-                studentName: studentFullName,
+                studentID: activeID,
+                studentRefID: newSTID,
+                studentName: fullName,
                 course: selectedCourse,
                 supervisorEmail: selectedSupervisor,
+                quiz: 0, test: 0, midterm: 0,
                 totalMark: 0,
                 grade: "-",
                 status: "Pending",
-                timestamp: serverTimestamp()
+                timestamp: new Date().toISOString()
             });
 
-            // 4. Update User Profile
+            // Update User Profile
             await updateDoc(doc(db, "users", activeID), {
+                name: fullName,
                 registrationStatus: "complete",
                 assignedID: newSTID,
-                supervisorEmail: selectedSupervisor 
+                supervisorEmail: selectedSupervisor
             });
+
+            // Store name in session for other pages
+            sessionStorage.setItem("studentName", fullName);
 
             Swal.fire({ 
                 icon: 'success', 
-                title: translations[currentLang].swalSuccess, 
-                text: `${translations[currentLang].swalText} ${newSTID}`, 
+                title: t('swalSuccess'), 
+                html: `${t('swalText')} <strong class="fs-3 text-primary">${newSTID}</strong><br><small class="text-muted">Please save this ID for future reference</small>`, 
                 confirmButtonText: 'OK'
             }).then(() => {
                 window.location.href = "student-view.html";
             });
 
         } catch (error) {
-            Swal.fire('Failed', error.message, 'error');
+            console.error(error);
+            Swal.fire({ icon: 'error', title: t('swalError'), text: error.message });
         }
     });
+
+    // Initialize
+    renderCourseList();
+    loadSupervisors();
+    applyTranslations();
 </script>
 </body>
 </html>
