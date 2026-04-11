@@ -3,52 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa (RPS)| Detailed Supervisor Dashboard</title>
+    <title>Smart RPS | Supervisor Intelligence Dashboard</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --p-blue: #4361ee; --p-red: #ef4444; --p-orange: #f59e0b; --p-green: #10b981; }
-        body { background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        .navbar { background: #ffffff !important; border-bottom: 1px solid #e2e8f0; }
-        .navbar-brand { color: var(--p-blue) !important; font-weight: 800; letter-spacing: -0.5px; }
+        :root { --p-blue: #4361ee; --p-red: #ef4444; --p-orange: #f59e0b; --p-green: #10b981; --p-slate: #1e293b; }
+        body { background: #f0f2f8; font-family: 'Inter', sans-serif; color: #1e293b; }
+        .navbar { background: rgba(255,255,255,0.98) !important; backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .navbar-brand { background: linear-gradient(135deg, #4361ee, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
         
-        .stat-card { border: none; border-radius: 20px; background: #ffffff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .icon-box { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+        .stat-card { border: none; border-radius: 28px; background: white; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.05); transition: all 0.25s ease; border: 1px solid rgba(0,0,0,0.03); }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1); }
+        .icon-box { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
         
         .master-row { cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; }
-        .master-row:hover { background-color: #f8fafc !important; }
+        .master-row:hover { background-color: #f8fafc !important; transform: translateX(2px); }
+        .row-critical { border-left-color: var(--p-red); background: linear-gradient(90deg, #fff1f2 0%, #ffffff 100%); }
         
-        .row-critical { border-left-color: var(--p-red); background-color: #fff1f2 !important; }
-        .row-critical:hover { background-color: #ffe4e6 !important; }
+        .table thead th { background: #f8fafd; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; border: none; padding: 16px; font-weight: 700; }
+        .badge-custom { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; }
         
-        .table thead th { background: #f1f5f9; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #475569; border: none; padding: 15px; }
-        .badge { padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 0.75rem; }
+        .detail-pane { background: linear-gradient(135deg, #fafcff 0%, #f8fafc 100%); padding: 28px !important; border-top: 1px solid #e2e8f0; }
+        .inner-table-card { border-radius: 20px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 8px 20px -12px rgba(0,0,0,0.08); }
         
-        .detail-pane { background-color: #f8fafc; padding: 25px !important; }
-        .inner-table-card { border-radius: 16px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        
-        /* New Score Styling */
-        .score-cell {
-            background: #f1f5f9;
-            font-weight: 600;
-            color: var(--p-blue);
-            border-radius: 6px;
-            padding: 4px 8px;
-        }
-
+        .score-cell { background: #f1f5f9; font-weight: 600; color: #4361ee; border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; display: inline-block; }
         .progress { background-color: #e2e8f0; border-radius: 50px; overflow: hidden; }
-        .chart-container { position: relative; height: 280px; width: 100%; }
-
+        .chart-container { position: relative; height: 260px; width: 100%; }
+        
+        .filter-chip { padding: 6px 16px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; font-size: 0.8rem; }
+        .filter-chip.active { background: #4361ee; color: white; border-color: #4361ee; }
+        .filter-chip:hover { background: #eef2ff; }
+        
+        .live-badge { display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
+        
         @media print { .no-print { display: none !important; } .stat-card { border: 1px solid #ddd; } }
+        
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body id="dashboardContent">
@@ -56,15 +53,18 @@
 <nav class="navbar navbar-expand-lg sticky-top mb-4 py-3 shadow-sm no-print">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <i class="bi bi-shield-check-fill me-2 fs-3"></i>
-            <span>Smart Rakan Pembimbing Siswa  <span class="text-warning">(RPS)</span></span>
+            <i class="bi bi-shield-check-fill me-2 fs-3" style="background: linear-gradient(135deg, #4361ee, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+            <span style="font-weight: 800;">Smart Rakan Pembimbing Siswa <span style="color: #f59e0b;">(RPS)</span></span>
         </a>
         <div class="d-flex align-items-center gap-3">
+            <div class="live-badge" id="liveStatus">
+                <i class="bi bi-wifi"></i> <span>Live</span>
+            </div>
             <div class="text-end d-none d-md-block border-end pe-3">
-                <div class="fw-bold small lh-1" id="svNameDisplay">Supervisor...</div>
+                <div class="fw-bold small lh-1" id="svNameDisplay">Supervisor</div>
                 <div class="text-muted mt-1" style="font-size: 0.7rem;" id="svEmailDisplay">loading...</div>
             </div>
-            <button onclick="handleLogout()" class="btn btn-light border btn-sm px-3 rounded-pill fw-bold text-danger">
+            <button onclick="handleLogout()" class="btn btn-light border btn-sm px-4 rounded-pill fw-bold text-danger">
                 <i class="bi bi-box-arrow-right me-1"></i> Logout
             </button>
         </div>
@@ -73,66 +73,83 @@
 
 <div class="container pb-5">
     <div class="row align-items-end mb-4 g-3">
-        <div class="col-lg-7">
-            <h3 class="fw-bold mb-1">Holistic Student Analysis</h3>
-            <p class="text-muted mb-0">Real-time academic risk and mental wellbeing monitoring system.</p>
+        <div class="col-lg-6">
+            <h3 class="fw-bold mb-1" style="font-size: 1.8rem;">Holistic Student Intelligence</h3>
+            <p class="text-muted mb-0"><i class="bi bi-graph-up text-primary me-1"></i> Real-time academic risk + mental wellbeing analytics</p>
         </div>
-        <div class="col-lg-5 text-lg-end no-print">
-            <button onclick="exportToCSV()" class="btn btn-success shadow-sm fw-bold px-4 rounded-pill me-2">
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
-            </button>
-            <button onclick="downloadDashboardImage()" class="btn btn-primary shadow-sm fw-bold px-4 rounded-pill">
-                <i class="bi bi-camera me-1"></i> Save Report
-            </button>
+        <div class="col-lg-6 text-lg-end no-print">
+            <div class="d-flex gap-2 justify-content-lg-end">
+                <button onclick="refreshDataManually()" class="btn btn-light border shadow-sm fw-bold px-4 rounded-pill" id="refreshBtn">
+                    <i class="bi bi-arrow-repeat me-1"></i> Sync
+                </button>
+                <button onclick="exportToCSV()" class="btn btn-success shadow-sm fw-bold px-4 rounded-pill">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV
+                </button>
+                <button onclick="downloadDashboardImage()" class="btn btn-primary shadow-sm fw-bold px-4 rounded-pill">
+                    <i class="bi bi-camera me-1"></i> Snapshot
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Stats Cards -->
     <div class="row g-4 mb-5">
         <div class="col-md-4">
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-primary-subtle text-primary me-3"><i class="bi bi-people-fill"></i></div>
-                    <div><small class="text-muted fw-bold text-uppercase ls-1">Total Students</small><h2 id="totalCount" class="fw-bold mb-0">0</h2></div>
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary me-3"><i class="bi bi-people-fill"></i></div>
+                    <div><small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem;">Total Students</small><h2 id="totalCount" class="fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-danger-subtle text-danger me-3"><i class="bi bi-heart-pulse-fill"></i></div>
-                    <div><small class="text-danger fw-bold text-uppercase ls-1">High Stress</small><h2 id="stressHighCount" class="text-danger fw-bold mb-0">0</h2></div>
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger me-3"><i class="bi bi-heart-pulse-fill"></i></div>
+                    <div><small class="text-danger fw-bold text-uppercase" style="font-size: 0.7rem;">High Stress Risk</small><h2 id="stressHighCount" class="text-danger fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card p-4">
                 <div class="d-flex align-items-center">
-                    <div class="icon-box bg-warning-subtle text-warning me-3"><i class="bi bi-exclamation-octagon-fill"></i></div>
-                    <div><small class="text-warning fw-bold text-uppercase ls-1">Risk of Failure</small><h2 id="failCount" class="text-warning fw-bold mb-0">0</h2></div>
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning me-3"><i class="bi bi-exclamation-octagon-fill"></i></div>
+                    <div><small class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;">Academic Failure Risk</small><h2 id="failCount" class="text-warning fw-bold mb-0">0</h2></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Filter Chips -->
+    <div class="d-flex flex-wrap gap-2 mb-4 no-print">
+        <span class="filter-chip active" data-filter="all" onclick="setFilter('all')">All Students</span>
+        <span class="filter-chip" data-filter="critical" onclick="setFilter('critical')"><i class="bi bi-exclamation-triangle text-danger me-1"></i>Critical Risk</span>
+        <span class="filter-chip" data-filter="academic" onclick="setFilter('academic')"><i class="bi bi-book-half text-warning me-1"></i>Academic Warning</span>
+        <span class="filter-chip" data-filter="stable" onclick="setFilter('stable')"><i class="bi bi-check-circle text-success me-1"></i>Stable</span>
+    </div>
+
+    <!-- Main Table -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
         <div class="table-responsive">
             <table class="table align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width: 30%;">Student Profile</th>
-                        <th class="text-center">No. of Courses</th>
-                        <th class="text-center">Academic Average</th>
-                        <th class="text-center">Stress Risk</th>
-                        <th class="text-end pe-4">Intervention Status</th>
+                        <th class="ps-4" style="width: 32%;">Student Profile</th>
+                        <th class="text-center">Courses</th>
+                        <th class="text-center">Avg Score</th>
+                        <th class="text-center">Mental Risk</th>
+                        <th class="text-center">Combined Status</th>
+                        <th class="text-end pe-4">Action</th>
                     </tr>
                 </thead>
                 <tbody id="dashTable">
-                    <tr><td colspan="5" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Processing Firebase data...</td></tr>
+                    <tr><td colspan="6" class="text-center p-5"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Loading student data...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- Charts Row -->
     <div class="row g-4">
         <div class="col-md-6">
             <div class="card border-0 shadow-sm p-4 rounded-4">
@@ -142,17 +159,22 @@
         </div>
         <div class="col-md-6">
             <div class="card border-0 shadow-sm p-4 rounded-4">
-                <h6 class="fw-bold mb-4"><i class="bi bi-pie-chart-fill me-2 text-danger"></i>Mental Screening Status</h6>
+                <h6 class="fw-bold mb-4"><i class="bi bi-pie-chart-fill me-2 text-danger"></i>Mental Health Screening</h6>
                 <div class="chart-container"><canvas id="stressChart"></canvas></div>
             </div>
         </div>
+    </div>
+    
+    <!-- Last Updated Timestamp -->
+    <div class="text-center mt-4 no-print">
+        <small class="text-muted"><i class="bi bi-clock-history me-1"></i> Last updated: <span id="lastUpdated">--:--:--</span></small>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -170,117 +192,181 @@
     let gradeChart, stressChart;
     let globalGroupedData = {};
     let globalAssessMap = new Map();
+    let currentFilter = 'all';
+    let unsubscribeReg = null;
+    let unsubscribeAssess = null;
 
+    // AUTHENTICATION & ROLE VERIFICATION
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            document.getElementById('svEmailDisplay').innerText = user.email;
-            const qU = query(collection(db, "users"), where("email", "==", user.email));
-            const snapU = await getDocs(qU);
-            if(!snapU.empty) document.getElementById('svNameDisplay').innerText = snapU.docs[0].data().name;
-            loadData(user.email);
-        } else { window.location.href = "index.html"; }
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+        
+        // Verify user is SUPERVISOR (RPS)
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'supervisor') {
+            await signOut(auth);
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'This dashboard is for RPS (Supervisors) only.' });
+            window.location.href = "index.html";
+            return;
+        }
+        
+        document.getElementById('svEmailDisplay').innerText = user.email;
+        document.getElementById('svNameDisplay').innerText = userDoc.data().name || 'Supervisor';
+        loadData(user.email);
     });
 
     function loadData(svEmail) {
+        // Clean up previous listeners
+        if (unsubscribeReg) unsubscribeReg();
+        if (unsubscribeAssess) unsubscribeAssess();
+        
         const qReg = query(collection(db, "course_registrations"), where("supervisorEmail", "==", svEmail));
-        onSnapshot(qReg, (regSnap) => {
+        unsubscribeReg = onSnapshot(qReg, (regSnap) => {
             const regs = [];
-            regSnap.forEach(doc => regs.push(doc.data()));
+            regSnap.forEach(doc => regs.push({ id: doc.id, ...doc.data() }));
+            
             const qAssess = query(collection(db, "assessments"), where("supervisorEmail", "==", svEmail));
-            onSnapshot(qAssess, (assessSnap) => {
+            if (unsubscribeAssess) unsubscribeAssess();
+            unsubscribeAssess = onSnapshot(qAssess, (assessSnap) => {
                 const aMap = new Map();
                 assessSnap.forEach(doc => aMap.set(doc.data().studentID, doc.data()));
                 renderUI(regs, aMap);
+                document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
             });
         });
     }
 
     function renderUI(regs, aMap) {
-        const tbody = document.getElementById('dashTable');
-        tbody.innerHTML = '';
         const groups = {};
         regs.forEach(r => {
-            if(!groups[r.studentID]) groups[r.studentID] = { name: r.studentName, id: r.studentID, courses: [] };
+            const studentName = r.studentName || `Student ${r.studentID.substring(0,8)}`;
+            if(!groups[r.studentID]) groups[r.studentID] = { name: studentName, id: r.studentID, courses: [] };
             groups[r.studentID].courses.push(r);
         });
 
         globalGroupedData = groups;
         globalAssessMap = aMap;
 
+        // Calculate statistics
         let s_high = 0, s_fail = 0, s_norm = 0, s_excel = 0;
-        let m_low = 0, m_med = 0, m_high = 0, m_none = 0;
+        let m_low = 0, m_med = 0, m_high = 0;
 
         Object.values(groups).forEach((stu) => {
-            const assess = aMap.get(stu.id) || { riskLevel: 'NONE', feedbackText: 'No screening completed.' };
+            const assess = aMap.get(stu.id) || { riskLevel: 'NONE', feedbackText: 'No screening completed yet.' };
             const risk = assess.riskLevel || 'NONE';
-            const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
+            const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark) || 0), 0) / stu.courses.length).toFixed(1);
             
-            if(risk === "CRITICAL" || risk === "HIGH") { s_high++; m_high++; }
-            else if(risk === "MEDIUM") m_med++;
-            else if(risk === "NORMAL" || risk === "LOW") m_low++;
-            else m_none++;
+            if (risk === "CRITICAL" || risk === "HIGH") { s_high++; m_high++; }
+            else if (risk === "MEDIUM") m_med++;
+            else m_low++;
 
-            if(avg < 40) s_fail++; else if(avg >= 75) s_excel++; else s_norm++;
+            if (avg < 40) s_fail++;
+            else if (avg >= 75) s_excel++;
+            else s_norm++;
+        });
 
-            const isCrit = (avg < 40 && (risk === "CRITICAL" || risk === "HIGH"));
-            const collId = `c_${stu.id.replace(/[^a-zA-Z0-9]/g, '')}`;
+        document.getElementById('totalCount').innerText = Object.keys(groups).length;
+        document.getElementById('stressHighCount').innerText = s_high;
+        document.getElementById('failCount').innerText = s_fail;
+        
+        updateCharts({ fail: s_fail, normal: s_norm, excel: s_excel }, { LOW: m_low, MEDIUM: m_med, HIGH: m_high });
+        renderTable(groups, aMap);
+    }
+
+    function renderTable(groups, aMap) {
+        const tbody = document.getElementById('dashTable');
+        tbody.innerHTML = '';
+        
+        const filteredEntries = Object.entries(groups).filter(([id, stu]) => {
+            const assess = aMap.get(id) || { riskLevel: 'NONE' };
+            const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark) || 0), 0) / stu.courses.length);
+            const isAcademicRisk = avg < 40;
+            const isMentalRisk = assess.riskLevel === 'CRITICAL' || assess.riskLevel === 'HIGH';
+            
+            if (currentFilter === 'critical') return isAcademicRisk && isMentalRisk;
+            if (currentFilter === 'academic') return isAcademicRisk;
+            if (currentFilter === 'stable') return !isAcademicRisk && !isMentalRisk;
+            return true;
+        });
+        
+        if (filteredEntries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students match the selected filter.</td></tr>';
+            return;
+        }
+        
+        filteredEntries.forEach(([id, stu]) => {
+            const assess = aMap.get(id) || { riskLevel: 'NONE', feedbackText: 'No screening completed.' };
+            const risk = assess.riskLevel || 'NONE';
+            const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark) || 0), 0) / stu.courses.length).toFixed(1);
+            const isAcademicRisk = parseFloat(avg) < 40;
+            const isMentalRisk = risk === 'CRITICAL' || risk === 'HIGH';
+            const isCritical = isAcademicRisk && isMentalRisk;
+            const collId = `c_${id.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}`;
+            
+            let statusBadge = '';
+            let statusClass = '';
+            if (isCritical) { statusBadge = '<span class="badge-custom bg-danger text-white"><i class="bi bi-bell-fill me-1"></i>URGENT</span>'; statusClass = 'row-critical'; }
+            else if (isAcademicRisk) { statusBadge = '<span class="badge-custom bg-warning text-dark"><i class="bi bi-book-x me-1"></i>Academic Warning</span>'; }
+            else if (isMentalRisk) { statusBadge = '<span class="badge-custom bg-danger bg-opacity-75 text-white"><i class="bi bi-heartbreak me-1"></i>Mental Risk</span>'; }
+            else { statusBadge = '<span class="badge-custom bg-success bg-opacity-15 text-success"><i class="bi bi-check-circle me-1"></i>Stable</span>'; }
 
             tbody.innerHTML += `
-                <tr class="master-row ${isCrit ? 'row-critical' : ''}" data-bs-toggle="collapse" data-bs-target="#${collId}">
+                <tr class="master-row ${statusClass}" data-bs-toggle="collapse" data-bs-target="#${collId}">
                     <td class="ps-4">
                         <div class="d-flex align-items-center">
-                            <div class="avatar-circle me-3 bg-light d-flex align-items-center justify-content-center rounded-circle" style="width:40px; height:40px;">
-                                <i class="bi bi-person text-secondary"></i>
+                            <div class="avatar-circle me-3 bg-light d-flex align-items-center justify-content-center rounded-circle" style="width:42px; height:42px;">
+                                <i class="bi bi-person-circle text-secondary fs-5"></i>
                             </div>
                             <div>
-                                <div class="fw-bold">${stu.name}</div>
-                                <small class="text-muted" style="font-size:0.7rem;">ID: ${stu.id}</small>
+                                <div class="fw-bold">${escapeHtml(stu.name)}</div>
+                                <small class="text-muted" style="font-size:0.7rem;">ID: ${id}</small>
                             </div>
                         </div>
                     </td>
-                    <td class="text-center"><span class="badge bg-light text-dark border">${stu.courses.length} Courses</span></td>
-                    <td class="text-center fw-bold ${avg < 40 ? 'text-danger':''}">${avg}%</td>
+                    <td class="text-center"><span class="badge bg-light text-dark border px-3 py-2">${stu.courses.length} Courses</span></td>
+                    <td class="text-center fw-bold ${parseFloat(avg) < 40 ? 'text-danger fs-5' : 'text-dark'}">${avg}%</td>
                     <td class="text-center">
-                        <span class="badge ${risk==='CRITICAL' || risk==='HIGH'?'bg-danger':(risk==='MEDIUM'?'bg-warning text-dark':'bg-info')}">
+                        <span class="badge-custom ${risk === 'CRITICAL' || risk === 'HIGH' ? 'bg-danger text-white' : (risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info text-white')}">
                             ${risk}
                         </span>
                     </td>
+                    <td class="text-center">${statusBadge}</td>
                     <td class="text-end pe-4">
-                        <span class="badge ${isCrit?'bg-danger animate__animated animate__pulse animate__infinite':'bg-light text-muted border'}">
-                            ${isCrit?'IMMEDIATE ACTION':'STABLE'}
-                        </span>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="event.stopPropagation(); sendIntervention('${id}', '${escapeHtml(stu.name)}')">
+                            <i class="bi bi-chat-dots me-1"></i> Message
+                        </button>
                         <i class="bi bi-chevron-down ms-2 text-muted"></i>
                     </td>
                 </tr>
                 <tr class="collapse" id="${collId}">
-                    <td colspan="5" class="detail-pane">
+                    <td colspan="6" class="detail-pane">
                         <div class="inner-table-card p-4">
                             <div class="row g-4">
                                 <div class="col-md-8">
-                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-book-half me-2"></i>Academic Breakdown</h6>
+                                    <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-journal-bookmark-fill me-2"></i>Academic Performance Details</h6>
                                     <div class="table-responsive">
-                                        <table class="table table-sm align-middle" style="font-size: 0.85rem;">
+                                        <table class="table table-sm align-middle" style="font-size: 0.8rem;">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th>Course</th>
+                                                    <th>Course Code</th>
                                                     <th class="text-center">Quiz (20%)</th>
                                                     <th class="text-center">Test (30%)</th>
                                                     <th class="text-center">Midterm (50%)</th>
-                                                    <th class="text-center">Total Mark</th>
+                                                    <th class="text-center">Total</th>
                                                     <th class="text-center">Grade</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                ${stu.courses.map(c=>`
+                                                ${stu.courses.map(c => `
                                                     <tr>
-                                                        <td class="fw-bold">${c.course}</td>
+                                                        <td class="fw-bold">${escapeHtml(c.course || 'N/A')}</td>
                                                         <td class="text-center"><span class="score-cell">${c.quiz || 0}</span></td>
                                                         <td class="text-center"><span class="score-cell">${c.test || 0}</span></td>
                                                         <td class="text-center"><span class="score-cell">${c.midterm || 0}</span></td>
-                                                        <td class="text-center fw-bold text-primary">${c.totalMark}%</td>
-                                                        <td class="text-center">
-                                                            <span class="badge bg-primary-subtle text-primary">${c.grade || 'N/A'}</span>
-                                                        </td>
+                                                        <td class="text-center fw-bold text-primary">${c.totalMark || 0}%</td>
+                                                        <td class="text-center"><span class="badge bg-primary bg-opacity-10 text-primary px-3">${c.grade || 'N/A'}</span></td>
                                                     </tr>
                                                 `).join('')}
                                             </tbody>
@@ -288,82 +374,123 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 border-start">
-                                    <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-heart-pulse me-2"></i>AI Sentiment Analysis</h6>
-                                    <div class="p-3 rounded-4 bg-light border-0">
-                                        <p class="small text-muted mb-2">Student Feedback:</p>
-                                        <div class="p-3 bg-white rounded-3 mb-3 border border-dashed italic" style="font-size:0.85rem; font-style: italic; color:#475569;">
-                                            "${assess.feedbackText || 'No feedback available.'}"
+                                    <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-robot me-2"></i>AI Wellness Analysis</h6>
+                                    <div class="p-3 rounded-4 bg-light border">
+                                        <p class="small text-muted mb-2">Latest feedback:</p>
+                                        <div class="p-3 bg-white rounded-3 mb-3 border" style="font-size:0.85rem; font-style: italic; color:#475569;">
+                                            "${escapeHtml(assess.feedbackText || 'No recent feedback available.')}"
                                         </div>
-                                        <div class="d-flex justify-content-between mb-1 small fw-bold">
-                                            <span>Risk Level:</span>
-                                            <span class="${risk==='CRITICAL'?'text-danger':''}">${risk}</span>
+                                        <div class="d-flex justify-content-between mb-2 small fw-bold">
+                                            <span>Risk Index:</span>
+                                            <span class="${risk === 'CRITICAL' || risk === 'HIGH' ? 'text-danger' : ''}">${risk}</span>
                                         </div>
                                         <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar ${risk==='CRITICAL' || risk==='HIGH'?'bg-danger':'bg-primary'}" 
-                                                style="width: ${risk==='CRITICAL' || risk==='HIGH' ? '90%' : (risk==='MEDIUM' ? '50%' : '20%')}"></div>
+                                            <div class="progress-bar ${risk === 'CRITICAL' || risk === 'HIGH' ? 'bg-danger' : (risk === 'MEDIUM' ? 'bg-warning' : 'bg-success')}" 
+                                                style="width: ${risk === 'CRITICAL' ? '95%' : (risk === 'HIGH' ? '80%' : (risk === 'MEDIUM' ? '50%' : '20%'))}"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </td>
-                </tr>`;
+                </tr>
+            `;
         });
-
-        document.getElementById('totalCount').innerText = Object.keys(groups).length;
-        document.getElementById('stressHighCount').innerText = s_high;
-        document.getElementById('failCount').innerText = s_fail;
-        
-        updateCharts({fail: s_fail, normal: s_norm, excel: s_excel}, {LOW: m_low, MEDIUM: m_med, HIGH: m_high});
     }
 
-    function updateCharts(a, m) {
-        const commonOptions = { 
-            maintainAspectRatio: false, 
-            plugins: { legend: { labels: { font: { family: 'Plus Jakarta Sans', weight: '600' } } } },
-            scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
-        };
+    // Send intervention message (Supervisor action)
+    window.sendIntervention = async (studentId, studentName) => {
+        const { value: message } = await Swal.fire({
+            title: `Contact: ${studentName}`,
+            input: 'textarea',
+            inputLabel: 'Message for Student',
+            inputPlaceholder: 'Write your guidance message here...',
+            showCancelButton: true,
+            confirmButtonText: 'Send Notification',
+            confirmButtonColor: '#4361ee'
+        });
+        if (message && message.trim()) {
+            try {
+                const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+                const dbLocal = getFirestore(app);
+                await addDoc(collection(dbLocal, "notifications"), {
+                    studentID: studentId,
+                    message: message.trim(),
+                    sender: "Supervisor (RPS)",
+                    status: "unread",
+                    timestamp: serverTimestamp()
+                });
+                Swal.fire({ icon: 'success', title: 'Sent!', text: 'Notification delivered to student.', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire('Error', 'Failed to send message.', 'error');
+            }
+        }
+    };
 
-        if(gradeChart) gradeChart.destroy();
+    window.setFilter = (filter) => {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+        document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
+        renderTable(globalGroupedData, globalAssessMap);
+    };
+
+    window.refreshDataManually = () => {
+        Swal.fire({ toast: true, icon: 'success', title: 'Syncing with Firebase...', timer: 1000, showConfirmButton: false });
+        // Force refresh by re-triggering listeners
+        const user = auth.currentUser;
+        if (user) loadData(user.email);
+    };
+
+    function updateCharts(academic, mental) {
+        const commonOptions = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } };
+        if (gradeChart) gradeChart.destroy();
         gradeChart = new Chart(document.getElementById('gradeChart'), {
             type: 'bar',
-            data: { labels: ['Risk of Failure', 'Average', 'Excellent'], datasets: [{ label: 'Number of Students', data: [a.fail, a.normal, a.excel], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderRadius: 8 }] },
+            data: { labels: ['At Risk (<40%)', 'Average (40-74%)', 'Excellent (75%+)'], datasets: [{ label: 'Students', data: [academic.fail, academic.normal, academic.excel], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderRadius: 10 }] },
             options: commonOptions
         });
         
-        if(stressChart) stressChart.destroy();
+        if (stressChart) stressChart.destroy();
         stressChart = new Chart(document.getElementById('stressChart'), {
             type: 'doughnut',
-            data: { labels: ['Stable/Low', 'Medium', 'High/Critical'], datasets: [{ data: [m.LOW, m.MEDIUM, m.HIGH], backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'], borderWeight: 0 }] },
-            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+            data: { labels: ['Low Risk', 'Medium Risk', 'High/Critical'], datasets: [{ data: [mental.LOW, mental.MEDIUM, mental.HIGH], backgroundColor: ['#0ea5e9', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
         });
     }
 
     window.exportToCSV = () => {
-        let csv = "ID,Name,No. Courses,Average(%),Mental Risk,Status\n";
+        let csv = "Student ID,Student Name,No. Courses,Average (%),Mental Risk,Combined Status\n";
         Object.values(globalGroupedData).forEach(stu => {
             const assess = globalAssessMap.get(stu.id) || { riskLevel: 'NONE' };
             const avg = (stu.courses.reduce((a, b) => a + (parseFloat(b.totalMark)||0), 0) / stu.courses.length).toFixed(1);
-            const status = (avg < 40 && (assess.riskLevel === "CRITICAL" || assess.riskLevel === "HIGH")) ? "CRITICAL" : "STABLE";
+            const isAcademicRisk = parseFloat(avg) < 40;
+            const isMentalRisk = assess.riskLevel === 'CRITICAL' || assess.riskLevel === 'HIGH';
+            const status = (isAcademicRisk && isMentalRisk) ? 'CRITICAL' : (isAcademicRisk ? 'ACADEMIC WARNING' : (isMentalRisk ? 'MENTAL RISK' : 'STABLE'));
             csv += `${stu.id},${stu.name},${stu.courses.length},${avg},${assess.riskLevel},${status}\n`;
         });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `EduGuard_Report_${new Date().toLocaleDateString()}.csv`; a.click();
+        a.href = url; a.download = `RPS_Report_${new Date().toISOString().slice(0,19)}.csv`; a.click();
+        URL.revokeObjectURL(url);
     };
 
-    window.downloadDashboardImage = () => {
+    window.downloadDashboardImage = async () => {
         const target = document.getElementById('dashboardContent');
-        Swal.fire({ title: 'Generating Image...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        html2canvas(target, { scale: 2, backgroundColor: "#f8fafc", useCORS: true, logging: false }).then(canvas => {
+        Swal.fire({ title: 'Generating Report...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+            const canvas = await html2canvas(target, { scale: 2, backgroundColor: "#f0f2f8", logging: false });
             const link = document.createElement('a');
-            link.download = `EduGuard_Analysis_Report.png`; link.href = canvas.toDataURL(); link.click();
+            link.download = `RPS_Dashboard_${new Date().toISOString().slice(0,19)}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
             Swal.close();
-        });
+        } catch (e) { Swal.close(); Swal.fire('Error', 'Failed to capture image.', 'error'); }
     };
 
-    window.handleLogout = () => { signOut(auth).then(() => window.location.href = "index.html"); };
+    window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
