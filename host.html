@@ -3,225 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa (RPS) | Course Coordinator Control Panel</title>
+    <title>Smart RPS | Course Coordinator Dashboard</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --primary: #4361ee; --primary-dark: #2b3b6e; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #0f172a; --bg-body: #f0f2f8; }
-        body { background-color: var(--bg-body); font-family: 'Inter', sans-serif; color: #334155; }
-        body.dark-mode { background: #0f172a; color: #e2e8f0; }
-        body.dark-mode .glass-card, body.dark-mode .stat-card, body.dark-mode .attendance-stat-card, body.dark-mode .chat-container { background: #1e293b; border-color: #334155; color: #e2e8f0; }
-        body.dark-mode .chat-message.sent { background: #4361ee; }
-        body.dark-mode .chat-message.received { background: #334155; }
-        body.dark-mode .form-control, body.dark-mode .form-select { background: #0f172a; border-color: #334155; color: #e2e8f0; }
-        .host-header { background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); color: white; padding: 35px 0 90px 0; border-radius: 0 0 35px 35px; }
-        .main-container { margin-top: -55px; position: relative; z-index: 10; }
-        .glass-card { background: white; border-radius: 24px; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.05); transition: all 0.25s ease; border: 1px solid rgba(0,0,0,0.03); padding: 25px; }
-        .stat-card { border-left: 5px solid transparent; padding: 20px 24px; transition: transform 0.2s; background: white; border-radius: 20px; margin-bottom: 15px; }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-card.primary { border-left-color: var(--primary); }
-        .stat-card.success { border-left-color: var(--success); }
-        .stat-card.danger { border-left-color: var(--danger); }
-        .stat-card.warning { border-left-color: var(--warning); }
-        .form-control, .form-select { border-radius: 14px; padding: 12px 16px; border: 1.5px solid #e2e8f0; background-color: #ffffff; transition: 0.2s; }
-        .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67,97,238,0.1); }
-        .btn-primary { background: var(--primary); border: none; border-radius: 14px; padding: 12px 24px; font-weight: 600; transition: 0.2s; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .table-custom thead th { background: #f8fafd; border-bottom: 2px solid #eef2f6; color: #475569; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f0f2f8; font-family: 'Inter', sans-serif; }
+        
+        /* Dark Mode */
+        body.dark-mode { background: #0f172a; }
+        body.dark-mode .card, body.dark-mode .bg-white, body.dark-mode .list-group-item, 
+        body.dark-mode .modal-content, body.dark-mode .dropdown-menu { background: #1e293b !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+        body.dark-mode .text-muted { color: #94a3b8 !important; }
+        body.dark-mode .table-light { background: #334155; }
+        
+        /* Header */
+        .header-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 0 0 40px 40px; padding: 30px 0 80px 0; }
+        
+        /* Cards */
+        .stat-card { background: white; border-radius: 24px; padding: 20px; transition: all 0.3s; border: 1px solid #e2e8f0; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -15px rgba(0,0,0,0.1); }
+        .glass-card { background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 15px -8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: all 0.3s; }
+        .glass-card:hover { box-shadow: 0 8px 25px -12px rgba(0,0,0,0.1); }
+        
+        /* Tables */
+        .table-custom thead th { background: #f8fafc; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px; border-bottom: 2px solid #e2e8f0; }
+        
+        /* Badges */
         .grade-badge { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.75rem; }
         .badge-a { background: #dcfce7; color: #166534; }
         .badge-b { background: #dbeafe; color: #1e40af; }
         .badge-c { background: #fef3c7; color: #92400e; }
         .badge-f { background: #fee2e2; color: #991b1b; }
         .badge-pending { background: #f1f5f9; color: #64748b; }
-        .progress { height: 8px; border-radius: 10px; background: #e2e8f0; }
-        #editForm { border-top: 5px solid var(--primary); display: none; transition: all 0.3s; }
-        .material-item { transition: all 0.2s; border-left: 3px solid transparent; }
-        .material-item:hover { background: #f8fafc; border-left-color: var(--primary); }
-        .lang-switcher { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .filter-chip { padding: 8px 18px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s; }
-        .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
         
-        /* Chat Styles */
-        .chat-container { background: white; border-radius: 20px; overflow: hidden; height: 500px; display: flex; flex-direction: column; }
-        .chat-sidebar { border-right: 1px solid #e2e8f0; background: #f8fafc; overflow-y: auto; }
-        .chat-student-item { padding: 15px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid #e2e8f0; }
-        .chat-student-item:hover { background: #f1f5f9; }
-        .chat-student-item.active { background: #e0e7ff; border-left: 3px solid var(--primary); }
-        .student-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .unread-badge { background: var(--primary); color: white; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: bold; }
-        .chat-messages-area { flex: 1; overflow-y: auto; padding: 20px; background: #f9fafb; }
-        .chat-message { max-width: 75%; margin-bottom: 15px; display: flex; flex-direction: column; }
-        .chat-message.sent { align-items: flex-end; margin-left: auto; }
-        .chat-message.received { align-items: flex-start; }
-        .message-bubble { padding: 10px 15px; border-radius: 18px; word-wrap: break-word; }
-        .chat-message.sent .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.received .message-bubble { background: white; color: #334155; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
+        /* Filters */
+        .filter-chip { padding: 8px 20px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s; }
+        .filter-chip:hover { background: #eef2ff; border-color: #4361ee; }
+        .filter-chip.active { background: #4361ee; color: white; border-color: #4361ee; }
+        
+        /* Chat */
+        .chat-sidebar { height: 500px; overflow-y: auto; background: #f8fafc; border-right: 1px solid #e2e8f0; border-radius: 20px 0 0 20px; }
+        .chat-area { height: 500px; display: flex; flex-direction: column; background: white; border-radius: 0 20px 20px 0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #f9fafb; }
         .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; }
-        .chat-input { border-radius: 25px; padding: 10px 20px; border: 1px solid #e2e8f0; }
-        .chat-send-btn { border-radius: 50%; width: 42px; height: 42px; }
-        .typing-indicator { font-size: 11px; color: #94a3b8; padding: 5px 0; }
+        .message-bubble { max-width: 75%; padding: 10px 16px; border-radius: 20px; margin-bottom: 8px; }
+        .message-sent { background: #4361ee; color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+        .message-received { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .student-item { padding: 15px; cursor: pointer; transition: all 0.2s; border-bottom: 1px solid #e2e8f0; }
+        .student-item:hover { background: #f1f5f9; }
+        .student-item.active { background: #e0e7ff; border-left: 3px solid #4361ee; }
         
-        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        
+        @media (max-width: 992px) { .chat-sidebar { height: 400px; } .chat-area { height: 400px; } }
     </style>
 </head>
 <body>
 
-<div class="lang-switcher no-print">
-    <button onclick="toggleDarkMode()" class="btn btn-secondary shadow-sm btn-sm rounded-pill px-3 me-2"><i class="bi bi-moon-stars"></i></button>
-    <button onclick="toggleLanguage()" class="btn btn-light shadow-sm btn-sm rounded-pill px-3 fw-bold"><i class="bi bi-translate me-1"></i> <span id="langBtn">BM</span></button>
-</div>
-
-<div class="host-header">
+<!-- Header -->
+<div class="header-gradient">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
-            <div><h1 class="fw-bold mb-1"><i class="bi bi-shield-check-fill text-primary me-2"></i>EduGuard <span style="font-size: 0.9rem;">Coordinator Suite</span></h1><p class="opacity-75 small mb-0">Course Management & Student Performance Analytics</p></div>
-            <div class="text-end"><div class="fw-bold" id="hostName">Loading...</div><button onclick="handleLogout()" class="btn btn-outline-light btn-sm mt-1 rounded-pill"><i class="bi bi-box-arrow-right me-1"></i> Logout</button></div>
+            <div>
+                <h1 class="fw-bold text-white mb-1"><i class="bi bi-shield-check-fill text-warning me-2"></i>EduGuard <span style="font-size: 0.9rem;">Coordinator Portal</span></h1>
+                <p class="text-white-50 small mb-0">Manage courses, track performance, and connect with students</p>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold text-white" id="hostName">Loading...</div>
+                <button onclick="handleLogout()" class="btn btn-outline-light btn-sm mt-2 rounded-pill px-4"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="container main-container mb-5">
+<div class="container mt-n5">
+    <!-- Stats Row -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3"><div class="stat-card primary"><small class="text-muted fw-bold d-block"><i class="bi bi-graph-up me-1"></i> <span data-i18n="statAvg">AVERAGE SCORE</span></small><h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3></div></div>
-        <div class="col-md-3"><div class="stat-card success"><small class="text-muted fw-bold d-block"><i class="bi bi-check-circle-fill me-1"></i> <span data-i18n="statPass">PASSED</span></small><h3 class="fw-bold mb-0 text-success" id="statPass">0</h3></div></div>
-        <div class="col-md-3"><div class="stat-card danger"><small class="text-muted fw-bold d-block"><i class="bi bi-exclamation-triangle-fill me-1"></i> <span data-i18n="statFail">AT RISK</span></small><h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3></div></div>
-        <div class="col-md-3"><div class="stat-card warning"><small class="text-muted fw-bold d-block"><i class="bi bi-hourglass-split me-1"></i> <span data-i18n="statPending">PENDING</span></small><h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3></div></div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 rounded-3 p-3"><i class="bi bi-graph-up fs-3 text-primary"></i></div>
+                    <div><small class="text-muted fw-bold">AVERAGE SCORE</small><h3 class="fw-bold mb-0 text-primary" id="statAvg">0%</h3></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-opacity-10 rounded-3 p-3"><i class="bi bi-check-circle-fill fs-3 text-success"></i></div>
+                    <div><small class="text-muted fw-bold">PASSED</small><h3 class="fw-bold mb-0 text-success" id="statPass">0</h3></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-danger bg-opacity-10 rounded-3 p-3"><i class="bi bi-exclamation-triangle-fill fs-3 text-danger"></i></div>
+                    <div><small class="text-muted fw-bold">AT RISK</small><h3 class="fw-bold mb-0 text-danger" id="statFail">0</h3></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-warning bg-opacity-10 rounded-3 p-3"><i class="bi bi-hourglass-split fs-3 text-warning"></i></div>
+                    <div><small class="text-muted fw-bold">PENDING</small><h3 class="fw-bold mb-0 text-warning" id="statPending">0</h3></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="glass-card mb-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-bookmark-check-fill text-primary me-2"></i><span data-i18n="dirTitle">Student Performance Directory</span></h5>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6"><select id="courseSelect" class="form-select shadow-sm"><option value="" data-i18n="selectSubject">-- Select Course --</option><option value="Software Engineering">Software Engineering</option><option value="IoT Systems">IoT Systems</option><option value="Data Analytics">Data Analytics</option><option value="AI Solutions">AI Solutions</option></select></div>
-                    <div class="col-md-4"><div class="d-flex gap-2"><button class="btn btn-primary w-100" onclick="searchBySubject()" data-i18n="btnView"><i class="bi bi-search me-1"></i> View</button><button class="btn btn-outline-secondary" onclick="exportGradebook()" title="Export CSV"><i class="bi bi-download"></i></button></div></div>
-                    <div class="col-md-2"><button class="btn btn-outline-danger w-100" onclick="openAnnouncementModal()" data-i18n="btnAnnounce"><i class="bi bi-megaphone"></i></button></div>
-                </div>
-                <div class="d-flex flex-wrap gap-2 mb-4 no-print"><span class="filter-chip active" data-filter="all" onclick="setGradeFilter('all')">All</span><span class="filter-chip" data-filter="A" onclick="setGradeFilter('A')">A (Excellent)</span><span class="filter-chip" data-filter="B" onclick="setGradeFilter('B')">B (Good)</span><span class="filter-chip" data-filter="C" onclick="setGradeFilter('C')">C (Satisfactory)</span><span class="filter-chip" data-filter="FAILED" onclick="setGradeFilter('FAILED')">⚠️ At Risk</span><span class="filter-chip" data-filter="pending" onclick="setGradeFilter('pending')">⏳ Pending</span></div>
-                <div id="searchResults"><div class="text-center py-5"><i class="bi bi-folder2-open text-muted fs-1"></i><p class="text-muted small mt-2" data-i18n="initialMsg">Select a course to begin analysis.</p></div></div>
-            </div>
+    <!-- Main Tabs -->
+    <ul class="nav nav-tabs mb-4 border-0 gap-2" id="mainTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active px-4 py-2 rounded-pill border-0 fw-semibold" style="background: #4361ee; color: white;" id="academic-tab" data-bs-toggle="tab" data-bs-target="#academic" type="button" role="tab"><i class="bi bi-journal-bookmark-fill me-2"></i>Academic Management</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link px-4 py-2 rounded-pill border bg-white fw-semibold" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab"><i class="bi bi-qr-code-scan me-2"></i>Attendance Tracking</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link px-4 py-2 rounded-pill border bg-white fw-semibold" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab"><i class="bi bi-chat-dots-fill me-2"></i>Student Messaging</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link px-4 py-2 rounded-pill border bg-white fw-semibold" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources" type="button" role="tab"><i class="bi bi-cloud-upload-fill me-2"></i>Resources</button>
+        </li>
+    </ul>
 
-            <div id="editForm" class="glass-card mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-4"><h6 class="fw-bold mb-0"><span data-i18n="formTitle">Grade Editor:</span> <span id="displayStudentName" class="text-primary fw-bold"></span></h6><button type="button" class="btn-close" onclick="closeEditForm()"></button></div>
-                <div class="row g-3"><input type="hidden" id="currentDocId">
-                    <div class="col-md-4"><label class="form-label small fw-bold" data-i18n="labelQuiz">Quiz (20%)</label><input type="number" id="quiz" class="form-control" min="0" max="100" oninput="liveGrade()"></div>
-                    <div class="col-md-4"><label class="form-label small fw-bold" data-i18n="labelTest">Test (30%)</label><input type="number" id="test" class="form-control" min="0" max="100" oninput="liveGrade()"></div>
-                    <div class="col-md-4"><label class="form-label small fw-bold" data-i18n="labelMid">Midterm (50%)</label><input type="number" id="midterm" class="form-control" min="0" max="100" oninput="liveGrade()"></div>
-                    <div class="col-12 d-flex justify-content-between align-items-center border-top pt-4 mt-2"><div><p class="text-muted small mb-0" data-i18n="currentAnalysis">Calculated Grade</p><h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4></div><div class="d-flex gap-2"><button type="button" class="btn btn-outline-secondary" onclick="notifyStudentGrade()"><i class="bi bi-bell"></i> Notify</button><button type="submit" class="btn btn-primary px-5" onclick="saveGrade()" data-i18n="btnSave">Save Score</button></div></div>
-                </div>
-            </div>
-            
-            <div class="glass-card"><h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Grade Distribution</h6><canvas id="gradeChart" style="height: 200px; width: 100%;"></canvas></div>
-        </div>
-
-        <div class="col-lg-4">
-            <!-- CHAT SECTION - FULLY FUNCTIONAL -->
-            <div class="glass-card mb-4 p-0 overflow-hidden">
-                <div class="bg-primary text-white p-3">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-chat-dots-fill me-2"></i>Student Messages</h6>
-                    <small class="opacity-75">Chat with enrolled students</small>
-                </div>
-                <div class="chat-container" style="height: 500px;">
-                    <div class="row g-0 h-100">
-                        <!-- Student List Sidebar -->
-                        <div class="col-4 chat-sidebar" id="chatStudentList">
-                            <div class="text-center py-4 text-muted small">
-                                <i class="bi bi-people fs-4"></i>
-                                <p class="mb-0 mt-2">Select a course first</p>
+    <!-- Tab Content -->
+    <div class="tab-content">
+        
+        <!-- ACADEMIC TAB -->
+        <div class="tab-pane fade show active" id="academic" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="glass-card">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-search text-primary me-2"></i>Student Performance Directory</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <select id="courseSelect" class="form-select rounded-pill">
+                                    <option value="">-- Select Course --</option>
+                                    <option value="Software Engineering">💻 Software Engineering</option>
+                                    <option value="IoT Systems">📡 IoT Systems</option>
+                                    <option value="Data Analytics">📊 Data Analytics</option>
+                                    <option value="AI Solutions">🤖 AI Solutions</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary rounded-pill px-4 flex-grow-1" onclick="searchBySubject()"><i class="bi bi-search me-1"></i> View Students</button>
+                                    <button class="btn btn-outline-secondary rounded-pill px-3" onclick="exportGradebook()" title="Export CSV"><i class="bi bi-download"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger rounded-pill w-100" onclick="openAnnouncementModal()"><i class="bi bi-megaphone"></i> Announce</button>
                             </div>
                         </div>
-                        <!-- Chat Area -->
-                        <div class="col-8 d-flex flex-column">
-                            <div id="chatMessagesArea" class="chat-messages-area flex-grow-1">
-                                <div class="text-center py-5 text-muted small">
-                                    <i class="bi bi-chat fs-1"></i>
-                                    <p class="mt-2">Select a student to start chatting</p>
+                        
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <span class="filter-chip active" data-filter="all" onclick="setGradeFilter('all')">All Students</span>
+                            <span class="filter-chip" data-filter="A" onclick="setGradeFilter('A')">🌟 A (Excellent)</span>
+                            <span class="filter-chip" data-filter="B" onclick="setGradeFilter('B')">📘 B (Good)</span>
+                            <span class="filter-chip" data-filter="C" onclick="setGradeFilter('C')">📙 C (Satisfactory)</span>
+                            <span class="filter-chip" data-filter="FAILED" onclick="setGradeFilter('FAILED')">⚠️ At Risk</span>
+                            <span class="filter-chip" data-filter="pending" onclick="setGradeFilter('pending')">⏳ Pending</span>
+                        </div>
+                        
+                        <div id="searchResults"><div class="text-center py-5 text-muted"><i class="bi bi-folder2-open fs-1"></i><p class="mt-2">Select a course to begin analysis.</p></div></div>
+                    </div>
+                    
+                    <div id="editForm" class="glass-card mt-4" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="fw-bold mb-0"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Grades: <span id="displayStudentName" class="text-primary"></span></h6>
+                            <button type="button" class="btn-close" onclick="closeEditForm()"></button>
+                        </div>
+                        <div class="row g-3">
+                            <input type="hidden" id="currentDocId">
+                            <div class="col-md-4"><label class="form-label small fw-bold">Quiz (20%)</label><input type="number" id="quiz" class="form-control rounded-pill" min="0" max="100" oninput="liveGrade()"></div>
+                            <div class="col-md-4"><label class="form-label small fw-bold">Test (30%)</label><input type="number" id="test" class="form-control rounded-pill" min="0" max="100" oninput="liveGrade()"></div>
+                            <div class="col-md-4"><label class="form-label small fw-bold">Midterm (50%)</label><input type="number" id="midterm" class="form-control rounded-pill" min="0" max="100" oninput="liveGrade()"></div>
+                            <div class="col-12 d-flex justify-content-between align-items-center pt-3">
+                                <div><p class="text-muted small mb-0">Calculated Grade</p><h4 id="liveGradeText" class="fw-bold text-primary mb-0">-</h4></div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="notifyStudentGrade()"><i class="bi bi-bell me-1"></i> Notify</button>
+                                    <button class="btn btn-primary rounded-pill px-5" onclick="saveGrade()"><i class="bi bi-save me-1"></i> Save</button>
                                 </div>
                             </div>
-                            <div class="chat-input-area">
-                                <div class="d-flex gap-2">
-                                    <input type="text" id="chatInput" class="form-control chat-input" placeholder="Type your message..." disabled>
-                                    <button class="btn btn-primary chat-send-btn" id="sendChatBtn" onclick="sendChatMessage()" disabled>
-                                        <i class="bi bi-send"></i>
-                                    </button>
-                                </div>
-                                <div id="typingIndicator" class="typing-indicator"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card mt-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Grade Distribution</h6>
+                        <canvas id="gradeChart" style="height: 200px; width: 100%;"></canvas>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="glass-card mb-4" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i>Quick Announcement</h5>
+                        <select id="announceCourse" class="form-select rounded-pill mb-3"><option value="all">📢 All Courses</option><option value="Software Engineering">💻 Software Engineering</option><option value="IoT Systems">📡 IoT Systems</option><option value="Data Analytics">📊 Data Analytics</option><option value="AI Solutions">🤖 AI Solutions</option></select>
+                        <input type="text" id="announceTitle" class="form-control rounded-pill mb-3" placeholder="Announcement Title">
+                        <textarea id="announceMessage" class="form-control rounded-4 mb-3" rows="3" placeholder="Write your announcement here..."></textarea>
+                        <button class="btn btn-warning w-100 py-2 fw-bold rounded-pill" onclick="sendAnnouncement()"><i class="bi bi-send me-2"></i> Send to Students</button>
+                    </div>
+                    
+                    <div class="glass-card mb-4">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Announcements</h6>
+                        <div id="announcementHistory" class="small"><div class="text-center py-3 text-muted">No announcements yet.</div></div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-files me-2 text-primary"></i>Recent Resources</h6>
+                        <div id="materialsList" class="small"><div class="text-center py-3 text-muted">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ATTENDANCE TAB -->
+        <div class="tab-pane fade" id="attendance" role="tabpanel">
+            <div class="glass-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance Management</h5>
+                    <div class="d-flex gap-2">
+                        <a href="scanner.html" class="btn btn-primary rounded-pill px-4" target="_blank"><i class="bi bi-upc-scan me-1"></i> Open Scanner</a>
+                        <button class="btn btn-outline-secondary rounded-pill px-4" onclick="refreshAttendanceData()"><i class="bi bi-arrow-repeat me-1"></i> Refresh</button>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-6"><div class="bg-success bg-opacity-10 rounded-4 p-3 text-center"><i class="bi bi-calendar-check-fill text-success fs-3"></i><h3 id="attendanceTodayCount" class="fw-bold text-success mb-0 mt-2">0</h3><small class="text-muted">Today's Attendance</small></div></div>
+                    <div class="col-md-3 col-6"><div class="bg-primary bg-opacity-10 rounded-4 p-3 text-center"><i class="bi bi-people-fill text-primary fs-3"></i><h3 id="totalEnrolledCount" class="fw-bold text-primary mb-0 mt-2">0</h3><small class="text-muted">Total Enrolled</small></div></div>
+                    <div class="col-md-3 col-6"><div class="bg-warning bg-opacity-10 rounded-4 p-3 text-center"><i class="bi bi-graph-up text-warning fs-3"></i><h3 id="attendanceRate" class="fw-bold text-warning mb-0 mt-2">0%</h3><small class="text-muted">Attendance Rate</small></div></div>
+                    <div class="col-md-3 col-6"><div class="bg-info bg-opacity-10 rounded-4 p-3 text-center"><i class="bi bi-shield-check text-info fs-3"></i><h3 id="secureScans" class="fw-bold text-info mb-0 mt-2">0</h3><small class="text-muted">Secure Scans</small></div></div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-custom align-middle">
+                        <thead><tr><th>Student ID</th><th>Student Name</th><th>Status</th><th>Time</th><th>Location</th><th>Verification</th></tr></thead>
+                        <tbody id="attendanceTableHost"><tr><td colspan="6" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3 d-flex gap-2 justify-content-end">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="exportAttendanceCSV()"><i class="bi bi-download me-1"></i> CSV</button>
+                    <button class="btn btn-outline-success btn-sm rounded-pill px-3" onclick="exportAttendanceExcel()"><i class="bi bi-file-excel me-1"></i> Excel</button>
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="printAttendanceReport()"><i class="bi bi-printer me-1"></i> Print</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CHAT TAB -->
+        <div class="tab-pane fade" id="chat" role="tabpanel">
+            <div class="glass-card p-0 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <div class="bg-primary text-white p-3"><h6 class="fw-bold mb-0"><i class="bi bi-people-fill me-2"></i>Students</h6><small class="opacity-75">Select a course first to load students</small></div>
+                        <div id="chatStudentList" class="chat-sidebar p-0"><div class="text-center py-5 text-muted small"><i class="bi bi-folder2-open fs-3 d-block mb-2"></i>Select a course from Academic tab</div></div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="bg-light p-3 border-bottom"><h6 class="fw-bold mb-0"><i class="bi bi-chat-dots-fill me-2 text-primary"></i>Conversation</h6></div>
+                        <div id="chatMessagesArea" class="chat-messages" style="height: 450px;"><div class="text-center py-5 text-muted"><i class="bi bi-chat fs-1 d-block mb-2"></i>Select a student to start chatting</div></div>
+                        <div class="chat-input-area">
+                            <div class="input-group">
+                                <input type="text" id="chatInput" class="form-control rounded-pill" placeholder="Type your message..." disabled>
+                                <button class="btn btn-primary rounded-pill px-4 ms-2" id="sendChatBtn" onclick="sendChatMessage()" disabled><i class="bi bi-send"></i> Send</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="glass-card mb-4" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border: none;">
-                <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i><span data-i18n="announceTitle">Send Announcement</span></h5>
-                <div class="mb-3"><label class="form-label small fw-bold" data-i18n="selectCourse">Course</label><select id="announceCourse" class="form-select"><option value="all">📢 All Courses</option><option value="Software Engineering">💻 Software Engineering</option><option value="IoT Systems">📡 IoT Systems</option><option value="Data Analytics">📊 Data Analytics</option><option value="AI Solutions">🤖 AI Solutions</option></select></div>
-                <div class="mb-3"><label class="form-label small fw-bold" data-i18n="announceTitleLabel">Title</label><input type="text" id="announceTitle" class="form-control" placeholder="e.g., Assignment Deadline Extended"></div>
-                <div class="mb-3"><label class="form-label small fw-bold" data-i18n="announceMessageLabel">Message</label><textarea id="announceMessage" class="form-control" rows="3" placeholder="Write your announcement here..."></textarea></div>
-                <button class="btn btn-warning w-100 py-3 fw-bold shadow-sm" onclick="sendAnnouncement()"><i class="bi bi-send me-2"></i> <span data-i18n="btnSendAnnounce">Send to Students</span></button>
+        </div>
+        
+        <!-- RESOURCES TAB -->
+        <div class="tab-pane fade" id="resources" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="glass-card">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill text-primary me-2"></i>Upload Resource</h5>
+                        <div class="mb-3"><label class="form-label fw-semibold small">Material Title</label><input type="text" id="postTitle" class="form-control rounded-pill" placeholder="e.g., Lecture Notes Week 5"></div>
+                        <div class="mb-3"><label class="form-label fw-semibold small">Resource Link / URL</label><textarea id="postContent" class="form-control rounded-4" rows="4" placeholder="Google Drive link, PDF URL, YouTube video..."></textarea></div>
+                        <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="uploadMaterial()"><i class="bi bi-cloud-arrow-up me-2"></i> Publish Resource</button>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="glass-card">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-collection-play-fill text-primary me-2"></i>Learning Resources</h5>
+                        <div id="materialsFullList" class="small" style="max-height: 500px; overflow-y: auto;"><div class="text-center py-4 text-muted">Loading resources...</div></div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="glass-card mb-4"><h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Announcements</h6><div id="announcementHistory" class="small"><div class="text-center py-3 text-muted">No announcements sent yet.</div></div></div>
-
-            <!-- Resource Center -->
-            <div class="glass-card mb-4"><h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload-fill text-primary me-2"></i><span data-i18n="resTitle">Resource Center</span></h5>
-                <div class="mb-3"><label class="form-label small fw-bold" data-i18n="resMaterial">Material Title</label><input type="text" id="postTitle" class="form-control" placeholder="e.g., Lecture Notes Week 5"></div>
-                <div class="mb-3"><label class="form-label small fw-bold" data-i18n="resLink">Resource Link / URL</label><textarea id="postContent" class="form-control" rows="3" placeholder="Google Drive link, PDF URL..."></textarea></div>
-                <button class="btn btn-primary w-100 py-3 shadow-sm" onclick="uploadMaterial()"><i class="bi bi-cloud-arrow-up me-2"></i><span data-i18n="btnPublish">Publish Material</span></button>
-            </div>
-            
-            <div class="glass-card"><h6 class="fw-bold mb-3"><i class="bi bi-files me-2 text-primary"></i>Recent Resources</h6><div id="materialsList" class="small"><div class="text-center py-3 text-muted">Loading materials...</div></div></div>
         </div>
     </div>
 </div>
 
-<!-- ============ ATTENDANCE DASHBOARD SECTION ============ -->
-<div class="container mb-5">
-    <div class="glass-card p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance Management</h6>
-            <div>
-                <a href="scanner.html" class="btn btn-primary btn-sm rounded-pill me-2" target="_blank">
-                    <i class="bi bi-upc-scan me-1"></i> Open Scanner
-                </a>
-                <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="refreshAttendanceData()">
-                    <i class="bi bi-arrow-repeat me-1"></i> Refresh
-                </button>
-            </div>
-        </div>
-        
-        <div class="row g-3 mb-4">
-            <div class="col-md-3"><div class="bg-success bg-opacity-10 rounded-3 p-3 text-center"><i class="bi bi-calendar-check-fill text-success fs-3"></i><h3 id="attendanceTodayCount" class="fw-bold text-success mb-0 mt-2">0</h3><small class="text-muted">Today's Attendance</small></div></div>
-            <div class="col-md-3"><div class="bg-primary bg-opacity-10 rounded-3 p-3 text-center"><i class="bi bi-people-fill text-primary fs-3"></i><h3 id="totalEnrolledCount" class="fw-bold text-primary mb-0 mt-2">0</h3><small class="text-muted">Total Enrolled</small></div></div>
-            <div class="col-md-3"><div class="bg-warning bg-opacity-10 rounded-3 p-3 text-center"><i class="bi bi-graph-up text-warning fs-3"></i><h3 id="attendanceRate" class="fw-bold text-warning mb-0 mt-2">0%</h3><small class="text-muted">Attendance Rate</small></div></div>
-            <div class="col-md-3"><div class="bg-info bg-opacity-10 rounded-3 p-3 text-center"><i class="bi bi-shield-check text-info fs-3"></i><h3 id="secureScans" class="fw-bold text-info mb-0 mt-2">0</h3><small class="text-muted">Secure Scans</small></div></div>
-        </div>
-        
-        <div class="table-responsive">
-            <table class="table table-sm align-middle">
-                <thead class="table-light"><tr><th>Student ID</th><th>Student Name</th><th>Status</th><th>Time</th><th>Location</th><th>Verification</th></tr></thead>
-                <tbody id="attendanceTableHost"><tr><td colspan="6" class="text-center py-3 text-muted small">Loading attendance data...</td></tr></tbody>
-            </table>
-        </div>
-        
-        <div class="mt-3 d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" onclick="exportAttendanceCSV()"><i class="bi bi-download me-1"></i> Export CSV</button>
-            <button class="btn btn-outline-success btn-sm" onclick="exportAttendanceExcel()"><i class="bi bi-file-excel me-1"></i> Export Excel</button>
-            <button class="btn btn-outline-danger btn-sm" onclick="printAttendanceReport()"><i class="bi bi-printer me-1"></i> Print</button>
-        </div>
-    </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, getDoc, addDoc, serverTimestamp, orderBy, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, updateDoc, collection, query, where, getDocs, getDoc, addDoc, serverTimestamp, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     const firebaseConfig = { apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", authDomain: "eduguard-ai-2742b.firebaseapp.com", projectId: "eduguard-ai-2742b", storageBucket: "eduguard-ai-2742b.firebasestorage.app", messagingSenderId: "96233022148", appId: "1:96233022148:web:1f903d72b3f79690409f91" };
@@ -230,374 +323,205 @@
     const auth = getAuth(app);
     const rtdb = getDatabase(app);
     
-    let currentLang = 'en';
-    let currentStudentsData = [];
-    let currentGradeFilter = 'all';
-    let gradeChart = null;
-    let studentNameCache = new Map();
-    let currentUserEmail = '';
-    let currentUserId = '';
-    let currentAttendanceData = [];
+    let currentUserEmail = '', currentUserId = '', currentStudentsData = [], currentGradeFilter = 'all', gradeChart = null, studentNameCache = new Map(), currentAttendanceData = [];
+    let currentSelectedStudent = null, chatUnsubscribe = null;
     
-    // Chat variables
-    let currentSelectedStudent = null;
-    let chatUnsubscribe = null;
-    let currentCourseStudents = [];
-
-    const translations = {
-        en: { statAvg: "AVERAGE SCORE", statPass: "PASSED", statFail: "AT RISK", statPending: "PENDING", dirTitle: "Student Performance Directory", selectSubject: "-- Select Course --", btnView: "View", initialMsg: "Select a course to begin analysis.", formTitle: "Grade Editor:", labelQuiz: "Quiz (20%)", labelTest: "Test (30%)", labelMid: "Midterm (50%)", currentAnalysis: "Calculated Grade", btnSave: "Save Score", resTitle: "Resource Center", resMaterial: "Material Title", resLink: "Resource Link / URL", btnPublish: "Publish Material", btnAnnounce: "Announce", failed: "FAILED", pending: "PENDING", A: "A", B: "B", C: "C", announceTitle: "Send Announcement", selectCourse: "Course", announceTitleLabel: "Title", announceMessageLabel: "Message", btnSendAnnounce: "Send to Students" },
-        ms: { statAvg: "PURATA MARKAH", statPass: "LULUS", statFail: "BERISIKO", statPending: "TUNGGU", dirTitle: "Direktori Prestasi", selectSubject: "-- Pilih Kursus --", btnView: "Cari", initialMsg: "Pilih kursus untuk mulakan analisis.", formTitle: "Edit Gred:", labelQuiz: "Kuiz (20%)", labelTest: "Ujian (30%)", labelMid: "Peperiksaan (50%)", currentAnalysis: "Gred Dikira", btnSave: "Simpan", resTitle: "Pusat Sumber", resMaterial: "Tajuk Bahan", resLink: "Pautan / URL", btnPublish: "Terbitkan", btnAnnounce: "Hebahan", failed: "GAGAL", pending: "TIADA", A: "A", B: "B", C: "C", announceTitle: "Hantar Hebahan", selectCourse: "Kursus", announceTitleLabel: "Tajuk", announceMessageLabel: "Mesej", btnSendAnnounce: "Hantar ke Pelajar" }
-    };
-
-    function t(key) { return translations[currentLang][key] || key; }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-
+    
+    // Dark mode toggle
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-
-    // ============ AUTHENTICATION ============
+    
+    // Authentication
     onAuthStateChanged(auth, async (user) => { 
         if (!user) { window.location.href = "index.html"; return; } 
         const userDoc = await getDoc(doc(db, "users", user.uid)); 
-        if (!userDoc.exists() || userDoc.data().role !== 'host') { 
-            await signOut(auth); 
-            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'This area is for Course Coordinators only.' }); 
-            window.location.href = "index.html"; 
-            return; 
-        } 
-        currentUserEmail = user.email;
-        currentUserId = user.uid;
+        if (!userDoc.exists() || userDoc.data().role !== 'host') { await signOut(auth); Swal.fire({ icon: 'error', title: 'Access Denied' }); window.location.href = "index.html"; return; } 
+        currentUserEmail = user.email; currentUserId = user.uid;
         document.getElementById('hostName').innerText = userDoc.data().name || 'Coordinator'; 
-        loadMaterials(); 
-        loadAnnouncementHistory(); 
-        loadAttendanceData(); 
+        loadMaterials(); loadAnnouncementHistory(); loadAttendanceData(); 
     });
-
-    // ============ CHAT FUNCTIONS ============
+    
+    // Load materials
+    async function loadMaterials() { 
+        const q = query(collection(db, "materials"), orderBy("datePosted", "desc")); 
+        const snap = await getDocs(q); 
+        const container = document.getElementById('materialsList'); 
+        const fullContainer = document.getElementById('materialsFullList');
+        if (snap.empty) { const msg = '<div class="text-center py-3 text-muted">No resources yet.</div>'; if(container) container.innerHTML = msg; if(fullContainer) fullContainer.innerHTML = msg; return; } 
+        let html = '<div class="list-group list-group-flush">'; 
+        snap.forEach(docSnap => { const data = docSnap.data(); html += `<div class="list-group-item px-0 border-0 pb-3"><div class="d-flex align-items-start gap-2"><i class="bi bi-file-earmark-text text-primary fs-5"></i><div><strong class="small">${escapeHtml(data.title)}</strong><br><a href="${escapeHtml(data.content)}" target="_blank" class="text-muted small" style="font-size: 0.7rem;">${escapeHtml(data.content.substring(0, 50))}...</a></div></div></div>`; }); 
+        html += '</div>'; 
+        if(container) container.innerHTML = html; 
+        if(fullContainer) fullContainer.innerHTML = html; 
+    }
+    
+    window.uploadMaterial = async () => { 
+        const title = document.getElementById('postTitle').value; 
+        const content = document.getElementById('postContent').value; 
+        if (!title || !content) return Swal.fire('Error', 'Please fill all fields', 'error'); 
+        try { await addDoc(collection(db, "materials"), { title, content, course: "General", datePosted: serverTimestamp() }); Swal.fire('Success', 'Material published', 'success'); document.getElementById('postTitle').value = ""; document.getElementById('postContent').value = ""; loadMaterials(); } catch (e) { Swal.fire('Error', e.message, 'error'); } 
+    };
+    
+    // Announcements
+    window.sendAnnouncement = async () => { 
+        const course = document.getElementById('announceCourse').value; 
+        const title = document.getElementById('announceTitle').value.trim(); 
+        const message = document.getElementById('announceMessage').value.trim(); 
+        if (!title || !message) return Swal.fire('Error', 'Please fill all fields', 'error'); 
+        Swal.fire({ title: 'Sending...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); 
+        try { 
+            let studentsQuery = course === 'all' ? query(collection(db, "course_registrations")) : query(collection(db, "course_registrations"), where("course", "==", course)); 
+            const studentsSnap = await getDocs(studentsQuery); 
+            const studentIds = [...new Set(studentsSnap.docs.map(doc => doc.data().studentID))]; 
+            if (studentIds.length === 0) { Swal.fire('Info', 'No students found', 'info'); return; } 
+            await Promise.all(studentIds.map(studentId => addDoc(collection(db, "notifications"), { studentID: studentId, message: `📢 **${title}**\n\n${message}`, sender: "Course Coordinator", senderType: "host", status: "unread", timestamp: serverTimestamp() }))); 
+            await addDoc(collection(db, "announcements"), { title, message, course, sender: currentUserEmail, recipientCount: studentIds.length, timestamp: serverTimestamp() }); 
+            Swal.fire({ icon: 'success', title: 'Sent!', text: `Sent to ${studentIds.length} students`, timer: 2000, showConfirmButton: false }); 
+            document.getElementById('announceTitle').value = ''; document.getElementById('announceMessage').value = ''; 
+            loadAnnouncementHistory(); 
+        } catch (error) { Swal.fire('Error', error.message, 'error'); } 
+    };
+    
+    async function loadAnnouncementHistory() { 
+        const q = query(collection(db, "announcements"), orderBy("timestamp", "desc")); 
+        const snap = await getDocs(q); 
+        const container = document.getElementById('announcementHistory'); 
+        if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted">No announcements yet.</div>'; return; } 
+        let html = ''; 
+        snap.forEach(docSnap => { const data = docSnap.data(); const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now'; html += `<div class="border-bottom pb-2 mb-2"><div class="fw-bold small text-primary">📢 ${escapeHtml(data.title)}</div><small class="text-muted">${date} • To: ${data.course}</small><div class="small mt-1">${escapeHtml(data.message.substring(0, 60))}...</div></div>`; }); 
+        container.innerHTML = html; 
+    }
+    
+    window.openAnnouncementModal = () => { document.getElementById('announceTitle').focus(); document.querySelector('[data-bs-target="#academic"]').click(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    
+    // Attendance
+    function loadAttendanceData() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        onValue(ref(rtdb, `kehadiran_unimap/${todayStr}`), (snapshot) => {
+            const tbody = document.getElementById('attendanceTableHost');
+            let count = 0, secureCount = 0;
+            if (snapshot.exists()) {
+                const records = Object.values(snapshot.val());
+                count = records.length; currentAttendanceData = records;
+                tbody.innerHTML = records.map(rec => { if(rec.verificationHash) secureCount++; return `<tr><td class="small">${escapeHtml(rec.studentID)}</td><td>${escapeHtml(rec.studentName || '-')}</td><td><span class="badge bg-success">Present</span></td><td class="small">${rec.masa || '-'}</td><td class="small">${rec.lokasi || 'Kampus'}</td><td>${rec.verificationHash ? '<i class="bi bi-shield-check text-info"></i>' : '<i class="bi bi-shield-slash text-secondary"></i>'}</td></tr>`; }).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No attendance records today.</td></tr>'; }
+            document.getElementById('attendanceTodayCount').innerText = count;
+            document.getElementById('secureScans').innerText = secureCount;
+            if (currentStudentsData.length) { document.getElementById('totalEnrolledCount').innerText = currentStudentsData.length; document.getElementById('attendanceRate').innerText = ((count / currentStudentsData.length) * 100).toFixed(1) + '%'; }
+        });
+    }
+    
+    window.refreshAttendanceData = () => { loadAttendanceData(); Swal.fire({ toast: true, icon: 'success', title: 'Refreshed', timer: 1500, showConfirmButton: false }); };
+    window.exportAttendanceCSV = () => { let csv = "Student ID,Student Name,Status,Time,Location,Verification,Date\n"; const todayStr = new Date().toISOString().split('T')[0]; currentAttendanceData.forEach(rec => { csv += `"${rec.studentID}","${rec.studentName || '-'}","Present","${rec.masa || '-'}","${rec.lokasi || 'Kampus'}","${rec.verificationHash ? 'Secure' : 'Legacy'}","${todayStr}"\n`; }); const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `attendance_${todayStr}.csv`; a.click(); URL.revokeObjectURL(a.href); Swal.fire({ toast: true, icon: 'success', title: 'Exported', timer: 1500 }); };
+    window.exportAttendanceExcel = () => exportAttendanceCSV();
+    window.printAttendanceReport = () => { const w = window.open('', '_blank'); w.document.write(`<html><head><title>Attendance Report</title><style>body{font-family:Arial;margin:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px}th{background:#f2f2f2}</style></head><body><h2>Attendance Report</h2><p>Date: ${new Date().toLocaleDateString()}</p><table><thead><tr><th>Student ID</th><th>Name</th><th>Time</th><th>Location</th></tr></thead><tbody>${currentAttendanceData.map(rec => `<tr><td>${rec.studentID}</td><td>${rec.studentName || '-'}</td><td>${rec.masa || '-'}</td><td>${rec.lokasi || 'Kampus'}</td></tr>`).join('')}</tbody></table></body></html>`); w.document.close(); w.print(); };
+    
+    // Academic functions
+    async function fetchStudentName(id) { if (studentNameCache.has(id)) return studentNameCache.get(id); try { const snap = await getDoc(doc(db, "users", id)); const name = snap.exists() ? snap.data().name || id : id; studentNameCache.set(id, name); return name; } catch { return id; } }
+    
+    window.searchBySubject = async () => {
+        const selected = document.getElementById('courseSelect').value;
+        if (!selected) { document.getElementById('searchResults').innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-folder2-open fs-1"></i><p class="mt-2">Select a course to begin analysis.</p></div>'; return; }
+        document.getElementById('searchResults').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+        try {
+            const snap = await getDocs(query(collection(db, "course_registrations"), where("course", "==", selected)));
+            let students = [];
+            for (const docSnap of snap.docs) { const data = docSnap.data(); const studentName = await fetchStudentName(data.studentID); students.push({ id: docSnap.id, ...data, studentDisplayName: studentName }); }
+            currentStudentsData = students;
+            renderStudentTable(students);
+            updateStatistics(students);
+            updateGradeChart(students);
+            document.getElementById('totalEnrolledCount').innerText = students.length;
+            const todayCount = parseInt(document.getElementById('attendanceTodayCount').innerText) || 0;
+            document.getElementById('attendanceRate').innerText = students.length > 0 ? ((todayCount / students.length) * 100).toFixed(1) + '%' : '0%';
+            loadChatStudents(); // Load chat students when course changes
+        } catch (e) { console.error(e); document.getElementById('searchResults').innerHTML = '<div class="text-center py-5 text-danger">Error loading data</div>'; }
+    };
+    
+    function renderStudentTable(students) {
+        let filtered = students;
+        if (currentGradeFilter !== 'all') {
+            if (currentGradeFilter === 'pending') filtered = students.filter(s => !s.grade);
+            else filtered = students.filter(s => s.grade === currentGradeFilter);
+        }
+        if (!filtered.length) { document.getElementById('searchResults').innerHTML = '<div class="text-center py-5 text-muted">No students found.</div>'; return; }
+        let html = '<div class="table-responsive"><table class="table table-custom align-middle"><thead><tr><th>Student</th><th>Performance</th><th class="text-center">Grade</th><th class="text-end">Action</th></tr></thead><tbody>';
+        filtered.forEach(s => { const mark = parseFloat(s.totalMark) || 0; let badgeClass = 'badge-pending'; if (s.grade === 'A') badgeClass = 'badge-a'; else if (s.grade === 'B') badgeClass = 'badge-b'; else if (s.grade === 'C') badgeClass = 'badge-c'; else if (s.grade === 'FAILED') badgeClass = 'badge-f'; const gradeDisplay = s.grade || 'Pending';
+        html += `<tr><td><div class="fw-bold">${escapeHtml(s.studentDisplayName)}</div><small class="text-muted">${s.studentID}</small></td><td style="min-width: 180px;"><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2" style="height: 6px;"><div class="progress-bar ${mark >= 40 ? 'bg-primary' : 'bg-danger'}" style="width: ${mark}%"></div></div><small class="fw-bold">${mark}%</small></div></td><td class="text-center"><span class="grade-badge ${badgeClass}">${gradeDisplay}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="prepareEdit('${s.id}', '${escapeHtml(s.studentDisplayName)}', ${s.quiz || 0}, ${s.test || 0}, ${s.midterm || 0})"><i class="bi bi-pencil"></i> Edit</button> <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="openChatFromGrade('${s.studentID}', '${escapeHtml(s.studentDisplayName)}')"><i class="bi bi-chat"></i> Chat</button></td></tr>`; });
+        document.getElementById('searchResults').innerHTML = html + '</tbody></table></div>';
+    }
+    
+    function updateStatistics(students) { let total = 0, pass = 0, fail = 0, pending = 0, sumMarks = 0; students.forEach(s => { const mark = parseFloat(s.totalMark) || 0; total++; if (!s.grade) pending++; else if (s.grade === 'FAILED') fail++; else { pass++; sumMarks += mark; } }); document.getElementById('statAvg').innerHTML = total > 0 ? (sumMarks / total).toFixed(1) + '%' : '0%'; document.getElementById('statPass').innerText = pass; document.getElementById('statFail').innerText = fail; document.getElementById('statPending').innerText = pending; }
+    function updateGradeChart(students) { const grades = { A:0, B:0, C:0, FAILED:0, pending:0 }; students.forEach(s => { if (!s.grade) grades.pending++; else if (s.grade === 'A') grades.A++; else if (s.grade === 'B') grades.B++; else if (s.grade === 'C') grades.C++; else grades.FAILED++; }); const ctx = document.getElementById('gradeChart')?.getContext('2d'); if (ctx) { if (gradeChart) gradeChart.destroy(); gradeChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['A', 'B', 'C', 'At Risk', 'Pending'], datasets: [{ data: [grades.A, grades.B, grades.C, grades.FAILED, grades.pending], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#94a3b8'], borderWidth: 0 }] }, options: { maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } } }); } }
+    
+    window.setGradeFilter = (filter) => { currentGradeFilter = filter; document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active')); document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active'); renderStudentTable(currentStudentsData); };
+    window.liveGrade = () => { const q = Number(document.getElementById('quiz').value) || 0; const t = Number(document.getElementById('test').value) || 0; const m = Number(document.getElementById('midterm').value) || 0; const total = (q * 0.2) + (t * 0.3) + (m * 0.5); let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? "FAILED" : "-"); document.getElementById('liveGradeText').innerHTML = `${grade} <span style="font-size:0.8rem;">(${total.toFixed(1)}%)</span>`; };
+    window.prepareEdit = (id, name, q, t, m) => { document.getElementById('currentDocId').value = id; document.getElementById('displayStudentName').innerText = name; document.getElementById('quiz').value = q; document.getElementById('test').value = t; document.getElementById('midterm').value = m; document.getElementById('editForm').style.display = 'block'; liveGrade(); window.scrollTo({ top: document.getElementById('editForm').offsetTop - 100, behavior: 'smooth' }); };
+    window.closeEditForm = () => { document.getElementById('editForm').style.display = 'none'; };
+    window.saveGrade = async () => { const id = document.getElementById('currentDocId').value; if (!id) return; const q = Number(document.getElementById('quiz').value) || 0; const t = Number(document.getElementById('test').value) || 0; const m = Number(document.getElementById('midterm').value) || 0; const total = (q * 0.2) + (t * 0.3) + (m * 0.5); let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : "FAILED"; try { await updateDoc(doc(db, "course_registrations", id), { quiz: q, test: t, midterm: m, totalMark: total.toFixed(2), grade, lastUpdated: serverTimestamp() }); Swal.fire({ icon: 'success', title: 'Saved!', toast: true, timer: 1500, showConfirmButton: false }); closeEditForm(); searchBySubject(); } catch (e) { Swal.fire('Error', e.message, 'error'); } };
+    window.notifyStudentGrade = async () => { const id = document.getElementById('currentDocId').value; if (!id) return; const docSnap = await getDoc(doc(db, "course_registrations", id)); const studentId = docSnap.data()?.studentID; if(studentId) { await addDoc(collection(db, "notifications"), { studentID: studentId, message: `📊 Your grade has been updated. Please check your dashboard.`, sender: "Course Coordinator", status: "unread", timestamp: serverTimestamp() }); Swal.fire({ icon: 'success', title: 'Notified!', toast: true, timer: 1500 }); } };
+    window.exportGradebook = () => { if (!currentStudentsData.length) return Swal.fire('No data', 'Load a course first', 'warning'); let csv = "Student ID,Name,Quiz,Test,Midterm,Total (%),Grade\n"; currentStudentsData.forEach(s => { csv += `"${s.studentID}","${s.studentDisplayName}",${s.quiz || 0},${s.test || 0},${s.midterm || 0},${s.totalMark || 0},${s.grade || 'Pending'}\n`; }); const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `gradebook_${document.getElementById('courseSelect').value}.csv`; a.click(); URL.revokeObjectURL(a.href); };
+    
+    // Chat functions
     async function loadChatStudents() {
         const selectedCourse = document.getElementById('courseSelect').value;
-        if (!selectedCourse) {
-            document.getElementById('chatStudentList').innerHTML = `
-                <div class="text-center py-4 text-muted small">
-                    <i class="bi bi-folder2-open fs-4"></i>
-                    <p class="mb-0 mt-2">Select a course first</p>
-                </div>`;
-            return;
-        }
-        
+        if (!selectedCourse) { document.getElementById('chatStudentList').innerHTML = '<div class="text-center py-5 text-muted small"><i class="bi bi-folder2-open fs-3 d-block mb-2"></i>Select a course first</div>'; return; }
         try {
-            const q = query(collection(db, "course_registrations"), where("course", "==", selectedCourse));
-            const snap = await getDocs(q);
+            const snap = await getDocs(query(collection(db, "course_registrations"), where("course", "==", selectedCourse)));
             const students = [];
-            
             for (const docSnap of snap.docs) {
                 const data = docSnap.data();
                 const studentId = data.studentID;
                 const userDoc = await getDoc(doc(db, "users", studentId));
                 const studentName = userDoc.exists() ? userDoc.data().name || studentId : studentId;
-                students.push({ id: studentId, name: studentName, course: data.course });
-                
-                // Check unread count
                 const chatId = [currentUserId, studentId].sort().join('_');
-                const unreadQuery = query(collection(db, "chats", chatId, "messages"), where("read", "==", false), where("senderId", "!=", currentUserId));
-                const unreadSnap = await getDocs(unreadQuery);
-                students[students.length - 1].unread = unreadSnap.size;
+                const unreadSnap = await getDocs(query(collection(db, "chats", chatId, "messages"), where("read", "==", false), where("senderId", "!=", currentUserId)));
+                students.push({ id: studentId, name: studentName, unread: unreadSnap.size });
             }
-            
-            currentCourseStudents = students;
-            
-            if (students.length === 0) {
-                document.getElementById('chatStudentList').innerHTML = `
-                    <div class="text-center py-4 text-muted small">
-                        <i class="bi bi-person-x fs-4"></i>
-                        <p class="mb-0 mt-2">No students enrolled</p>
-                    </div>`;
-                return;
-            }
-            
-            let html = '';
-            students.forEach(student => {
-                const unreadBadge = student.unread > 0 ? `<span class="unread-badge ms-2">${student.unread}</span>` : '';
-                html += `
-                    <div class="chat-student-item" onclick="selectChatStudent('${student.id}', '${escapeHtml(student.name)}')">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="student-avatar">${student.name.charAt(0).toUpperCase()}</div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold small">${escapeHtml(student.name)}</div>
-                                <small class="text-muted" style="font-size: 10px;">${student.id}</small>
-                            </div>
-                            ${unreadBadge}
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('chatStudentList').innerHTML = html;
-        } catch (e) {
-            console.error('Error loading students:', e);
-        }
+            if (!students.length) { document.getElementById('chatStudentList').innerHTML = '<div class="text-center py-5 text-muted small"><i class="bi bi-person-x fs-3 d-block mb-2"></i>No students enrolled</div>'; return; }
+            let html = ''; students.forEach(s => { html += `<div class="student-item d-flex align-items-center gap-2" onclick="selectChatStudent('${s.id}', '${escapeHtml(s.name)}')"><div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><span class="fw-bold">${s.name.charAt(0)}</span></div><div class="flex-grow-1"><div class="fw-semibold small">${escapeHtml(s.name)}</div><small class="text-muted">${s.id}</small></div>${s.unread > 0 ? `<span class="badge bg-primary rounded-pill">${s.unread}</span>` : ''}</div>`; }); document.getElementById('chatStudentList').innerHTML = html;
+        } catch (e) { console.error(e); }
     }
     
     window.selectChatStudent = async (studentId, studentName) => {
         currentSelectedStudent = { id: studentId, name: studentName };
-        
-        // Update UI
-        document.querySelectorAll('.chat-student-item').forEach(item => item.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        
-        // Enable chat input
-        document.getElementById('chatInput').disabled = false;
-        document.getElementById('sendChatBtn').disabled = false;
+        document.querySelectorAll('.student-item').forEach(el => el.classList.remove('active'));
+        if(event.target.closest('.student-item')) event.target.closest('.student-item').classList.add('active');
+        document.getElementById('chatInput').disabled = false; document.getElementById('sendChatBtn').disabled = false;
         document.getElementById('chatInput').placeholder = `Message ${studentName}...`;
-        
-        // Mark messages as read
-        await markMessagesAsRead(studentId);
-        
-        // Load chat messages
-        loadChatMessages(studentId);
-    };
-    
-    async function markMessagesAsRead(studentId) {
-        const chatId = [currentUserId, studentId].sort().join('_');
-        const messagesRef = collection(db, "chats", chatId, "messages");
-        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentUserId));
-        const unreadSnap = await getDocs(unreadQuery);
-        
-        unreadSnap.forEach(async (docSnap) => {
-            await updateDoc(doc(db, "chats", chatId, "messages", docSnap.id), { read: true });
-        });
-        
-        // Reload student list to update unread badges
-        loadChatStudents();
-    }
-    
-    function loadChatMessages(studentId) {
         if (chatUnsubscribe) chatUnsubscribe();
-        
         const chatId = [currentUserId, studentId].sort().join('_');
-        const messagesRef = collection(db, "chats", chatId, "messages");
-        const q = query(messagesRef, orderBy("timestamp", "asc"));
-        
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
         chatUnsubscribe = onSnapshot(q, (snapshot) => {
-            const messagesArea = document.getElementById('chatMessagesArea');
-            if (snapshot.empty) {
-                messagesArea.innerHTML = `
-                    <div class="text-center py-5 text-muted small">
-                        <i class="bi bi-chat-dots fs-1"></i>
-                        <p class="mt-2">No messages yet. Start the conversation!</p>
-                    </div>`;
-                return;
-            }
-            
-            let html = '';
-            snapshot.forEach(docSnap => {
-                const msg = docSnap.data();
-                const isSent = msg.senderId === currentUserId;
-                const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
-                
-                html += `
-                    <div class="chat-message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-bubble">
-                            ${escapeHtml(msg.text)}
-                        </div>
-                        <div class="message-time">${time}</div>
-                    </div>
-                `;
-            });
-            
-            messagesArea.innerHTML = html;
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            const msgs = document.getElementById('chatMessagesArea');
+            if (snapshot.empty) { msgs.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-chat-dots fs-1 d-block mb-2"></i>No messages yet.</div>'; return; }
+            let html = ''; snapshot.forEach(docSnap => { const msg = docSnap.data(); const isSent = msg.senderId === currentUserId; const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || ''; html += `<div class="d-flex mb-3 ${isSent ? 'justify-content-end' : 'justify-content-start'}"><div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}"><div class="small">${escapeHtml(msg.text)}</div><div class="small opacity-50 mt-1" style="font-size: 0.6rem;">${time}</div></div></div>`; });
+            msgs.innerHTML = html; msgs.scrollTop = msgs.scrollHeight;
         });
-    }
+        const unreadSnap = await getDocs(query(collection(db, "chats", chatId, "messages"), where("read", "==", false), where("senderId", "!=", currentUserId)));
+        unreadSnap.forEach(async (d) => { await updateDoc(doc(db, "chats", chatId, "messages", d.id), { read: true }); });
+        loadChatStudents();
+    };
     
     window.sendChatMessage = async () => {
-        const message = document.getElementById('chatInput').value.trim();
-        if (!message || !currentSelectedStudent) return;
-        
+        const msg = document.getElementById('chatInput').value.trim();
+        if (!msg || !currentSelectedStudent) return;
         document.getElementById('chatInput').value = '';
-        
         const chatId = [currentUserId, currentSelectedStudent.id].sort().join('_');
-        
-        await addDoc(collection(db, "chats", chatId, "messages"), {
-            text: message,
-            senderId: currentUserId,
-            senderName: document.getElementById('hostName').innerText,
-            receiverId: currentSelectedStudent.id,
-            timestamp: serverTimestamp(),
-            read: false
-        });
-        
-        // Also add to notifications collection for the student
-        await addDoc(collection(db, "notifications"), {
-            studentID: currentSelectedStudent.id,
-            message: `💬 New message from Coordinator: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
-            sender: "Course Coordinator",
-            senderType: "host",
-            type: "chat",
-            status: "unread",
-            timestamp: serverTimestamp()
-        });
-        
-        // Scroll to bottom
-        const messagesArea = document.getElementById('chatMessagesArea');
-        messagesArea.scrollTop = messagesArea.scrollHeight;
+        await addDoc(collection(db, "chats", chatId, "messages"), { text: msg, senderId: currentUserId, senderName: document.getElementById('hostName').innerText, receiverId: currentSelectedStudent.id, timestamp: serverTimestamp(), read: false });
+        await addDoc(collection(db, "notifications"), { studentID: currentSelectedStudent.id, message: `💬 New message: "${msg.substring(0, 50)}..."`, sender: "Course Coordinator", type: "chat", status: "unread", timestamp: serverTimestamp() });
+        document.getElementById('chatMessagesArea').scrollTop = document.getElementById('chatMessagesArea').scrollHeight;
     };
     
-    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendChatMessage();
-    });
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+    window.openChatFromGrade = (id, name) => { selectChatStudent(id, name); document.querySelector('[data-bs-target="#chat"]').click(); };
     
-    window.notifyStudentGrade = async () => {
-        const studentId = document.getElementById('currentDocId').value;
-        if (!studentId) return;
-        
-        const studentDoc = await getDoc(doc(db, "users", studentId));
-        const studentName = studentDoc.exists() ? studentDoc.data().name : 'Student';
-        
-        await addDoc(collection(db, "notifications"), {
-            studentID: studentId,
-            message: `📊 Your grade has been updated. Please check your performance dashboard.`,
-            sender: "Course Coordinator",
-            senderType: "host",
-            type: "grade_update",
-            status: "unread",
-            timestamp: serverTimestamp()
-        });
-        
-        Swal.fire({ icon: 'success', title: 'Notified!', text: `Grade update notification sent to ${studentName}`, timer: 2000, showConfirmButton: false });
-    };
-
-    // ============ ATTENDANCE FUNCTIONS ============
-    function loadAttendanceData() {
-        const todayStr = new Date().toISOString().split('T')[0];
-        const attendanceRefHost = ref(rtdb, `kehadiran_unimap/${todayStr}`);
-        
-        onValue(attendanceRefHost, (snapshot) => {
-            const tbody = document.getElementById('attendanceTableHost');
-            let count = 0;
-            let secureCount = 0;
-            
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const records = Object.values(data);
-                count = records.length;
-                currentAttendanceData = records;
-                
-                tbody.innerHTML = '';
-                records.forEach(rec => {
-                    if (rec.verificationHash) secureCount++;
-                    const secureBadge = rec.verificationHash ? 
-                        '<span class="badge bg-info" style="font-size: 0.6rem;"><i class="bi bi-shield-check"></i> Secure</span>' : 
-                        '<span class="badge bg-secondary" style="font-size: 0.6rem;">Legacy</span>';
-                    
-                    tbody.innerHTML += `<tr><td class="fw-mono small">${escapeHtml(rec.studentID)}</td><td>${escapeHtml(rec.studentName || '-')}</td><td><span class="badge bg-success">Present</span></td><td class="small">${rec.masa || '-'}</td><td class="small">${rec.lokasi || 'Kampus'}</td><td>${secureBadge}</td></tr>`;
-                });
-            } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted small">No attendance records today.</td></tr>';
-            }
-            
-            document.getElementById('attendanceTodayCount').innerText = count;
-            document.getElementById('secureScans').innerText = secureCount;
-            
-            if (currentStudentsData && currentStudentsData.length > 0) {
-                document.getElementById('totalEnrolledCount').innerText = currentStudentsData.length;
-                const rate = ((count / currentStudentsData.length) * 100).toFixed(1);
-                document.getElementById('attendanceRate').innerText = rate + '%';
-            }
-        });
-    }
-    
-    window.refreshAttendanceData = () => { loadAttendanceData(); Swal.fire({ toast: true, icon: 'success', title: 'Attendance Refreshed', timer: 1500, showConfirmButton: false }); };
-    
-    window.exportAttendanceCSV = () => {
-        let csv = "Student ID,Student Name,Status,Time,Location,Verification,Date\n";
-        const todayStr = new Date().toISOString().split('T')[0];
-        currentAttendanceData.forEach(rec => { csv += `"${rec.studentID}","${rec.studentName || '-'}","Present","${rec.masa || '-'}","${rec.lokasi || 'Kampus'}","${rec.verificationHash ? 'Secure' : 'Legacy'}","${todayStr}"\n`; });
-        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `attendance_${todayStr}.csv`; a.click(); URL.revokeObjectURL(url);
-        Swal.fire({ icon: 'success', title: 'Exported!', toast: true, timer: 1500, showConfirmButton: false });
-    };
-    window.exportAttendanceExcel = () => { exportAttendanceCSV(); };
-    window.printAttendanceReport = () => {
-        const printWindow = window.open('', '_blank'); const todayStr = new Date().toLocaleDateString();
-        let html = `<!DOCTYPE html><html><head><title>Attendance Report - ${todayStr}</title><style>body{font-family:Arial;margin:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f2f2f2}</style></head><body><div style="text-align:center"><h2>Attendance Report</h2><p>Date: ${todayStr}</p><p>Total Present: ${currentAttendanceData.length}</p></div><table><thead><tr><th>Student ID</th><th>Student Name</th><th>Time</th><th>Location</th><th>Verification</th></tr></thead><tbody>`;
-        currentAttendanceData.forEach(rec => { html += `<tr><td>${rec.studentID}</td><td>${rec.studentName || '-'}</td><td>${rec.masa || '-'}</td><td>${rec.lokasi || 'Kampus'}</td><td>${rec.verificationHash ? 'Secure' : 'Legacy'}</td></tr>`; });
-        html += `</tbody></table></body></html>`; printWindow.document.write(html); printWindow.document.close(); printWindow.print();
-    };
-
-    // ============ COURSE & GRADE FUNCTIONS ============
-    async function fetchStudentName(studentId) { 
-        if (studentNameCache.has(studentId)) return studentNameCache.get(studentId); 
-        try { const snap = await getDoc(doc(db, "users", studentId)); const name = snap.exists() ? snap.data().name || studentId : studentId; studentNameCache.set(studentId, name); return name; } catch { return studentId; } 
-    }
-
-    window.searchBySubject = async () => { 
-        const selected = document.getElementById('courseSelect').value; 
-        const resArea = document.getElementById('searchResults'); 
-        if (!selected) { resArea.innerHTML = `<div class="text-center py-5"><p class="text-muted">${t('selectSubject')}</p></div>`; return; } 
-        resArea.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>`; 
-        try { 
-            const q = query(collection(db, "course_registrations"), where("course", "==", selected)); 
-            const snap = await getDocs(q); 
-            let students = []; 
-            for (const docSnap of snap.docs) { const data = docSnap.data(); const studentName = await fetchStudentName(data.studentID); students.push({ id: docSnap.id, ...data, studentDisplayName: studentName }); } 
-            currentStudentsData = students; 
-            renderStudentTable(students); updateStatistics(students); updateGradeChart(students); 
-            document.getElementById('totalEnrolledCount').innerText = students.length;
-            const todayCount = parseInt(document.getElementById('attendanceTodayCount').innerText) || 0;
-            const rate = students.length > 0 ? ((todayCount / students.length) * 100).toFixed(1) : 0;
-            document.getElementById('attendanceRate').innerText = rate + '%';
-            
-            // Load chat students when course changes
-            await loadChatStudents();
-        } catch (e) { console.error(e); resArea.innerHTML = `<div class="text-center py-5 text-danger">Error loading data</div>`; } 
-    };
-
-    function renderStudentTable(students) { 
-        let filtered = students; 
-        if (currentGradeFilter !== 'all') { if (currentGradeFilter === 'pending') filtered = students.filter(s => !s.grade); else filtered = students.filter(s => s.grade === currentGradeFilter); } 
-        const resArea = document.getElementById('searchResults'); 
-        if (!filtered.length) { resArea.innerHTML = `<div class="text-center py-5"><p class="text-muted">No students found for this filter.</p></div>`; return; } 
-        let html = `<div class="table-responsive"><table class="table table-custom align-middle mb-0"><thead><tr><th>Student</th><th>Performance</th><th class="text-center">Grade</th><th class="text-end">Action</th></tr></thead><tbody>`; 
-        filtered.forEach(s => { const mark = parseFloat(s.totalMark) || 0; let badgeClass = 'badge-pending'; if (s.grade === 'A') badgeClass = 'badge-a'; else if (s.grade === 'B') badgeClass = 'badge-b'; else if (s.grade === 'C') badgeClass = 'badge-c'; else if (s.grade === 'FAILED' || s.grade === 'GAGAL') badgeClass = 'badge-f'; const gradeDisplay = s.grade || t('pending'); 
-        html += `<tr><td><div class="fw-bold">${escapeHtml(s.studentDisplayName)}</div><small class="text-muted">${s.studentID}</small></td><td style="min-width: 180px;"><div class="d-flex align-items-center"><div class="progress flex-grow-1 me-2"><div class="progress-bar ${mark >= 40 ? 'bg-primary' : 'bg-danger'}" style="width: ${mark}%"></div></div><small class="fw-bold">${mark}%</small></div></td><td class="text-center"><span class="grade-badge ${badgeClass}">${gradeDisplay}</span></td><td class="text-end"><button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="prepareEdit('${s.id}', '${escapeHtml(s.studentDisplayName)}', ${s.quiz || 0}, ${s.test || 0}, ${s.midterm || 0})"><i class="bi bi-pencil"></i> Edit</button> <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="openChatFromGrade('${s.studentID}', '${escapeHtml(s.studentDisplayName)}')"><i class="bi bi-chat"></i> Chat</button></td></tr>`; }); 
-        resArea.innerHTML = html + "</tbody></table></div>"; 
-    }
-    
-    window.openChatFromGrade = (studentId, studentName) => {
-        // Switch to student list and select this student
-        const chatStudentItem = document.querySelector(`.chat-student-item`);
-        if (chatStudentItem) {
-            selectChatStudent(studentId, studentName);
-            // Scroll to chat section
-            document.querySelector('.glass-card.p-0.overflow-hidden')?.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
-    function updateStatistics(students) { let total = 0, pass = 0, fail = 0, pending = 0, sumMarks = 0; students.forEach(s => { const mark = parseFloat(s.totalMark) || 0; total++; if (!s.grade) pending++; else if (s.grade === 'FAILED' || s.grade === 'GAGAL') fail++; else { pass++; sumMarks += mark; } }); document.getElementById('statAvg').innerText = total > 0 ? (sumMarks / total).toFixed(1) + '%' : '0%'; document.getElementById('statPass').innerText = pass; document.getElementById('statFail').innerText = fail; document.getElementById('statPending').innerText = pending; }
-    function updateGradeChart(students) { const grades = { A: 0, B: 0, C: 0, FAILED: 0, pending: 0 }; students.forEach(s => { if (!s.grade) grades.pending++; else if (s.grade === 'A') grades.A++; else if (s.grade === 'B') grades.B++; else if (s.grade === 'C') grades.C++; else grades.FAILED++; }); const ctx = document.getElementById('gradeChart').getContext('2d'); if (gradeChart) gradeChart.destroy(); gradeChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['A (Excellent)', 'B (Good)', 'C (Satisfactory)', 'At Risk', 'Pending'], datasets: [{ data: [grades.A, grades.B, grades.C, grades.FAILED, grades.pending], backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#94a3b8'], borderWidth: 0 }] }, options: { maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } } }); }
-    window.setGradeFilter = (filter) => { currentGradeFilter = filter; document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active')); document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active'); renderStudentTable(currentStudentsData); };
-    window.liveGrade = () => { const q = Number(document.getElementById('quiz').value) || 0; const tVal = Number(document.getElementById('test').value) || 0; const m = Number(document.getElementById('midterm').value) || 0; const total = (q * 0.2) + (tVal * 0.3) + (m * 0.5); let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : (total > 0 ? t('failed') : "-"); document.getElementById('liveGradeText').innerHTML = `${grade} <span style="font-size:0.9rem;">(${total.toFixed(1)}%)</span>`; };
-    window.prepareEdit = (id, name, q, tVal, m) => { document.getElementById('currentDocId').value = id; document.getElementById('displayStudentName').innerText = name; document.getElementById('quiz').value = q; document.getElementById('test').value = tVal; document.getElementById('midterm').value = m; document.getElementById('editForm').style.display = 'block'; liveGrade(); window.scrollTo({ top: document.getElementById('editForm').offsetTop - 100, behavior: 'smooth' }); };
-    window.saveGrade = async () => { const id = document.getElementById('currentDocId').value; if (!id) return; const q = Number(document.getElementById('quiz').value) || 0; const tVal = Number(document.getElementById('test').value) || 0; const m = Number(document.getElementById('midterm').value) || 0; const total = (q * 0.2) + (tVal * 0.3) + (m * 0.5); let grade = total >= 80 ? "A" : total >= 60 ? "B" : total >= 40 ? "C" : t('failed'); try { await updateDoc(doc(db, "course_registrations", id), { quiz: q, test: tVal, midterm: m, totalMark: total.toFixed(2), grade, lastUpdated: serverTimestamp() }); Swal.fire({ icon: 'success', title: 'Saved!', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false }); closeEditForm(); searchBySubject(); } catch (e) { Swal.fire('Error', e.message, 'error'); } };
-    window.closeEditForm = () => { document.getElementById('editForm').style.display = 'none'; };
-    window.exportGradebook = () => { if (!currentStudentsData.length) return Swal.fire('No data', 'Please load a course first', 'warning'); let csv = "Student ID,Student Name,Quiz,Test,Midterm,Total (%),Grade\n"; currentStudentsData.forEach(s => { csv += `"${s.studentID}","${s.studentDisplayName}",${s.quiz || 0},${s.test || 0},${s.midterm || 0},${s.totalMark || 0},${s.grade || 'Pending'}\n`; }); const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `gradebook_${document.getElementById('courseSelect').value}.csv`; a.click(); URL.revokeObjectURL(url); };
-    
-    // ============ ANNOUNCEMENT FUNCTIONS ============
-    window.sendAnnouncement = async () => { const course = document.getElementById('announceCourse').value; const title = document.getElementById('announceTitle').value.trim(); const message = document.getElementById('announceMessage').value.trim(); if (!title || !message) { Swal.fire('Error', 'Please fill both title and message', 'error'); return; } Swal.fire({ title: 'Sending...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); try { let studentsQuery; if (course === 'all') { studentsQuery = query(collection(db, "course_registrations")); } else { studentsQuery = query(collection(db, "course_registrations"), where("course", "==", course)); } const studentsSnap = await getDocs(studentsQuery); const studentIds = [...new Set(studentsSnap.docs.map(doc => doc.data().studentID))]; if (studentIds.length === 0) { Swal.fire('Info', 'No students found for this course', 'info'); return; } const notifications = studentIds.map(studentId => addDoc(collection(db, "notifications"), { studentID: studentId, message: `📢 **${title}**\n\n${message}`, sender: "Course Coordinator", senderType: "host", course: course === 'all' ? 'All Courses' : course, status: "unread", timestamp: serverTimestamp() })); await addDoc(collection(db, "announcements"), { title: title, message: message, course: course, sender: currentUserEmail, recipientCount: studentIds.length, timestamp: serverTimestamp() }); await Promise.all(notifications); Swal.fire({ icon: 'success', title: 'Sent!', text: `Announcement sent to ${studentIds.length} students`, timer: 2500, showConfirmButton: false }); document.getElementById('announceTitle').value = ''; document.getElementById('announceMessage').value = ''; loadAnnouncementHistory(); } catch (error) { Swal.fire('Error', error.message, 'error'); } };
-    
-    async function loadAnnouncementHistory() { const q = query(collection(db, "announcements"), orderBy("timestamp", "desc")); const snap = await getDocs(q); const container = document.getElementById('announcementHistory'); if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted">No announcements sent yet.</div>'; return; } let html = ''; snap.forEach(docSnap => { const data = docSnap.data(); const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now'; const courseName = data.course === 'all' ? 'All Courses' : data.course; html += `<div class="border-bottom pb-2 mb-2"><div class="d-flex justify-content-between"><div class="fw-bold text-primary" style="font-size: 0.8rem;">📢 ${escapeHtml(data.title)}</div><small class="text-muted">${date}</small></div><div class="text-muted small">To: ${courseName} (${data.recipientCount || 0} students)</div><div class="small">${escapeHtml(data.message.substring(0, 80))}${data.message.length > 80 ? '...' : ''}</div></div>`; }); container.innerHTML = html; }
-    window.openAnnouncementModal = () => { document.getElementById('announceTitle').focus(); window.scrollTo({ top: document.querySelector('.glass-card[style*="background: linear-gradient"]').offsetTop - 80, behavior: 'smooth' }); };
-    
-    // ============ MATERIALS FUNCTIONS ============
-    async function loadMaterials() { const q = query(collection(db, "materials"), orderBy("datePosted", "desc")); const snap = await getDocs(q); const container = document.getElementById('materialsList'); if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted">No resources yet.</div>'; return; } let html = '<div class="list-group list-group-flush">'; snap.forEach(docSnap => { const data = docSnap.data(); html += `<div class="list-group-item px-0 material-item"><i class="bi bi-file-earmark-text me-2 text-primary"></i><strong>${escapeHtml(data.title || 'Untitled')}</strong><a href="${escapeHtml(data.content)}" target="_blank" class="text-muted small d-block text-truncate">${escapeHtml(data.content)}</a></div>`; }); container.innerHTML = html + '</div>'; }
-    window.uploadMaterial = async () => { const title = document.getElementById('postTitle').value; const content = document.getElementById('postContent').value; if (!title || !content) return Swal.fire('Error', 'Please fill all fields', 'error'); try { await addDoc(collection(db, "materials"), { title, content, course: document.getElementById('courseSelect').value || "General", datePosted: serverTimestamp() }); Swal.fire('Success', 'Material published', 'success'); document.getElementById('postTitle').value = ""; document.getElementById('postContent').value = ""; loadMaterials(); } catch (e) { Swal.fire('Error', e.message, 'error'); } };
-    
-    // ============ LANGUAGE & UI ============
-    window.toggleLanguage = () => { currentLang = currentLang === 'en' ? 'ms' : 'en'; document.getElementById('langBtn').innerText = currentLang === 'en' ? 'BM' : 'EN'; applyTranslations(); if (document.getElementById('courseSelect').value) searchBySubject(); };
-    function applyTranslations() { document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); el.innerText = t(key); }); document.getElementById('courseSelect').querySelector('option[value=""]').innerText = t('selectSubject'); }
     window.handleLogout = async () => { await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
-    
-    applyTranslations();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Floating Dark Mode Toggle -->
+<button onclick="toggleDarkMode()" class="btn btn-dark rounded-circle position-fixed bottom-4 end-4 shadow-lg" style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; z-index: 9999;"><i class="bi bi-moon-stars fs-5"></i></button>
+
 </body>
 </html>
