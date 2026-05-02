@@ -21,9 +21,6 @@
         .stat-card:hover { transform: translateY(-3px); }
         .location-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; padding: 15px; border-left: 4px solid #fbbf24; }
         .coord-location { font-family: monospace; font-size: 13px; background: #00000030; padding: 8px 12px; border-radius: 10px; }
-        .distance-badge { font-size: 24px; font-weight: bold; }
-        .distance-badge.near { color: #10b981; }
-        .distance-badge.far { color: #ef4444; }
         .live-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
         .live-indicator.active { background-color: #10b981; box-shadow: 0 0 5px #10b981; }
         .live-indicator.inactive { background-color: #ef4444; }
@@ -32,6 +29,11 @@
         @keyframes scanFlash { 0% { background-color: transparent; } 50% { background-color: rgba(251,191,36,0.2); } 100% { background-color: transparent; } }
         .student-near-badge { background: #10b98120; color: #10b981; border: 1px solid #10b981; border-radius: 20px; padding: 2px 10px; font-size: 11px; }
         .student-far-badge { background: #ef444420; color: #ef4444; border: 1px solid #ef4444; border-radius: 20px; padding: 2px 10px; font-size: 11px; }
+        .session-controls { background: #1e293b; border-radius: 16px; padding: 15px; margin-bottom: 20px; }
+        .btn-session { padding: 12px 25px; font-weight: 700; border-radius: 40px; }
+        .session-active { background: #10b981; color: white; border: none; }
+        .session-inactive { background: #ef4444; color: white; border: none; }
+        .session-warning { background: #f59e0b; color: white; border: none; }
     </style>
 </head>
 <body>
@@ -41,7 +43,7 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h4 class="fw-bold text-white mb-0"><i class="bi bi-qr-code-scan me-2"></i>RPS Attendance Scanner</h4>
-              
+                <p class="text-white-50 small mb-0">Scan student QR code - Student must be within 20 meters</p>
             </div>
             <div class="status-badge text-white">
                 <i class="bi bi-person-badge me-1"></i> 
@@ -52,13 +54,34 @@
 </div>
 
 <div class="container py-4">
+    <!-- Session Control -->
+    <div class="session-controls">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="text-white mb-1"><i class="bi bi-door-open-fill me-2 text-warning"></i>Attendance Session</h5>
+                <p class="text-muted small mb-0">Open session to allow students to scan attendance</p>
+            </div>
+            <div>
+                <button id="startSessionBtn" class="btn btn-success btn-session" onclick="startSession()">
+                    <i class="bi bi-play-fill me-2"></i> Start Session
+                </button>
+                <button id="endSessionBtn" class="btn btn-danger btn-session" onclick="endSession()" style="display: none;">
+                    <i class="bi bi-stop-fill me-2"></i> End Session
+                </button>
+            </div>
+        </div>
+        <div id="sessionStatus" class="mt-3 alert alert-warning small mb-0">
+            <i class="bi bi-info-circle me-2"></i> Session not started. Click "Start Session" to begin attendance.
+        </div>
+    </div>
+
     <!-- Coordinator Location Card -->
     <div class="location-card mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <small class="text-muted"><i class="bi bi-geo-alt-fill text-warning me-1"></i> YOUR LOCATION (Coordinator)</small>
+                <small class="text-muted"><i class="bi bi-geo-alt-fill text-warning me-1"></i> COORDINATOR LOCATION (Fixed Point)</small>
                 <div class="coord-location mt-1">
-                    <span id="coordLat">---</span>° N, <span id="coordLng">---</span>° E
+                    📍 <span id="coordLat">---</span>° N, <span id="coordLng">---</span>° E
                 </div>
                 <div class="small text-muted mt-1">
                     <i class="bi bi-crosshair"></i> Accuracy: <span id="coordAccuracy">---</span> meters
@@ -66,7 +89,7 @@
             </div>
             <div class="text-end">
                 <div class="live-indicator active" id="liveIndicator"></div>
-                <small class="text-muted">Live GPS</small>
+                <small class="text-muted">Coordinator Location</small>
                 <div class="mt-2">
                     <span class="badge bg-dark"><i class="bi bi-rulers"></i> Required: <strong class="text-warning">20m</strong> radius</span>
                 </div>
@@ -85,16 +108,16 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
-                <i class="bi bi-bar-chart-fill text-info fs-3"></i>
-                <h3 id="weekCount" class="fw-bold text-white mb-0 mt-2">0</h3>
-                <small class="text-muted">This Week</small>
+                <i class="bi bi-qr-code-scan text-info fs-3"></i>
+                <h3 id="scansToday" class="fw-bold text-white mb-0 mt-2">0</h3>
+                <small class="text-muted">Scans Today</small>
             </div>
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
-                <i class="bi bi-compass-fill text-success fs-3"></i>
-                <h3 id="scanRadiusStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Waiting...</h3>
-                <small class="text-muted">Scan Radius (20m)</small>
+                <i class="bi bi-geo-alt-fill text-success fs-3"></i>
+                <h3 id="gpsStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Waiting...</h3>
+                <small class="text-muted">GPS Status</small>
             </div>
         </div>
         <div class="col-md-3 col-6">
@@ -112,8 +135,8 @@
             <div class="card bg-dark border-0 rounded-4 shadow-lg overflow-hidden">
                 <div class="card-body p-4">
                     <div class="text-center mb-3">
-                        <div id="scannerStatusAlert" class="alert alert-warning small mb-0">
-                            <i class="bi bi-info-circle me-2"></i> Scanner ready - Student must be within 20 meters
+                        <div id="scannerStatusAlert" class="alert alert-secondary small mb-0">
+                            <i class="bi bi-info-circle me-2"></i> Start session to enable scanner
                         </div>
                     </div>
                     <div id="reader-container">
@@ -121,7 +144,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <div class="alert alert-info small mb-0">
-                            <i class="bi bi-camera me-2"></i> Student places QR code in front of camera
+                            <i class="bi bi-camera me-2"></i> Student places QR code in front of their device's camera
                         </div>
                     </div>
                 </div>
@@ -130,7 +153,7 @@
         <div class="col-lg-5">
             <div class="card bg-dark border-0 rounded-4 shadow-lg">
                 <div class="card-header bg-transparent border-bottom border-secondary d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold text-white mb-0"><i class="bi bi-clock-history me-2"></i>Today's Log</h6>
+                    <h6 class="fw-bold text-white mb-0"><i class="bi bi-clock-history me-2"></i>Today's Attendance Log</h6>
                     <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="refreshLog()">
                         <i class="bi bi-arrow-repeat"></i>
                     </button>
@@ -151,16 +174,16 @@
         <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 ms-2" onclick="refreshScanner()">
             <i class="bi bi-arrow-repeat me-2"></i> Refresh Scanner
         </button>
-        <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="forceCoordGPS()">
+        <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="updateCoordinatorLocation()">
             <i class="bi bi-satellite me-2"></i> Update My Location
         </button>
     </div>
 </div>
 
-<script type="module">
+<script>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, serverTimestamp, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getDatabase, ref, set, get, serverTimestamp, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
     import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
@@ -178,9 +201,7 @@
     const rtdb = getDatabase(app);
     
     // Constants
-    const REQUIRED_RADIUS_METERS = 4;
-    const GPS_UPDATE_INTERVAL_MS = 5000;
-    const GPS_VALIDITY_MS = 30000;
+    const REQUIRED_RADIUS_METERS = 20;
     
     // State variables
     let html5QrcodeScanner = null;
@@ -188,15 +209,16 @@
     let currentCoordinator = null;
     let currentCoordinatorId = null;
     let coordinatorLocation = null;
+    let isSessionActive = false;
+    let sessionId = null;
     let gpsWatchId = null;
-    let scanRateMap = new Map();
-    let currentAttendanceData = [];
-    const SCAN_LIMIT_PER_MINUTE = 30;
+    let scannedStudents = new Set(); // Prevent duplicate scans in same session
+    
     const todayStr = new Date().toISOString().split('T')[0];
     
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Meters
+        const R = 6371e3;
         const φ1 = lat1 * Math.PI / 180;
         const φ2 = lat2 * Math.PI / 180;
         const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -221,29 +243,7 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // Get Student's GPS Location when scanning
-    async function getStudentLocation() {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error('Student device GPS not supported'));
-                return;
-            }
-            
-            // Get student's location (the device scanning QR)
-            navigator.geolocation.getCurrentPosition((pos) => {
-                resolve({
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude,
-                    accuracy: pos.coords.accuracy,
-                    timestamp: Date.now()
-                });
-            }, (err) => {
-                reject(err);
-            }, { enableHighAccuracy: true, timeout: 8000 });
-        });
-    }
-    
-    // Get Coordinator's GPS Location (continuous)
+    // Start GPS tracking for coordinator
     function startCoordinatorGPS() {
         if (gpsWatchId) {
             navigator.geolocation.clearWatch(gpsWatchId);
@@ -260,32 +260,27 @@
                 
                 coordinatorLocation = newLocation;
                 
-                // Update UI
                 document.getElementById('coordLat').innerHTML = newLocation.lat.toFixed(6);
                 document.getElementById('coordLng').innerHTML = newLocation.lng.toFixed(6);
                 document.getElementById('coordAccuracy').innerHTML = Math.round(newLocation.accuracy);
+                document.getElementById('liveIndicator').className = 'live-indicator active';
                 
-                // Update live indicator
-                const indicator = document.getElementById('liveIndicator');
-                indicator.className = 'live-indicator active';
+                // Update GPS status
+                const gpsEl = document.getElementById('gpsStatus');
+                if (newLocation.accuracy <= REQUIRED_RADIUS_METERS) {
+                    gpsEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill"></i> Ready</span>';
+                } else {
+                    gpsEl.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Low Acc (${Math.round(newLocation.accuracy)}m)</span>`;
+                }
                 
-                // Update coordinator location in Firebase
-                if (currentCoordinatorId) {
-                    set(ref(rtdb, `coordinator_live/${currentCoordinatorId}`), {
+                // Update coordinator location in Firebase for student verification
+                if (currentCoordinatorId && isSessionActive) {
+                    set(ref(rtdb, `active_sessions/${sessionId}/coordinator_location`), {
                         lat: newLocation.lat,
                         lng: newLocation.lng,
                         accuracy: newLocation.accuracy,
                         timestamp: serverTimestamp()
                     });
-                }
-                
-                // Update scan radius status
-                const radiusEl = document.getElementById('scanRadiusStatus');
-                if (newLocation.accuracy <= REQUIRED_RADIUS_METERS) {
-                    radiusEl.innerHTML = `<span class="text-success"><i class="bi bi-check-circle-fill"></i> Ready (${Math.round(newLocation.accuracy)}m acc)</span>`;
-                    radiusEl.className = 'fw-bold text-white mb-0 mt-2 fs-6';
-                } else {
-                    radiusEl.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Low GPS Acc (${Math.round(newLocation.accuracy)}m)</span>`;
                 }
             },
             (err) => {
@@ -293,82 +288,196 @@
                 document.getElementById('coordLat').innerHTML = '---';
                 document.getElementById('coordLng').innerHTML = '---';
                 document.getElementById('liveIndicator').className = 'live-indicator inactive';
-                document.getElementById('scanRadiusStatus').innerHTML = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> GPS Failed</span>';
+                document.getElementById('gpsStatus').innerHTML = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> Failed</span>';
             },
             { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
         );
     }
     
-    // Verify student is within 20 meters of coordinator
-    async function verifyProximity(studentScannedId) {
+    // Start attendance session
+    window.startSession = async () => {
         if (!coordinatorLocation) {
-            return { allowed: false, reason: "Coordinator location not available. Please ensure GPS is active." };
+            Swal.fire({ icon: 'error', title: 'GPS Error', text: 'Please wait for GPS to initialize.' });
+            return;
         }
         
-        try {
-            const studentLocation = await getStudentLocation();
-            
-            const distance = calculateDistance(
-                coordinatorLocation.lat, coordinatorLocation.lng,
-                studentLocation.lat, studentLocation.lng
-            );
-            
-            const isWithinRadius = distance <= REQUIRED_RADIUS_METERS;
-            
-            return {
-                allowed: isWithinRadius,
-                distance: distance,
-                requiredRadius: REQUIRED_RADIUS_METERS,
-                coordinatorLoc: coordinatorLocation,
-                studentLoc: studentLocation,
-                reason: isWithinRadius ? 
-                    `✓ Student within ${distance.toFixed(1)} meters` : 
-                    `✗ Student is ${distance.toFixed(1)} meters away (must be within ${REQUIRED_RADIUS_METERS}m)`
-            };
-        } catch (error) {
-            return { 
-                allowed: false, 
-                reason: "Could not verify student location. Please ensure student device GPS is enabled." 
-            };
+        if (coordinatorLocation.accuracy > 50) {
+            Swal.fire({ icon: 'warning', title: 'Poor GPS Signal', text: `Your GPS accuracy is ${Math.round(coordinatorLocation.accuracy)}m. Please move to an open area.` });
+            return;
         }
-    }
+        
+        isSessionActive = true;
+        sessionId = `${currentCoordinatorId}_${Date.now()}`;
+        scannedStudents.clear();
+        
+        // Create session in Firebase
+        await set(ref(rtdb, `active_sessions/${sessionId}`), {
+            coordinatorId: currentCoordinatorId,
+            coordinatorName: currentCoordinator,
+            coordinatorLat: coordinatorLocation.lat,
+            coordinatorLng: coordinatorLocation.lng,
+            startTime: serverTimestamp(),
+            active: true,
+            radius: REQUIRED_RADIUS_METERS
+        });
+        
+        // Update UI
+        document.getElementById('startSessionBtn').style.display = 'none';
+        document.getElementById('endSessionBtn').style.display = 'inline-block';
+        document.getElementById('sessionStatus').innerHTML = `
+            <i class="bi bi-check-circle-fill text-success me-2"></i> 
+            Session ACTIVE | Students can now scan within ${REQUIRED_RADIUS_METERS}m radius
+        `;
+        document.getElementById('sessionStatus').className = "mt-3 alert alert-success small mb-0";
+        document.getElementById('scannerStatusAlert').innerHTML = `
+            <i class="bi bi-check-circle-fill text-success me-2"></i> 
+            Scanner ACTIVE - Session ID: ${sessionId.substring(0, 15)}...
+        `;
+        document.getElementById('scannerStatusAlert').className = "alert alert-success small mb-0";
+        
+        Swal.fire({ icon: 'success', title: 'Session Started!', text: `Students can now scan within ${REQUIRED_RADIUS_METERS}m of your location.`, timer: 2000 });
+        
+        // Initialize scanner if not already
+        if (!html5QrcodeScanner) {
+            initScanner();
+        }
+    };
     
-    // Rate Limiting
-    function checkRateLimit(studentId) {
-        const now = Date.now();
-        const minuteAgo = now - 60000;
-        if (!scanRateMap.has(studentId)) scanRateMap.set(studentId, []);
-        const timestamps = scanRateMap.get(studentId).filter(t => t > minuteAgo);
-        if (timestamps.length >= SCAN_LIMIT_PER_MINUTE) return false;
-        timestamps.push(now);
-        scanRateMap.set(studentId, timestamps);
+    // End attendance session
+    window.endSession = async () => {
+        if (sessionId) {
+            await update(ref(rtdb, `active_sessions/${sessionId}`), {
+                active: false,
+                endTime: serverTimestamp()
+            });
+            
+            // Optional: Archive session
+            await set(ref(rtdb, `session_history/${sessionId}`), {
+                coordinatorId: currentCoordinatorId,
+                coordinatorName: currentCoordinator,
+                endTime: serverTimestamp(),
+                totalScans: scannedStudents.size
+            });
+            
+            await remove(ref(rtdb, `active_sessions/${sessionId}`));
+        }
+        
+        isSessionActive = false;
+        sessionId = null;
+        
+        document.getElementById('startSessionBtn').style.display = 'inline-block';
+        document.getElementById('endSessionBtn').style.display = 'none';
+        document.getElementById('sessionStatus').innerHTML = `
+            <i class="bi bi-info-circle me-2"></i> Session ended. Click "Start Session" to begin new attendance.
+        `;
+        document.getElementById('sessionStatus').className = "mt-3 alert alert-warning small mb-0";
+        document.getElementById('scannerStatusAlert').innerHTML = `
+            <i class="bi bi-info-circle me-2"></i> Session ended - Start a new session to enable scanning
+        `;
+        document.getElementById('scannerStatusAlert').className = "alert alert-secondary small mb-0";
+        
+        Swal.fire({ icon: 'info', title: 'Session Ended', text: 'Attendance session has been closed.' });
+    };
+    
+    // Record Attendance (called when student scans)
+    async function recordAttendance(studentId, studentLocation) {
+        if (!isSessionActive) {
+            Swal.fire({ icon: 'error', title: 'Session Inactive', text: 'Please start a session first.' });
+            return false;
+        }
+        
+        if (!coordinatorLocation) {
+            Swal.fire({ icon: 'error', title: 'Location Error', text: 'Coordinator location not available.' });
+            return false;
+        }
+        
+        if (scannedStudents.has(studentId)) {
+            Swal.fire({ icon: 'warning', title: 'Already Scanned', text: 'This student has already been marked in this session.' });
+            return false;
+        }
+        
+        // Calculate distance
+        const distance = calculateDistance(
+            coordinatorLocation.lat, coordinatorLocation.lng,
+            studentLocation.lat, studentLocation.lng
+        );
+        
+        if (distance > REQUIRED_RADIUS_METERS) {
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Too Far!', 
+                html: `Student is <strong>${distance.toFixed(1)}m</strong> away.<br>Must be within ${REQUIRED_RADIUS_METERS}m of coordinator.`
+            });
+            return false;
+        }
+        
+        // Check if already recorded today
+        const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${studentId}`);
+        const checkSnap = await get(checkRef);
+        
+        if (checkSnap.exists()) {
+            Swal.fire({ icon: 'warning', title: 'Already Recorded', text: `${studentId} already marked present today` });
+            return false;
+        }
+        
+        // Validate student
+        let studentName = studentId;
+        try {
+            const userDoc = await getDoc(doc(db, "users", studentId));
+            if (userDoc.exists()) studentName = userDoc.data().name || studentId;
+        } catch(e) {}
+        
+        // Record attendance
+        const currentTime = new Date().toLocaleTimeString('ms-MY');
+        const verificationHash = generateSecureHash(`${studentId}|${todayStr}|${coordinatorLocation.timestamp}|${currentCoordinatorId}`);
+        
+        await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${studentId}`), {
+            studentID: studentId,
+            studentName: studentName,
+            lokasi: `Within ${distance.toFixed(1)}m of Coordinator`,
+            masa: currentTime,
+            timestamp: serverTimestamp(),
+            verifiedBy: currentCoordinator,
+            verifiedById: currentCoordinatorId,
+            coordinatorLat: coordinatorLocation.lat,
+            coordinatorLng: coordinatorLocation.lng,
+            studentLat: studentLocation.lat,
+            studentLng: studentLocation.lng,
+            distanceMeters: distance.toFixed(2),
+            requiredRadius: REQUIRED_RADIUS_METERS,
+            verificationHash: verificationHash,
+            sessionId: sessionId,
+            verifiedAt: new Date().toISOString()
+        });
+        
+        // Add to session record
+        await push(ref(rtdb, `active_sessions/${sessionId}/scans`), {
+            studentId: studentId,
+            studentName: studentName,
+            distance: distance.toFixed(2),
+            timestamp: serverTimestamp()
+        });
+        
+        scannedStudents.add(studentId);
+        
+        // Update UI
+        const readerDiv = document.getElementById('reader');
+        if (readerDiv) readerDiv.classList.add('scan-animation');
+        setTimeout(() => {
+            if (readerDiv) readerDiv.classList.remove('scan-animation');
+        }, 300);
+        
+        loadTodayStats();
+        updateScanCount();
+        
         return true;
     }
     
-    // Validate Student
-    async function validateStudent(studentId) {
-        try {
-            const userDoc = await getDoc(doc(db, "users", studentId));
-            if (userDoc.exists() && userDoc.data().role === 'student') {
-                return { valid: true, name: userDoc.data().name, studentId: studentId };
-            }
-            
-            const courseQuery = query(collection(db, "course_registrations"), where("studentID", "==", studentId));
-            const courseSnap = await getDocs(courseQuery);
-            if (!courseSnap.empty) {
-                return { valid: true, name: studentId, studentId: studentId };
-            }
-            
-            return { valid: false, name: null, studentId: studentId };
-        } catch (e) {
-            return { valid: false, name: null, studentId: studentId };
-        }
-    }
-    
-    // Record Attendance with Proximity Check
-    async function recordAttendance(scannedId) {
-        if (!currentCoordinator || !currentCoordinatorId) {
-            Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please refresh the page' });
+    // This function is called by the QR scanner when a code is detected
+    // The QR code should contain the student's GPS location
+    async function processScan(decodedText) {
+        if (!isSessionActive) {
+            Swal.fire({ icon: 'error', title: 'Session Inactive', text: 'Please start a session first.' });
             return;
         }
         
@@ -377,127 +486,63 @@
             return;
         }
         
-        if (!coordinatorLocation) {
-            Swal.fire({ icon: 'error', title: 'Location Error', text: 'Coordinator GPS not active. Please wait...' });
-            return;
-        }
-        
-        if (coordinatorLocation.accuracy > REQUIRED_RADIUS_METERS * 2) {
-            Swal.fire({ icon: 'error', title: 'Poor GPS Signal', text: `Your GPS accuracy is ${Math.round(coordinatorLocation.accuracy)}m. Please move to an open area.` });
-            return;
-        }
-        
-        if (!checkRateLimit(scannedId)) {
-            Swal.fire({ icon: 'error', title: 'Rate Limit', text: 'Too many attempts. Please wait a moment.' });
-            return;
-        }
-        
         isProcessing = true;
         
-        // Show proximity check dialog
-        Swal.fire({
-            title: 'Verifying Student Location',
-            html: '<div class="spinner-border text-primary"></div><br><small>Checking if student is within 20 meters...</small>',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            didOpen: () => Swal.showLoading()
-        });
-        
         try {
-            // Check if already recorded today
-            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${scannedId}`);
-            const checkSnap = await get(checkRef);
-            
-            if (checkSnap.exists()) {
-                Swal.fire({ icon: 'warning', title: 'Already Recorded', text: `Student already marked present today`, timer: 1500 });
-                isProcessing = false;
+            // Parse QR data - format: studentId|lat|lng|timestamp|hash
+            const parts = decodedText.split('|');
+            if (parts.length < 5) {
+                Swal.fire({ icon: 'error', title: 'Invalid QR', text: 'QR code format invalid.' });
                 return;
             }
             
-            // Validate student exists
-            const student = await validateStudent(scannedId);
-            if (!student.valid) {
-                Swal.fire({ icon: 'error', title: 'Invalid QR Code', text: 'Student ID not found in system!' });
-                isProcessing = false;
+            const studentId = parts[0];
+            const studentLat = parseFloat(parts[1]);
+            const studentLng = parseFloat(parts[2]);
+            const qrTimestamp = parseInt(parts[3]);
+            const qrHash = parts[4];
+            
+            // Check QR code age (max 30 seconds)
+            if (Date.now() - qrTimestamp > 30000) {
+                Swal.fire({ icon: 'error', title: 'QR Expired', text: 'QR code has expired. Please refresh and try again.' });
                 return;
             }
             
-            // CRITICAL: Verify student is within 20 meters of coordinator
-            const proximityCheck = await verifyProximity(scannedId);
+            // Verify hash
+            const expectedHash = generateSecureHash(`${studentId}|${Math.floor(qrTimestamp / 30000)}`);
+            if (qrHash !== expectedHash.substring(0, 16)) {
+                Swal.fire({ icon: 'error', title: 'Invalid QR', text: 'QR code verification failed.' });
+                return;
+            }
             
-            if (!proximityCheck.allowed) {
+            // Record attendance with student's location
+            const result = await recordAttendance(studentId, { lat: studentLat, lng: studentLng });
+            
+            if (result) {
                 Swal.fire({ 
-                    icon: 'error', 
-                    title: 'Proximity Check Failed', 
-                    html: `<strong>❌ Student must be within ${REQUIRED_RADIUS_METERS} meters of coordinator!</strong><br><br>
-                           📏 Distance: <strong>${proximityCheck.distance.toFixed(1)} meters</strong><br>
-                           ${proximityCheck.reason}<br><br>
-                           <small>Please ask the student to come closer to your location.</small>`
+                    icon: 'success', 
+                    title: 'Attendance Recorded!', 
+                    text: `Student marked present`,
+                    timer: 1500,
+                    showConfirmButton: false
                 });
-                isProcessing = false;
-                return;
             }
-            
-            // Record attendance with proximity proof
-            const currentTime = new Date().toLocaleTimeString('ms-MY');
-            const verificationHash = generateSecureHash(
-                `${scannedId}|${todayStr}|${coordinatorLocation.timestamp}|${studentLocation.timestamp}|${currentCoordinatorId}`
-            );
-            
-            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${scannedId}`), {
-                studentID: scannedId,
-                studentName: student.name,
-                lokasi: "Coordinator Location",
-                masa: currentTime,
-                timestamp: serverTimestamp(),
-                verifiedBy: currentCoordinator,
-                verifiedById: currentCoordinatorId,
-                coordinatorLat: coordinatorLocation.lat,
-                coordinatorLng: coordinatorLocation.lng,
-                studentLat: proximityCheck.studentLoc.lat,
-                studentLng: proximityCheck.studentLoc.lng,
-                proximityDistanceMeters: proximityCheck.distance.toFixed(2),
-                requiredRadiusMeters: REQUIRED_RADIUS_METERS,
-                verificationHash: verificationHash,
-                verifiedAt: new Date().toISOString(),
-                method: "PROXIMITY_20M"
-            });
-            
-            // Audit log
-            await push(ref(rtdb, `audit_logs/${todayStr}`), {
-                studentId: scannedId,
-                coordinatorId: currentCoordinatorId,
-                coordinatorName: currentCoordinator,
-                distanceMeters: proximityCheck.distance.toFixed(2),
-                timestamp: serverTimestamp(),
-                action: "attendance_marked_proximity"
-            });
-            
-            // Animate success
-            const readerDiv = document.getElementById('reader');
-            if (readerDiv) readerDiv.classList.add('scan-animation');
-            setTimeout(() => {
-                if (readerDiv) readerDiv.classList.remove('scan-animation');
-            }, 300);
-            
-            Swal.fire({ 
-                icon: 'success', 
-                title: '✅ Attendance Recorded!', 
-                html: `<strong>${student.name}</strong><br>
-                       📏 Distance: ${proximityCheck.distance.toFixed(1)} meters<br>
-                       ✓ Within ${REQUIRED_RADIUS_METERS}m radius`,
-                timer: 2500,
-                showConfirmButton: false
-            });
-            
-            loadTodayStats();
             
         } catch (error) {
-            console.error('Attendance Error:', error);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to record attendance. Please try again.' });
+            console.error('Scan error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to process attendance.' });
         } finally {
             setTimeout(() => { isProcessing = false; }, 1500);
         }
+    }
+    
+    function updateScanCount() {
+        const attendanceRef = ref(rtdb, `kehadiran_unimap/${todayStr}`);
+        get(attendanceRef).then(snapshot => {
+            if (snapshot.exists()) {
+                document.getElementById('scansToday').innerText = Object.keys(snapshot.val()).length;
+            }
+        });
     }
     
     // Load Today's Stats
@@ -513,12 +558,12 @@
                 const data = snapshot.val();
                 records = Object.values(data);
                 count = records.length;
-                currentAttendanceData = records;
+                document.getElementById('scansToday').innerText = count;
                 
                 container.innerHTML = '';
                 records.reverse().forEach(rec => {
-                    const proximityBadge = rec.proximityDistanceMeters ? 
-                        `<span class="student-near-badge"><i class="bi bi-geo-alt"></i> ${rec.proximityDistanceMeters}m away</span>` : 
+                    const distanceBadge = rec.distanceMeters ? 
+                        `<span class="student-near-badge"><i class="bi bi-geo-alt"></i> ${rec.distanceMeters}m away</span>` : 
                         `<span class="student-far-badge"><i class="bi bi-question-circle"></i> Legacy</span>`;
                     
                     container.innerHTML += `
@@ -527,7 +572,7 @@
                                 <div class="flex-grow-1">
                                     <div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div>
                                     <small class="text-muted">ID: ${rec.studentID}</small>
-                                    <div class="mt-1">${proximityBadge}</div>
+                                    <div class="mt-1">${distanceBadge}</div>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-success mb-1">Present</span>
@@ -536,13 +581,14 @@
                                 </div>
                             </div>
                             <div class="small text-muted mt-2">
-                                <i class="bi bi-rulers"></i> Required: ${REQUIRED_RADIUS_METERS}m | Actual: ${rec.proximityDistanceMeters || '?'}m
+                                <i class="bi bi-rulers"></i> Required: ${REQUIRED_RADIUS_METERS}m | Actual: ${rec.distanceMeters || '?'}m
                             </div>
                         </div>
                     `;
                 });
             } else {
                 container.innerHTML = '<div class="text-center py-5 text-muted small">No scans yet today</div>';
+                document.getElementById('scansToday').innerText = '0';
             }
             
             document.getElementById('todayCount').innerText = count;
@@ -553,8 +599,6 @@
     
     // Initialize Scanner
     function initScanner() {
-        if (!currentCoordinator) return;
-        
         if (html5QrcodeScanner) {
             html5QrcodeScanner.clear();
             html5QrcodeScanner = null;
@@ -565,29 +609,26 @@
                 fps: 10, 
                 qrbox: { width: 280, height: 280 }, 
                 aspectRatio: 1.0,
-                rememberLastUsedCamera: true,
-                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+                rememberLastUsedCamera: true
             });
             
             html5QrcodeScanner.render(
-                (decodedText) => { recordAttendance(decodedText); },
+                (decodedText) => { processScan(decodedText); },
                 (error) => { /* Silent error handling */ }
             );
-            
-            document.getElementById('scannerStatusAlert').innerHTML = `
-                <i class="bi bi-check-circle-fill text-success me-2"></i> 
-                Scanner Active | Student must be within <strong>${REQUIRED_RADIUS_METERS} meters</strong> of your location
-            `;
-            document.getElementById('scannerStatusAlert').className = "alert alert-success small mb-0";
         }, 100);
     }
     
     window.refreshScanner = () => {
-        initScanner();
-        Swal.fire({ toast: true, icon: 'success', title: 'Scanner Refreshed', timer: 1500, showConfirmButton: false });
+        if (isSessionActive) {
+            initScanner();
+            Swal.fire({ toast: true, icon: 'success', title: 'Scanner Refreshed', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire({ icon: 'warning', title: 'Session Inactive', text: 'Start a session first.' });
+        }
     };
     
-    window.forceCoordGPS = () => {
+    window.updateCoordinatorLocation = () => {
         Swal.fire({ title: 'Updating Location...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         if (gpsWatchId) {
             navigator.geolocation.getCurrentPosition(
@@ -621,20 +662,44 @@
         // Start GPS tracking
         startCoordinatorGPS();
         loadTodayStats();
-        initScanner();
         
         // Update time
         setInterval(() => { 
             document.getElementById('liveTime').innerHTML = new Date().toLocaleTimeString('ms-MY'); 
         }, 1000);
         
+        // Check for existing active session on page load
+        const activeSessionQuery = query(ref(rtdb, 'active_sessions'), orderByKey());
+        const snapshot = await get(activeSessionQuery);
+        if (snapshot.exists()) {
+            const sessions = snapshot.val();
+            for (const [key, value] of Object.entries(sessions)) {
+                if (value.coordinatorId === currentCoordinatorId && value.active === true) {
+                    // Resume session
+                    sessionId = key;
+                    isSessionActive = true;
+                    document.getElementById('startSessionBtn').style.display = 'none';
+                    document.getElementById('endSessionBtn').style.display = 'inline-block';
+                    document.getElementById('sessionStatus').innerHTML = `
+                        <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                        Session ACTIVE | Students can scan within ${REQUIRED_RADIUS_METERS}m radius
+                    `;
+                    document.getElementById('sessionStatus').className = "mt-3 alert alert-success small mb-0";
+                    document.getElementById('scannerStatusAlert').innerHTML = `
+                        <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                        Scanner ACTIVE - Session resumed
+                    `;
+                    document.getElementById('scannerStatusAlert').className = "alert alert-success small mb-0";
+                    initScanner();
+                    break;
+                }
+            }
+        }
+        
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (gpsWatchId) {
                 navigator.geolocation.clearWatch(gpsWatchId);
-            }
-            if (currentCoordinatorId) {
-                set(ref(rtdb, `coordinator_live/${currentCoordinatorId}`), null);
             }
         });
     });
