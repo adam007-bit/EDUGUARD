@@ -28,9 +28,9 @@
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
         
-        /* Chat Styles - FIXED */
+        /* UNIFIED CHAT STYLES - SINGLE CHAT */
         .chat-container { position: fixed; bottom: 30px; right: 30px; width: 400px; height: 550px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
-        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .chat-contacts { max-height: 180px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
         .chat-contact-item { padding: 12px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
         .chat-contact-item:hover { background: #eef2ff; }
@@ -164,16 +164,16 @@
     </div>
 </div>
 
-<!-- Floating Chat Button -->
+<!-- SINGLE FLOATING CHAT BUTTON -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
     <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
 </div>
 
-<!-- Chat Window - FIXED: Shows ALL messages (sent AND received) -->
+<!-- SINGLE CHAT WINDOW - ONE PLACE FOR ALL MESSAGES -->
 <div id="chatContainer" class="chat-container">
     <div class="chat-header">
-        <span><i class="bi bi-people-fill me-2"></i> Messages</span>
+        <span><i class="bi bi-people-fill me-2"></i> Messages - All Contacts</span>
         <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
     </div>
     <div id="chatContactsList" class="chat-contacts">
@@ -217,15 +217,15 @@
     let currentUserData = null;
     let gradeChart = null;
     let qrInterval = null;
-    let messagesUnsubscribe = null;
     let currentContact = null;
     let isChatOpen = false;
     let allContacts = [];
     let totalUnread = 0;
+    let messagesListener = null;
     
     const SECRET_KEY = "RPS_SECURE_KEY_2024";
     const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor', 'student': 'Student' };
-    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'counselor': 'role-counselor', 'student': '' };
+    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'counselor': 'role-counselor' };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
@@ -279,20 +279,18 @@
         loadAttendanceHistory();
         loadAnnouncements();
         loadMaterials();
-        loadUnreadNotifications();
         
         // Load all contacts and listen for messages
         await loadAllContacts();
-        listenForAllMessages();
+        startUnreadListener();
     }
     
-    // ============ LOAD ALL CONTACTS (Supervisor, Coordinator, Counselor) ============
+    // ============ LOAD ALL CONTACTS ============
     async function loadAllContacts() {
         const usersSnap = await getDocs(collection(db, "users"));
         allContacts = [];
         usersSnap.forEach(doc => {
             const data = doc.data();
-            // Include all other users except current student
             if (doc.id !== activeID && data.role !== 'admin' && data.role !== 'student') {
                 allContacts.push({
                     id: doc.id,
@@ -341,11 +339,17 @@
     
     // ============ SELECT CONTACT AND LOAD MESSAGES ============
     window.selectContact = async (contactId, contactName, contactRole) => {
+        // Clean up previous listener
+        if (messagesListener) {
+            messagesListener();
+            messagesListener = null;
+        }
+        
         currentContact = { id: contactId, name: contactName, role: contactRole };
         
         // Update UI
         document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
-        if (event.target.closest('.chat-contact-item')) {
+        if (event && event.target && event.target.closest('.chat-contact-item')) {
             event.target.closest('.chat-contact-item').classList.add('active');
         }
         
@@ -381,13 +385,11 @@
     }
     
     function loadMessagesWithContact(contactId) {
-        if (messagesUnsubscribe) messagesUnsubscribe();
-        
         const chatId = [activeID, contactId].sort().join('_');
         const messagesRef = collection(db, "all_chats", chatId, "messages");
         const q = query(messagesRef, orderBy("timestamp", "asc"));
         
-        messagesUnsubscribe = onSnapshot(q, (snapshot) => {
+        messagesListener = onSnapshot(q, (snapshot) => {
             const messagesArea = document.getElementById('chatMessagesArea');
             if (snapshot.empty) {
                 messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
@@ -465,14 +467,10 @@
         }
     };
     
-    // ============ LISTEN FOR ALL INCOMING MESSAGES ============
-    function listenForAllMessages() {
-        // Listen for messages where this student is the receiver
-        const allChatsQuery = query(collection(db, "all_chats"));
-        
-        // Instead of listening to all chats, we'll listen per contact when selected
-        // But we need to track unread counts globally
+    // ============ UNREAD MESSAGES LISTENER ============
+    function startUnreadListener() {
         setInterval(async () => {
+            let total = 0;
             for (const contact of allContacts) {
                 const chatId = [activeID, contact.id].sort().join('_');
                 const messagesRef = collection(db, "all_chats", chatId, "messages");
@@ -484,26 +482,32 @@
                     contact.unread = unreadCount;
                     if (unreadCount > 0 && !isChatOpen) {
                         playNotificationSound();
-                        totalUnread++;
-                        document.getElementById('chatUnreadBadge').style.display = 'flex';
-                        document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
                     }
                     renderContactsList();
                 }
+                total += unreadCount;
             }
-            calculateTotalUnread();
+            
+            totalUnread = total;
+            if (totalUnread > 0 && !isChatOpen) {
+                document.getElementById('chatUnreadBadge').style.display = 'flex';
+                document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+            } else if (!isChatOpen) {
+                document.getElementById('chatUnreadBadge').style.display = 'none';
+            }
+            document.getElementById('unreadCount').innerText = totalUnread;
         }, 3000);
     }
     
     function calculateTotalUnread() {
-        totalUnread = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
+        let total = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
+        totalUnread = total;
         if (totalUnread > 0 && !isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'flex';
             document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
         } else if (!isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'none';
         }
-        // Also update notification count in stats
         document.getElementById('unreadCount').innerText = totalUnread;
     }
     
@@ -677,14 +681,6 @@
         container.innerHTML = html;
     }
     
-    // ============ NOTIFICATIONS ============
-    async function loadUnreadNotifications() {
-        const q = query(collection(db, "notifications"), where("studentID", "==", activeID), where("status", "==", "unread"));
-        onSnapshot(q, (snapshot) => {
-            // Don't override - we have chat unreads too
-        });
-    }
-    
     // ============ WELLNESS ASSESSMENT ============
     window.openWellnessAssessment = async () => {
         const questions = [
@@ -737,7 +733,7 @@
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
-    window.logout = async () => { stopSecureQR(); if (messagesUnsubscribe) messagesUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+    window.logout = async () => { stopSecureQR(); if (messagesListener) messagesListener(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
