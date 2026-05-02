@@ -25,7 +25,7 @@
         .risk-normal { background: #dcfce7; color: #166534; }
         .glass-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        /* Chat Styles */
+        /* Original Chat Styles */
         .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 520px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
         .chat-header { background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; padding: 15px 20px; font-weight: 700; cursor: pointer; }
         .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
@@ -42,12 +42,50 @@
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
         .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        
+        /* NEW: Universal Chat Styles (for all roles) */
+        .universal-chat-btn { position: fixed; bottom: 110px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, #4361ee, #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: all 0.3s; }
+        .universal-chat-btn:hover { transform: scale(1.08); }
+        .universal-chat-container { position: fixed; bottom: 180px; right: 30px; width: 400px; height: 550px; background: white; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1065; overflow: hidden; border: 1px solid #e2e8f0; }
+        .universal-chat-header { background: linear-gradient(135deg, #4361ee, #8b5cf6); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .universal-chat-tabs { display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .universal-chat-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; }
+        .universal-chat-tab.active { background: white; color: #4361ee; border-bottom: 2px solid #4361ee; }
+        .universal-chat-contacts { max-height: 200px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .universal-contact-item { padding: 12px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
+        .universal-contact-item:hover { background: #eef2ff; }
+        .universal-contact-item.active { background: #e0e7ff; border-left: 3px solid #4361ee; }
+        .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .contact-info { flex: 1; }
+        .contact-name { font-weight: 600; font-size: 0.85rem; }
+        .contact-role { font-size: 0.65rem; color: #64748b; }
+        .contact-role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
+        .role-supervisor { background: #fef3c7; color: #92400e; }
+        .role-host { background: #dcfce7; color: #166534; }
+        .role-student { background: #dbeafe; color: #1e40af; }
+        .universal-message { max-width: 80%; display: flex; flex-direction: column; }
+        .universal-message.sent { align-self: flex-end; }
+        .universal-message.received { align-self: flex-start; }
+        .universal-message .message-bubble { padding: 10px 16px; border-radius: 20px; word-wrap: break-word; }
+        .universal-message.sent .message-bubble { background: linear-gradient(135deg, #4361ee, #8b5cf6); color: white; border-bottom-right-radius: 4px; }
+        .universal-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .universal-chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: #f9fafb; display: flex; flex-direction: column; gap: 12px; }
+        .universal-chat-input { padding: 15px; border-top: 1px solid #e2e8f0; background: white; }
+        
+        body.dark-mode .universal-chat-container { background: #1e293b; border-color: #334155; }
+        body.dark-mode .universal-chat-messages { background: #0f172a; }
+        body.dark-mode .universal-message.received .message-bubble { background: #334155; color: #e2e8f0; }
+        body.dark-mode .universal-chat-tabs { background: #1e293b; }
+        body.dark-mode .universal-chat-tab.active { background: #1e293b; }
+        body.dark-mode .universal-chat-contacts { background: #1e293b; }
+        body.dark-mode .universal-contact-item:hover { background: #334155; }
+        
         .filter-chip { padding: 8px 18px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s; }
         .filter-chip.active { background: var(--counselor-primary); color: white; border-color: var(--counselor-primary); }
         .student-card { cursor: pointer; transition: all 0.2s; }
         .student-card:hover { background: #f8fafc; transform: translateX(5px); }
         body.dark-mode .student-card:hover { background: #334155; }
-        @media (max-width: 768px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; } }
+        @media (max-width: 768px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; } .universal-chat-container { width: 320px; height: 450px; right: 10px; bottom: 140px; } }
     </style>
 </head>
 <body>
@@ -135,20 +173,20 @@
                     </tr>
                 </thead>
                 <tbody id="studentTable">
-                    <tr><td colspan="6" class="text-center py-5">Loading...</td></tr>
+                    <tr><td colspan="6" class="text-center py-5">Loading...<\/td><\/tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- Floating Chat Button -->
+<!-- Original Floating Chat Button (for Students only) -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
     <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
 </div>
 
-<!-- Chat Window -->
+<!-- Original Chat Window (with Students only) -->
 <div id="chatContainer" class="chat-container">
     <div class="chat-header d-flex justify-content-between align-items-center">
         <span><i class="bi bi-person-circle me-2"></i> Chat with <span id="chatStudentName">Student</span></span>
@@ -161,6 +199,36 @@
     <div class="chat-input-area">
         <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
         <button class="chat-send-btn" onclick="sendChatMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
+    </div>
+</div>
+
+<!-- NEW: Universal Chat Button (for ALL roles - Supervisors, Coordinators) -->
+<div class="universal-chat-btn" onclick="toggleUniversalChat()">
+    <i class="bi bi-globe fs-4 text-white"></i>
+    <span id="universalChatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
+</div>
+
+<!-- NEW: Universal Chat Container -->
+<div id="universalChatContainer" class="universal-chat-container">
+    <div class="universal-chat-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-globe me-2"></i> Connect with Everyone</span>
+        <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleUniversalChat()"></i>
+    </div>
+    <div class="universal-chat-tabs">
+        <div class="universal-chat-tab active" data-tab="chats" onclick="switchUniversalChatTab('chats')">💬 Chats</div>
+        <div class="universal-chat-tab" data-tab="contacts" onclick="switchUniversalChatTab('contacts')">👥 All Contacts</div>
+    </div>
+    <div id="universalContactsList" class="universal-chat-contacts">
+        <div class="text-center py-4 text-muted small">Loading contacts...</div>
+    </div>
+    <div id="universalChatMessages" class="universal-chat-messages">
+        <div class="text-center text-muted py-5">Select a contact to start chatting</div>
+    </div>
+    <div class="universal-chat-input">
+        <div class="d-flex gap-2">
+            <input type="text" id="universalChatInput" class="form-control rounded-pill" placeholder="Type your message..." disabled>
+            <button class="btn btn-primary rounded-pill px-4" onclick="sendUniversalMessage()" disabled><i class="bi bi-send"></i> Send</button>
+        </div>
     </div>
 </div>
 
@@ -195,6 +263,17 @@
     let unreadChatCount = 0;
     let isChatOpen = false;
     
+    // ============ UNIVERSAL CHAT VARIABLES ==========
+    let universalChatUnsubscribe = null;
+    let universalCurrentContact = null;
+    let universalIsOpen = false;
+    let universalAllUsers = [];
+    let universalActiveTab = 'chats';
+    let universalTotalUnread = 0;
+    
+    const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor', 'student': 'Student' };
+    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'counselor': 'role-counselor', 'student': 'role-student' };
+    
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
     // Authentication
@@ -212,6 +291,10 @@
         document.getElementById('counselorName').innerText = currentCounselor;
         loadData();
         loadInterventionStats();
+        
+        // Initialize Universal Chat
+        await loadUniversalUsers();
+        listenForUniversalMessages();
     });
     
     async function loadData() {
@@ -320,7 +403,7 @@
         
         const tbody = document.getElementById('studentTable');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students found.<\/td><\/tr>';
             return;
         }
         
@@ -333,11 +416,11 @@
             
             tbody.innerHTML += `
                 <tr class="student-card">
-                    <td class="fw-bold">${escapeHtml(s.name)}</td>
-                    <td>${escapeHtml(s.studentId)}</td>
-                    <td><span class="risk-badge ${riskClass}">${s.riskLevel}</span></td>
-                    <td>${s.lastAssessment}</td>
-                    <td>${s.score !== '-' ? s.score + '/15' : '-'}</td>
+                    <td class="fw-bold">${escapeHtml(s.name)}<\/td>
+                    <td>${escapeHtml(s.studentId)}<\/td>
+                    <td><span class="risk-badge ${riskClass}">${s.riskLevel}<\/span><\/td>
+                    <td>${s.lastAssessment}<\/td>
+                    <td>${s.score !== '-' ? s.score + '/15' : '-'}<\/td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-success rounded-pill px-3 me-1" onclick="openChat('${s.id}', '${escapeHtml(s.name)}')">
                             <i class="bi bi-chat-dots me-1"></i> Chat
@@ -345,20 +428,21 @@
                         <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="sendIntervention('${s.id}', '${escapeHtml(s.name)}')">
                             <i class="bi bi-send me-1"></i> Message
                         </button>
-                    </td>
-                </tr>
+                    <\/td>
+                <\/tr>
             `;
         });
     }
     
     document.getElementById('searchInput').addEventListener('keyup', () => renderStudentTable());
     
-    // ============ CHAT SYSTEM WITH STUDENTS ============
+    // ============ ORIGINAL CHAT SYSTEM WITH STUDENTS ============
     window.openChat = async (studentId, studentName) => {
         selectedStudent = { id: studentId, name: studentName };
         document.getElementById('chatStudentName').innerHTML = studentName;
         document.getElementById('chatInput').disabled = false;
-        document.getElementById('chatSendBtn')?.removeAttribute('disabled');
+        const sendBtn = document.querySelector('#chatContainer .chat-send-btn');
+        if (sendBtn) sendBtn.disabled = false;
         
         // Open chat container
         const container = document.getElementById('chatContainer');
@@ -410,7 +494,7 @@
                 html += `
                     <div class="chat-message ${isSent ? 'sent' : 'received'}">
                         <div class="message-bubble">
-                            <div class="small fw-semibold mb-1" style="font-size: 0.7rem;">${isSent ? 'You' : msg.senderName || 'Student'}</div>
+                            <div class="small fw-semibold mb-1" style="font-size: 0.7rem;">${isSent ? 'You' : (msg.senderName || 'Student')}</div>
                             ${escapeHtml(msg.text)}
                         </div>
                         <div class="message-time">${time}</div>
@@ -489,6 +573,206 @@
             document.getElementById('chatUnreadBadge').style.display = 'none';
         }
     }
+    
+    // ============ UNIVERSAL CHAT SYSTEM (Chat with ALL roles) ==========
+    async function loadUniversalUsers() {
+        const usersSnap = await getDocs(collection(db, "users"));
+        universalAllUsers = [];
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            if (doc.id !== currentCounselorId && data.role !== 'admin') {
+                universalAllUsers.push({
+                    id: doc.id,
+                    name: data.name || doc.id.split('@')[0],
+                    email: data.email || doc.id,
+                    role: data.role,
+                    avatar: data.name?.charAt(0).toUpperCase() || 'U'
+                });
+            }
+        });
+        // Sort: Supervisor first, then Coordinator
+        const roleOrder = { 'supervisor': 1, 'host': 2, 'student': 3 };
+        universalAllUsers.sort((a, b) => (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99));
+        renderUniversalContacts();
+        calculateUniversalUnread();
+    }
+    
+    function renderUniversalContacts() {
+        const container = document.getElementById('universalContactsList');
+        let filtered = universalAllUsers;
+        
+        if (universalAllUsers.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted small">No other users found</div>';
+            return;
+        }
+        
+        let html = '';
+        filtered.forEach(user => {
+            const isActive = universalCurrentContact?.id === user.id;
+            const roleClass = roleColors[user.role] || 'role-student';
+            const roleDisplay = roleNames[user.role] || user.role;
+            html += `
+                <div class="universal-contact-item ${isActive ? 'active' : ''}" onclick="selectUniversalContact('${user.id}', '${escapeHtml(user.name)}', '${user.role}')">
+                    <div class="contact-avatar">${user.avatar}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${escapeHtml(user.name)}</div>
+                        <div><span class="contact-role-badge ${roleClass}">${roleDisplay}</span></div>
+                    </div>
+                    <div id="universalUnread_${user.id}" class="unread-dot" style="display: none;"></div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    window.selectUniversalContact = async (userId, userName, userRole) => {
+        universalCurrentContact = { id: userId, name: userName, role: userRole };
+        
+        document.querySelectorAll('.universal-contact-item').forEach(el => el.classList.remove('active'));
+        if (event.target.closest('.universal-contact-item')) {
+            event.target.closest('.universal-contact-item').classList.add('active');
+        }
+        
+        document.getElementById('universalChatInput').disabled = false;
+        const sendBtn = document.querySelector('#universalChatContainer .btn-primary');
+        if (sendBtn) sendBtn.disabled = false;
+        
+        await markUniversalMessagesAsRead(userId);
+        loadUniversalMessages(userId);
+    };
+    
+    async function markUniversalMessagesAsRead(otherUserId) {
+        const chatId = [currentCounselorId, otherUserId].sort().join('_');
+        const messagesRef = collection(db, "universal_chats", chatId, "messages");
+        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentCounselorId));
+        const unreadSnap = await getDocs(unreadQuery);
+        
+        unreadSnap.forEach(async (docSnap) => {
+            await updateDoc(doc(db, "universal_chats", chatId, "messages", docSnap.id), { read: true });
+        });
+        
+        document.getElementById(`universalUnread_${otherUserId}`).style.display = 'none';
+        calculateUniversalUnread();
+    }
+    
+    function loadUniversalMessages(otherUserId) {
+        if (universalChatUnsubscribe) universalChatUnsubscribe();
+        
+        const chatId = [currentCounselorId, otherUserId].sort().join('_');
+        const messagesRef = collection(db, "universal_chats", chatId, "messages");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+        
+        universalChatUnsubscribe = onSnapshot(q, (snapshot) => {
+            const messagesArea = document.getElementById('universalChatMessages');
+            if (snapshot.empty) {
+                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(docSnap => {
+                const msg = docSnap.data();
+                const isSent = msg.senderId === currentCounselorId;
+                const senderName = isSent ? 'You' : (msg.senderName || universalCurrentContact?.name);
+                const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
+                
+                html += `
+                    <div class="universal-message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-bubble">
+                            <div class="small fw-semibold mb-1" style="font-size: 0.65rem;">${escapeHtml(senderName)}</div>
+                            ${escapeHtml(msg.text)}
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            });
+            
+            messagesArea.innerHTML = html;
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        });
+    }
+    
+    window.sendUniversalMessage = async () => {
+        const input = document.getElementById('universalChatInput');
+        const message = input.value.trim();
+        if (!message || !universalCurrentContact) return;
+        
+        input.value = '';
+        
+        const chatId = [currentCounselorId, universalCurrentContact.id].sort().join('_');
+        
+        await addDoc(collection(db, "universal_chats", chatId, "messages"), {
+            text: message,
+            senderId: currentCounselorId,
+            senderName: currentCounselor,
+            receiverId: universalCurrentContact.id,
+            receiverName: universalCurrentContact.name,
+            timestamp: serverTimestamp(),
+            read: false
+        });
+        
+        await addDoc(collection(db, "notifications"), {
+            userID: universalCurrentContact.id,
+            message: `💬 New message from ${currentCounselor} (Counselor): "${message.substring(0, 50)}..."`,
+            sender: currentCounselorId,
+            senderName: currentCounselor,
+            senderRole: 'counselor',
+            type: "chat",
+            status: "unread",
+            timestamp: serverTimestamp()
+        });
+        
+        const messagesArea = document.getElementById('universalChatMessages');
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    };
+    
+    async function calculateUniversalUnread() {
+        let total = 0;
+        for (const user of universalAllUsers) {
+            const chatId = [currentCounselorId, user.id].sort().join('_');
+            const messagesRef = collection(db, "universal_chats", chatId, "messages");
+            const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentCounselorId));
+            const unreadSnap = await getDocs(unreadQuery);
+            const count = unreadSnap.size;
+            if (count > 0) {
+                total += count;
+                document.getElementById(`universalUnread_${user.id}`).style.display = 'flex';
+            }
+        }
+        
+        universalTotalUnread = total;
+        const badge = document.getElementById('universalChatUnreadBadge');
+        if (total > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = total > 9 ? '9+' : total;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    window.toggleUniversalChat = () => {
+        const container = document.getElementById('universalChatContainer');
+        universalIsOpen = container.style.display !== 'flex';
+        container.style.display = universalIsOpen ? 'flex' : 'none';
+        if (universalIsOpen && universalCurrentContact) {
+            document.getElementById('universalChatInput').focus();
+        }
+    };
+    
+    window.switchUniversalChatTab = (tab) => {
+        universalActiveTab = tab;
+        document.querySelectorAll('.universal-chat-tab').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.universal-chat-tab[data-tab="${tab}"]`).classList.add('active');
+        renderUniversalContacts();
+    };
+    
+    function listenForUniversalMessages() {
+        setInterval(calculateUniversalUnread, 5000);
+    }
+    
+    document.getElementById('universalChatInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && universalCurrentContact) sendUniversalMessage();
+    });
     
     // ============ INTERVENTION FUNCTIONS ============
     window.sendIntervention = async (studentId, studentName) => {
