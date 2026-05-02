@@ -17,8 +17,18 @@
         .log-scroll { max-height: 400px; overflow-y: auto; }
         .log-scroll::-webkit-scrollbar { width: 4px; }
         .log-scroll::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 10px; }
-        .stat-card { background: #1e293b; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid #334155; }
+        .stat-card { background: #1e293b; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid #334155; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
         .qr-reader-region { margin: 0 auto !important; }
+        .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .session-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .session-badge.expired { background: #ef4444; }
+        .gps-verified { color: #10b981; }
+        .gps-warning { color: #f59e0b; }
+        .gps-error { color: #ef4444; }
+        .scan-animation { animation: scanFlash 0.3s ease; }
+        @keyframes scanFlash { 0% { background-color: transparent; } 50% { background-color: rgba(251,191,36,0.2); } 100% { background-color: transparent; } }
     </style>
 </head>
 <body>
@@ -26,65 +36,506 @@
 <div class="scanner-header">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div><h4 class="fw-bold text-white mb-0"><i class="bi bi-qr-code-scan me-2"></i>RPS Attendance Scanner</h4><p class="text-white-50 small mb-0">Scan student QR code for class attendance</p></div>
-            <div class="status-badge text-white"><i class="bi bi-wifi"></i> <span id="scannerStatus">Starting...</span></div>
+            <div>
+                <h4 class="fw-bold text-white mb-0"><i class="bi bi-qr-code-scan me-2"></i>RPS Attendance Scanner</h4>
+                <p class="text-white-50 small mb-0">Scan student QR code for class attendance</p>
+            </div>
+            <div class="status-badge text-white">
+                <i class="bi bi-person-badge me-1"></i> 
+                <span id="coordinatorName">Loading...</span>
+                <span class="ms-2 ps-2 border-start border-light" id="authStatusBadge"></span>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="container py-4">
+    <!-- Stats Row -->
     <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-people-fill text-primary fs-3"></i><h3 id="todayCount" class="fw-bold text-white mb-0 mt-2">0</h3><small class="text-muted">Today's Attendance</small></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-geo-alt-fill text-success fs-3"></i><h3 id="gpsStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Checking...</h3><small class="text-muted">GPS Location</small></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-clock-fill text-warning fs-3"></i><h3 id="liveTime" class="fw-bold text-white mb-0 mt-2">--:--:--</h3><small class="text-muted">Current Time</small></div></div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <i class="bi bi-people-fill text-primary fs-3"></i>
+                <h3 id="todayCount" class="fw-bold text-white mb-0 mt-2">0</h3>
+                <small class="text-muted">Today's Attendance</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <i class="bi bi-bar-chart-fill text-info fs-3"></i>
+                <h3 id="weekCount" class="fw-bold text-white mb-0 mt-2">0</h3>
+                <small class="text-muted">This Week</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <i class="bi bi-geo-alt-fill text-success fs-3"></i>
+                <h3 id="gpsStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Checking...</h3>
+                <small class="text-muted">GPS Location</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <i class="bi bi-clock-fill text-warning fs-3"></i>
+                <h3 id="liveTime" class="fw-bold text-white mb-0 mt-2 fs-5">--:--:--</h3>
+                <small class="text-muted">Current Time</small>
+            </div>
+        </div>
     </div>
 
+    <!-- Main Content -->
     <div class="row g-4">
-        <div class="col-lg-6"><div class="card bg-dark border-0 rounded-4 shadow-lg overflow-hidden"><div class="card-body p-4"><div id="reader"></div><div class="mt-3 text-center"><div class="alert alert-info small mb-0"><i class="bi bi-camera me-2"></i> Letakkan QR code di hadapan kamera</div></div></div></div></div>
-        <div class="col-lg-6"><div class="card bg-dark border-0 rounded-4 shadow-lg"><div class="card-header bg-transparent border-bottom border-secondary"><h6 class="fw-bold text-white mb-0"><i class="bi bi-clock-history me-2"></i>Today's Attendance Log</h6></div><div class="card-body p-0"><div id="scanLog" class="log-scroll"><div class="text-center py-5 text-muted small">Waiting for scans...</div></div></div></div></div>
+        <div class="col-lg-7">
+            <div class="card bg-dark border-0 rounded-4 shadow-lg overflow-hidden">
+                <div class="card-body p-4">
+                    <div id="reader-container">
+                        <div id="reader"></div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <div class="alert alert-info small mb-0">
+                            <i class="bi bi-camera me-2"></i> Letakkan QR code pelajar di hadapan kamera
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card bg-dark border-0 rounded-4 shadow-lg">
+                <div class="card-header bg-transparent border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-white mb-0"><i class="bi bi-clock-history me-2"></i>Today's Log</h6>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="refreshLog()">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="scanLog" class="log-scroll" style="max-height: 500px;">
+                        <div class="text-center py-5 text-muted small">Waiting for scans...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div class="mt-4 text-center">
-        <button class="btn btn-outline-light btn-sm rounded-pill px-4" onclick="window.location.href='host.html'"><i class="bi bi-arrow-left me-2"></i> Back to Dashboard</button>
-        <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 ms-2" onclick="refreshScanner()"><i class="bi bi-arrow-repeat me-2"></i> Refresh Scanner</button>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-4" onclick="window.location.href='host.html'">
+            <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+        </button>
+        <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 ms-2" onclick="refreshScanner()">
+            <i class="bi bi-arrow-repeat me-2"></i> Refresh Scanner
+        </button>
+        <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="forceGPS()">
+            <i class="bi bi-satellite me-2"></i> Verify GPS
+        </button>
+        <button class="btn btn-outline-danger btn-sm rounded-pill px-4 ms-2" onclick="logout()">
+            <i class="bi bi-box-arrow-right me-2"></i> Lock Scanner
+        </button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getDatabase, ref, set, get, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, serverTimestamp, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", authDomain: "eduguard-ai-2742b.firebaseapp.com", projectId: "eduguard-ai-2742b", storageBucket: "eduguard-ai-2742b.firebasestorage.app", messagingSenderId: "96233022148", appId: "1:96233022148:web:1f903d72b3f79690409f91" };
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
+        authDomain: "eduguard-ai-2742b.firebaseapp.com", 
+        projectId: "eduguard-ai-2742b", 
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app", 
+        messagingSenderId: "96233022148", 
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
+    };
+    
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
     const rtdb = getDatabase(app);
-    const firestore = getFirestore(app);
-    const today = new Date().toISOString().split('T')[0];
-    let isProcessing = false;
-    let html5QrcodeScanner = null;
-
+    
+    // Campus Location (Pauh Putra)
     const CAMPUS_LOC = { lat: 6.459908432966171, lng: 100.35170018848842 };
+    const GPS_RADIUS_KM = 0.5;
+    
+    // State variables
+    let html5QrcodeScanner = null;
+    let isProcessing = false;
+    let currentCoordinator = null;
     let isInCampus = false;
-    let currentLocation = "Pauh Putra Campus";
+    let lastGpsProof = null;
+    let scanRateMap = new Map();
+    let currentAttendanceData = [];
+    const SCAN_LIMIT_PER_MINUTE = 30;
+    const GPS_VALIDITY_MS = 30000;
+    const todayStr = new Date().toISOString().split('T')[0];
     
-    function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180; const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
+    // Helper Functions
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
     
-    function checkGPS() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, CAMPUS_LOC.lat, CAMPUS_LOC.lng); isInCampus = dist < 0.5; const gpsEl = document.getElementById('gpsStatus'); const scannerStatus = document.getElementById('scannerStatus'); if (isInCampus) { gpsEl.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> Verified'; gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 text-success'; scannerStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> Ready - GPS Verified'; scannerStatus.className = 'text-success'; } else { gpsEl.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Outside Campus'; gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 text-warning'; scannerStatus.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> GPS: Outside Campus Area'; scannerStatus.className = 'text-warning'; } }, (err) => { document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Failed'; document.getElementById('scannerStatus').innerHTML = 'GPS Error - Cannot verify location'; }, { enableHighAccuracy: true, timeout: 10000 }); } else { document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-slash-circle text-danger me-1"></i> Not Supported'; } }
+    function generateSecureHash(data) {
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+            hash = ((hash << 5) - hash) + data.charCodeAt(i);
+            hash |= 0;
+        }
+        return Math.abs(hash).toString(16);
+    }
     
-    async function recordAttendance(studentId) { if (isProcessing) { Swal.fire({ icon: 'warning', title: 'Please wait', text: 'Processing previous scan...', timer: 1000 }); return; } if (!isInCampus) { Swal.fire({ icon: 'error', title: 'Location Error', text: 'You must be within campus area to record attendance!' }); return; } isProcessing = true; try { const checkRef = ref(rtdb, `kehadiran_unimap/${today}/${studentId}`); const checkSnap = await get(checkRef); if (checkSnap.exists()) { Swal.fire({ icon: 'warning', title: 'Already Recorded', text: `${studentId} already marked present today`, timer: 1500 }); isProcessing = false; return; } let studentName = studentId; try { const userDoc = await getDoc(doc(firestore, "users", studentId)); if (userDoc.exists()) studentName = userDoc.data().name || studentId; } catch(e) {} const currentTime = new Date().toLocaleTimeString('ms-MY'); await set(ref(rtdb, `kehadiran_unimap/${today}/${studentId}`), { studentID: studentId, studentName: studentName, lokasi: currentLocation, masa: currentTime, timestamp: serverTimestamp() }); Swal.fire({ icon: 'success', title: 'Attendance Recorded!', text: `${studentName}`, timer: 1500, showConfirmButton: false }); loadTodayStats(); } catch (error) { console.error(error); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to record attendance' }); } setTimeout(() => { isProcessing = false; }, 1500); }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
     
-    function loadTodayStats() { const attendanceRef = ref(rtdb, `kehadiran_unimap/${today}`); onValue(attendanceRef, (snapshot) => { const container = document.getElementById('scanLog'); let count = 0; if (snapshot.exists()) { const data = snapshot.val(); const records = Object.values(data); count = records.length; container.innerHTML = ''; records.reverse().forEach(rec => { container.innerHTML += `<div class="border-bottom border-secondary p-3"><div class="d-flex justify-content-between align-items-center"><div><div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div><small class="text-muted">ID: ${rec.studentID}</small></div><div class="text-end"><span class="badge bg-success mb-1">Present</span><div><small class="text-muted">${rec.masa || '--:--'}</small></div></div></div><div class="small text-muted mt-1">📍 ${rec.lokasi || 'Kampus'}</div></div>`; }); } else { container.innerHTML = '<div class="text-center py-5 text-muted small">No scans yet today</div>'; } document.getElementById('todayCount').innerText = count; }); }
+    // GPS Functions
+    function verifyGPS() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-slash-circle text-danger me-1"></i> Not Supported';
+                reject(new Error('GPS not supported'));
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const distance = calculateDistance(
+                    pos.coords.latitude, pos.coords.longitude,
+                    CAMPUS_LOC.lat, CAMPUS_LOC.lng
+                );
+                
+                isInCampus = distance < GPS_RADIUS_KM;
+                const timestamp = Date.now();
+                const proofData = `${pos.coords.latitude}|${pos.coords.longitude}|${timestamp}|${CAMPUS_LOC.lat}|${CAMPUS_LOC.lng}`;
+                const proofHash = generateSecureHash(proofData);
+                
+                lastGpsProof = {
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    timestamp: timestamp,
+                    hash: proofHash,
+                    distance: distance
+                };
+                
+                const gpsEl = document.getElementById('gpsStatus');
+                if (isInCampus) {
+                    gpsEl.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Verified (${distance.toFixed(2)}km)`;
+                    gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-verified';
+                } else {
+                    gpsEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${distance.toFixed(2)}km from campus`;
+                    gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-warning';
+                }
+                
+                resolve({ isInCampus, distance, proof: lastGpsProof });
+            }, (err) => {
+                document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Failed';
+                document.getElementById('gpsStatus').className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-error';
+                reject(err);
+            }, { enableHighAccuracy: true, timeout: 10000 });
+        });
+    }
     
-    function initScanner() { if (html5QrcodeScanner) { html5QrcodeScanner.clear(); } html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 }); html5QrcodeScanner.render((decodedText) => { recordAttendance(decodedText); }, (error) => { }); document.getElementById('scannerStatus').innerHTML = '<i class="bi bi-camera-fill me-1"></i> Ready to Scan'; }
+    window.forceGPS = () => {
+        Swal.fire({ title: 'Verifying GPS...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        verifyGPS().then(() => {
+            Swal.fire({ icon: 'success', title: isInCampus ? 'Inside Campus' : 'Outside Campus', text: isInCampus ? 'Scanner is active' : 'Please move to campus area', timer: 2000 });
+        }).catch(() => {
+            Swal.fire({ icon: 'error', title: 'GPS Error', text: 'Could not verify location' });
+        });
+    };
     
-    window.refreshScanner = () => { initScanner(); Swal.fire({ toast: true, icon: 'success', title: 'Scanner Refreshed', timer: 1500, showConfirmButton: false }); };
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    // Rate Limiting
+    function checkRateLimit(studentId) {
+        const now = Date.now();
+        const minuteAgo = now - 60000;
+        if (!scanRateMap.has(studentId)) scanRateMap.set(studentId, []);
+        const timestamps = scanRateMap.get(studentId).filter(t => t > minuteAgo);
+        if (timestamps.length >= SCAN_LIMIT_PER_MINUTE) return false;
+        timestamps.push(now);
+        scanRateMap.set(studentId, timestamps);
+        return true;
+    }
     
-    setInterval(() => { document.getElementById('liveTime').innerHTML = new Date().toLocaleTimeString('ms-MY'); }, 1000);
-    checkGPS();
-    setInterval(checkGPS, 30000);
-    loadTodayStats();
-    initScanner();
+    // Student Validation
+    async function validateStudent(studentId) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", studentId));
+            if (userDoc.exists() && userDoc.data().role === 'student') {
+                return { valid: true, name: userDoc.data().name, studentId: studentId };
+            }
+            
+            const courseQuery = query(collection(db, "course_registrations"), where("studentID", "==", studentId));
+            const courseSnap = await getDocs(courseQuery);
+            if (!courseSnap.empty) {
+                return { valid: true, name: studentId, studentId: studentId };
+            }
+            
+            return { valid: false, name: null, studentId: studentId };
+        } catch (e) {
+            return { valid: false, name: null, studentId: studentId };
+        }
+    }
+    
+    // Record Attendance
+    async function recordAttendance(scannedId) {
+        if (!currentCoordinator) {
+            Swal.fire({ icon: 'error', title: 'Session Expired', text: 'Please refresh the page' });
+            return;
+        }
+        
+        if (isProcessing) {
+            Swal.fire({ icon: 'warning', title: 'Please wait', text: 'Processing previous scan...', timer: 1000 });
+            return;
+        }
+        
+        if (!isInCampus) {
+            Swal.fire({ icon: 'error', title: 'Location Error', text: 'You must be within campus area to record attendance!' });
+            return;
+        }
+        
+        if (!lastGpsProof || (Date.now() - lastGpsProof.timestamp) > GPS_VALIDITY_MS) {
+            Swal.fire({ icon: 'error', title: 'GPS Expired', text: 'Please verify GPS location first' });
+            verifyGPS();
+            return;
+        }
+        
+        if (!checkRateLimit(scannedId)) {
+            Swal.fire({ icon: 'error', title: 'Rate Limit', text: 'Too many attempts. Please wait a moment.' });
+            return;
+        }
+        
+        isProcessing = true;
+        
+        try {
+            // Check if already recorded today
+            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${scannedId}`);
+            const checkSnap = await get(checkRef);
+            
+            if (checkSnap.exists()) {
+                Swal.fire({ icon: 'warning', title: 'Already Recorded', text: `Student already marked present today`, timer: 1500 });
+                isProcessing = false;
+                return;
+            }
+            
+            // Validate student exists
+            const student = await validateStudent(scannedId);
+            if (!student.valid) {
+                Swal.fire({ icon: 'error', title: 'Invalid QR Code', text: 'Student ID not found in system!' });
+                isProcessing = false;
+                return;
+            }
+            
+            // Record attendance
+            const currentTime = new Date().toLocaleTimeString('ms-MY');
+            const verificationHash = generateSecureHash(`${scannedId}|${todayStr}|${lastGpsProof.timestamp}|${currentCoordinator}`);
+            
+            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${scannedId}`), {
+                studentID: scannedId,
+                studentName: student.name,
+                lokasi: "Pauh Putra Campus",
+                masa: currentTime,
+                timestamp: serverTimestamp(),
+                verifiedBy: currentCoordinator,
+                gpsLat: lastGpsProof.lat,
+                gpsLng: lastGpsProof.lng,
+                gpsDistance: lastGpsProof.distance.toFixed(3),
+                verificationHash: verificationHash,
+                verifiedAt: new Date().toISOString()
+            });
+            
+            // Audit log
+            await push(ref(rtdb, `audit_logs/${todayStr}`), {
+                studentId: scannedId,
+                coordinatorId: currentCoordinator,
+                timestamp: serverTimestamp(),
+                gpsVerified: true,
+                action: "attendance_marked"
+            });
+            
+            // Animate and show success
+            const readerDiv = document.getElementById('reader');
+            if (readerDiv) readerDiv.classList.add('scan-animation');
+            setTimeout(() => {
+                if (readerDiv) readerDiv.classList.remove('scan-animation');
+            }, 300);
+            
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Attendance Recorded!', 
+                text: `${student.name}`,
+                toast: true,
+                position: 'top-end',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            loadTodayStats();
+            
+        } catch (error) {
+            console.error('Attendance Error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to record attendance' });
+        } finally {
+            setTimeout(() => { isProcessing = false; }, 1500);
+        }
+    }
+    
+    // Load Today's Stats
+    function loadTodayStats() {
+        const attendanceRef = ref(rtdb, `kehadiran_unimap/${todayStr}`);
+        
+        onValue(attendanceRef, (snapshot) => {
+            const container = document.getElementById('scanLog');
+            let count = 0;
+            let records = [];
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                records = Object.values(data);
+                count = records.length;
+                currentAttendanceData = records;
+                
+                container.innerHTML = '';
+                records.reverse().forEach(rec => {
+                    const verifiedBadge = rec.verificationHash ? 
+                        '<span class="badge bg-info" style="font-size: 0.55rem;"><i class="bi bi-shield-check"></i> Secure</span>' : 
+                        '<span class="badge bg-secondary" style="font-size: 0.55rem;">Legacy</span>';
+                    
+                    container.innerHTML += `
+                        <div class="border-bottom border-secondary p-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div>
+                                    <small class="text-muted">ID: ${rec.studentID}</small>
+                                    <div class="mt-1">${verifiedBadge}</div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success mb-1">Present</span>
+                                    <div><small class="text-muted">${rec.masa || '--:--'}</small></div>
+                                    ${rec.verifiedBy ? `<div><small class="text-muted">by ${rec.verifiedBy}</small></div>` : ''}
+                                </div>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-geo-alt"></i> ${rec.lokasi || 'Kampus'}
+                                ${rec.gpsDistance ? ` (${rec.gpsDistance}km)` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = '<div class="text-center py-5 text-muted small">No scans yet today</div>';
+            }
+            
+            document.getElementById('todayCount').innerText = count;
+            
+            // Calculate week count
+            const weekCount = calculateWeekCount();
+            document.getElementById('weekCount').innerText = weekCount;
+        });
+    }
+    
+    function calculateWeekCount() {
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        let total = 0;
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
+            const attendanceRef = ref(rtdb, `kehadiran_unimap/${dateStr}`);
+            get(attendanceRef).then(snap => {
+                if (snap.exists()) total += Object.keys(snap.val()).length;
+            }).catch(() => {});
+        }
+        return total;
+    }
+    
+    window.refreshLog = () => { loadTodayStats(); };
+    
+    // Initialize Scanner
+    function initScanner() {
+        if (!currentCoordinator) return;
+        
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+        }
+        
+        setTimeout(() => {
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                fps: 10, 
+                qrbox: { width: 280, height: 280 }, 
+                aspectRatio: 1.0,
+                rememberLastUsedCamera: true,
+                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+            });
+            
+            html5QrcodeScanner.render(
+                (decodedText) => { recordAttendance(decodedText); },
+                (error) => { /* Silent error handling */ }
+            );
+            
+            document.getElementById('authStatusBadge').innerHTML = '<span class="session-badge"><i class="bi bi-camera-fill me-1"></i> Scanner Active</span>';
+        }, 100);
+    }
+    
+    window.refreshScanner = () => {
+        initScanner();
+        verifyGPS();
+        Swal.fire({ toast: true, icon: 'success', title: 'Scanner Refreshed', timer: 1500, showConfirmButton: false });
+    };
+    
+    window.logout = () => {
+        Swal.fire({
+            title: 'Lock Scanner?',
+            text: 'You will need to re-authenticate to use the scanner',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Yes, Lock',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                }
+                currentCoordinator = null;
+                document.getElementById('coordinatorName').innerHTML = '<span class="session-badge expired"><i class="bi bi-lock-fill me-1"></i> Locked</span>';
+                document.getElementById('authStatusBadge').innerHTML = '<span class="session-badge expired">Not Active</span>';
+                Swal.fire({ icon: 'info', title: 'Scanner Locked', text: 'Please refresh the page to re-authenticate' });
+            }
+        });
+    };
+    
+    // Authentication Check
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+        
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'host') {
+            await signOut(auth);
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Coordinator access only' });
+            window.location.href = "index.html";
+            return;
+        }
+        
+        currentCoordinator = userDoc.data().name || user.email;
+        document.getElementById('coordinatorName').innerHTML = `<span class="session-badge"><i class="bi bi-person-check-fill me-1"></i> ${currentCoordinator}</span>`;
+        
+        await verifyGPS();
+        loadTodayStats();
+        initScanner();
+        
+        // Auto-refresh GPS every 25 seconds
+        setInterval(() => { verifyGPS().catch(() => {}); }, 25000);
+        setInterval(() => { document.getElementById('liveTime').innerHTML = new Date().toLocaleTimeString('ms-MY'); }, 1000);
+    });
 </script>
 </body>
 </html>
