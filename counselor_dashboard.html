@@ -25,40 +25,31 @@
         .risk-normal { background: #dcfce7; color: #166534; }
         .glass-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        /* SIMPLE UNIFIED CHAT - ONE CHAT SYSTEM */
-        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
-        .chat-header { background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .chat-contacts { max-height: 160px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-        .chat-contact-item { padding: 10px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
-        .chat-contact-item:hover { background: #eef2ff; }
-        .chat-contact-item.active { background: #e0e7ff; border-left: 3px solid var(--counselor-primary); }
-        .contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
-        .chat-messages-area { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
-        .chat-message { max-width: 80%; padding: 8px 12px; border-radius: 18px; margin-bottom: 4px; }
-        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.received { align-self: flex-start; background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .message-time { font-size: 9px; margin-top: 2px; opacity: 0.7; }
-        .chat-input-area { padding: 12px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 8px; }
-        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 8px 15px; font-size: 0.85rem; outline: none; }
-        .chat-send-btn { background: var(--counselor-primary); border: none; border-radius: 30px; padding: 8px 18px; color: white; font-weight: 600; }
-        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
+        /* SIMPLE WORKING CHAT */
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
+        .chat-header { background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; padding: 12px 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f5f5f5; display: flex; flex-direction: column; gap: 8px; }
+        .message { max-width: 80%; padding: 8px 12px; border-radius: 15px; margin-bottom: 5px; }
+        .message-sent { align-self: flex-end; background: var(--counselor-primary); color: white; border-bottom-right-radius: 3px; }
+        .message-received { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .message-time { font-size: 9px; margin-top: 3px; opacity: 0.7; }
+        .message-sender { font-size: 10px; font-weight: bold; margin-bottom: 2px; }
+        .chat-input-area { padding: 10px; border-top: 1px solid #ddd; background: white; display: flex; gap: 8px; }
+        .chat-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 12px; font-size: 14px; outline: none; }
+        .chat-send { background: var(--counselor-primary); color: white; border: none; border-radius: 20px; padding: 8px 15px; cursor: pointer; }
+        .chat-contact-select { padding: 10px; border-bottom: 1px solid #ddd; background: #f9f9f9; }
+        .chat-contact-select select { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #ddd; }
+        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
-        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
-        .role-supervisor { background: #fef3c7; color: #92400e; }
-        .role-host { background: #dcfce7; color: #166534; }
-        .role-student { background: #dbeafe; color: #1e40af; }
+        .chat-unread { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
         
         .filter-chip { padding: 8px 18px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s; }
         .filter-chip.active { background: var(--counselor-primary); color: white; border-color: var(--counselor-primary); }
         .student-card { cursor: default; transition: all 0.2s; }
         .student-card:hover { background: #f8fafc; }
         body.dark-mode .student-card:hover { background: #334155; }
-        body.dark-mode .chat-messages-area { background: #0f172a; }
-        body.dark-mode .chat-message.received { background: #334155; color: #e2e8f0; }
-        body.dark-mode .chat-contacts { background: #1e293b; }
-        body.dark-mode .chat-contact-item:hover { background: #334155; }
-        body.dark-mode .chat-contact-item.active { background: #2d3a4a; }
+        body.dark-mode .chat-messages { background: #1a1a2e; }
+        body.dark-mode .message-received { background: #2d2d44; color: #eee; }
         @media (max-width: 768px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
 </head>
@@ -76,105 +67,94 @@
 </nav>
 
 <div class="container py-4">
-    <!-- Stats Row -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="stat-card text-center">
                 <i class="bi bi-people-fill text-primary fs-2 mb-2 d-block"></i>
                 <h3 id="totalStudents" class="fw-bold">0</h3>
-                <small class="text-muted">Total Students</small>
+                <small>Total Students</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card text-center">
                 <i class="bi bi-exclamation-triangle-fill text-danger fs-2 mb-2 d-block"></i>
                 <h3 id="criticalCount" class="fw-bold">0</h3>
-                <small class="text-muted">Critical Cases</small>
+                <small>Critical Cases</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card text-center">
                 <i class="bi bi-chat-dots-fill text-info fs-2 mb-2 d-block"></i>
                 <h3 id="interventionCount" class="fw-bold">0</h3>
-                <small class="text-muted">Interventions Sent</small>
+                <small>Interventions</small>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="d-flex flex-wrap gap-2 mb-4">
         <span class="filter-chip active" data-filter="all" onclick="setFilter('all')">All Students</span>
-        <span class="filter-chip" data-filter="CRITICAL" onclick="setFilter('CRITICAL')"><i class="bi bi-exclamation-triangle text-danger me-1"></i> Critical Risk</span>
-        <span class="filter-chip" data-filter="MEDIUM" onclick="setFilter('MEDIUM')"><i class="bi bi-shield-exclamation text-warning me-1"></i> Medium Risk</span>
+        <span class="filter-chip" data-filter="CRITICAL" onclick="setFilter('CRITICAL')"><i class="bi bi-exclamation-triangle text-danger me-1"></i> Critical</span>
+        <span class="filter-chip" data-filter="MEDIUM" onclick="setFilter('MEDIUM')"><i class="bi bi-shield-exclamation text-warning me-1"></i> Medium</span>
         <span class="filter-chip" data-filter="NORMAL" onclick="setFilter('NORMAL')"><i class="bi bi-check-circle text-success me-1"></i> Normal</span>
     </div>
 
-    <!-- Chart Row -->
     <div class="row g-4 mb-4">
         <div class="col-md-6">
             <div class="glass-card">
                 <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Wellness Distribution</h6>
-                <canvas id="wellnessChart" style="height: 200px; width: 100%;"></canvas>
+                <canvas id="wellnessChart" style="height: 200px;"></canvas>
             </div>
         </div>
         <div class="col-md-6">
             <div class="glass-card">
                 <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success me-2"></i>Weekly Interventions</h6>
-                <canvas id="interventionChart" style="height: 200px; width: 100%;"></canvas>
+                <canvas id="interventionChart" style="height: 200px;"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Student Table - NO CHAT BUTTONS INSIDE -->
     <div class="table-container">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <h5 class="fw-bold mb-0"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Student Wellness Status</h5>
             <div class="d-flex gap-2">
-                <input type="text" id="searchInput" class="form-control rounded-pill" placeholder="🔍 Search student..." style="width: 250px;">
-                <button class="btn btn-outline-primary rounded-pill" onclick="exportCounselorReport()"><i class="bi bi-download me-1"></i> Export</button>
+                <input type="text" id="searchInput" class="form-control rounded-pill" placeholder="🔍 Search..." style="width: 200px;">
+                <button class="btn btn-outline-primary rounded-pill" onclick="exportReport()"><i class="bi bi-download"></i> Export</button>
             </div>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Student ID</th>
-                        <th>Risk Level</th>
-                        <th>Last Assessment</th>
-                        <th>Score</th>
-                        <th class="text-center">Action</th>
-                    </tr>
+                    <tr><th>Name</th><th>ID</th><th>Risk</th><th>Last Assessment</th><th>Score</th><th>Action</th></tr>
                 </thead>
-                <tbody id="studentTable">
-                    <tr><td colspan="6" class="text-center py-5">Loading...<\/td><\/tr>
-                </tbody>
+                <tbody id="studentTable"><tr><td colspan="6" class="text-center py-5">Loading...<\/td><\/tr></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- SINGLE FLOATING CHAT BUTTON - ONE CHAT FOR ALL -->
+<!-- SIMPLE CHAT BUTTON -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
-    <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
+    <span id="unreadBadge" class="chat-unread" style="display: none;">0</span>
 </div>
 
-<!-- SINGLE CHAT WINDOW - ONE PLACE FOR ALL MESSAGES -->
-<div id="chatContainer" class="chat-container">
+<!-- SIMPLE CHAT WINDOW -->
+<div id="chatPanel" class="chat-container">
     <div class="chat-header">
-        <span><i class="bi bi-people-fill me-2"></i> Messages - All Contacts</span>
-        <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
+        <span><i class="bi bi-chat-dots me-2"></i> Messages</span>
+        <i class="bi bi-x-lg" style="cursor: pointer;" onclick="toggleChat()"></i>
     </div>
-    <div id="chatContactsList" class="chat-contacts">
-        <div class="text-center py-3 text-muted small">Loading contacts...</div>
+    <div class="chat-contact-select">
+        <select id="contactSelect" onchange="loadMessages()">
+            <option value="">-- Select Contact --</option>
+        </select>
     </div>
-    <div id="chatMessagesArea" class="chat-messages-area">
+    <div id="chatMessages" class="chat-messages">
         <div class="text-center text-muted py-4">Select a contact to start chatting</div>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
-        <button class="chat-send-btn" onclick="sendMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
+        <input type="text" id="messageInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button class="chat-send" onclick="sendMessage()">Send</button>
     </div>
 </div>
 
@@ -198,340 +178,210 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     
-    let currentCounselor = null;
-    let currentCounselorId = null;
+    let currentUser = null;
+    let currentUserId = null;
     let allStudents = [];
     let wellnessChart = null;
     let interventionChart = null;
     let currentFilter = 'all';
-    
-    // CHAT VARIABLES
-    let allContacts = [];
     let currentContact = null;
-    let messagesListener = null;
-    let isChatOpen = false;
-    let totalUnread = 0;
-    
-    const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor', 'student': 'Student' };
-    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'student': 'role-student' };
+    let messageUnsubscribe = null;
+    let allContacts = [];
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
-    function playSound() {
-        try {
-            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.volume = 0.2;
-            audio.play().catch(e => console.log('Audio error'));
-        } catch(e) {}
-    }
-    
-    // ============ AUTHENTICATION ============
+    // ============ AUTH ============
     onAuthStateChanged(auth, async (user) => { 
         if (!user) { window.location.href = "index.html"; return; } 
         const userDoc = await getDoc(doc(db, "users", user.uid)); 
         if (!userDoc.exists() || userDoc.data().role !== 'counselor') { 
             await signOut(auth); 
-            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Counselor access only.' }); 
+            Swal.fire({ icon: 'error', title: 'Access Denied' }); 
             window.location.href = "index.html"; 
             return; 
         }
-        currentCounselor = userDoc.data().name || 'Counselor';
-        currentCounselorId = user.uid;
-        document.getElementById('counselorName').innerText = currentCounselor;
-        loadData();
-        loadInterventionStats();
-        
-        await loadAllContacts();
-        startUnreadListener();
+        currentUser = userDoc.data();
+        currentUserId = user.uid;
+        document.getElementById('counselorName').innerText = currentUser.name || 'Counselor';
+        await loadAllData();
+        await loadContacts();
     });
     
     // ============ LOAD ALL CONTACTS ============
-    async function loadAllContacts() {
+    async function loadContacts() {
         const usersSnap = await getDocs(collection(db, "users"));
         allContacts = [];
         usersSnap.forEach(doc => {
             const data = doc.data();
-            if (doc.id !== currentCounselorId && data.role !== 'admin') {
+            if (doc.id !== currentUserId && data.role !== 'admin') {
                 allContacts.push({
                     id: doc.id,
                     name: data.name || doc.id.split('@')[0],
-                    email: data.email || doc.id,
-                    role: data.role,
-                    avatar: data.name?.charAt(0).toUpperCase() || 'U',
-                    unread: 0
+                    role: data.role
                 });
             }
         });
         
-        const rolePriority = { 'supervisor': 1, 'host': 2, 'student': 3 };
-        allContacts.sort((a, b) => (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99));
-        renderContactsList();
+        const select = document.getElementById('contactSelect');
+        select.innerHTML = '<option value="">-- Select Contact --</option>';
+        allContacts.forEach(c => {
+            select.innerHTML += `<option value="${c.id}" data-role="${c.role}">${escapeHtml(c.name)} (${c.role === 'supervisor' ? 'RPS' : (c.role === 'host' ? 'Coordinator' : 'Student')})</option>`;
+        });
     }
     
-    function renderContactsList() {
-        const container = document.getElementById('chatContactsList');
-        if (allContacts.length === 0) {
-            container.innerHTML = '<div class="text-center py-3 text-muted small">No contacts available</div>';
+    // ============ LOAD MESSAGES ============
+    window.loadMessages = () => {
+        const select = document.getElementById('contactSelect');
+        const selectedOption = select.options[select.selectedIndex];
+        if (!select.value) {
+            document.getElementById('chatMessages').innerHTML = '<div class="text-center text-muted py-4">Select a contact to start chatting</div>';
             return;
         }
         
-        let html = '';
-        allContacts.forEach(contact => {
-            const roleDisplay = roleNames[contact.role] || contact.role;
-            const roleClass = roleColors[contact.role] || '';
-            const isActive = currentContact?.id === contact.id;
-            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 9px;">${contact.unread}</span>` : '';
-            
-            html += `
-                <div class="chat-contact-item ${isActive ? 'active' : ''}" onclick="selectContact('${contact.id}', '${escapeHtml(contact.name)}', '${contact.role}')">
-                    <div class="contact-avatar">${contact.avatar}</div>
-                    <div class="flex-grow-1">
-                        <div class="fw-semibold small">${escapeHtml(contact.name)} ${unreadBadge}</div>
-                        <div><span class="role-badge ${roleClass}">${roleDisplay}</span></div>
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-    
-    // ============ SELECT CONTACT ============
-    window.selectContact = async (contactId, contactName, contactRole) => {
-        if (messagesListener) {
-            messagesListener();
-            messagesListener = null;
-        }
+        currentContact = {
+            id: select.value,
+            name: selectedOption.text.split(' (')[0],
+            role: select.options[select.selectedIndex].getAttribute('data-role')
+        };
         
-        currentContact = { id: contactId, name: contactName, role: contactRole };
+        if (messageUnsubscribe) messageUnsubscribe();
         
-        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
-        if (event && event.target && event.target.closest('.chat-contact-item')) {
-            event.target.closest('.chat-contact-item').classList.add('active');
-        }
-        
-        document.getElementById('chatInput').disabled = false;
-        document.querySelector('.chat-send-btn').disabled = false;
-        document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
-        
-        await markMessagesAsRead(contactId);
-        loadMessagesWithContact(contactId);
-    };
-    
-    async function markMessagesAsRead(contactId) {
-        const chatId = [currentCounselorId, contactId].sort().join('_');
-        const messagesRef = collection(db, "messages", chatId, "chats");
-        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentCounselorId));
-        const unreadSnap = await getDocs(unreadQuery);
-        
-        unreadSnap.forEach(async (docSnap) => {
-            await updateDoc(doc(db, "messages", chatId, "chats", docSnap.id), { read: true });
-        });
-        
-        const contact = allContacts.find(c => c.id === contactId);
-        if (contact) {
-            contact.unread = 0;
-            renderContactsList();
-            calculateTotalUnread();
-        }
-    }
-    
-    function loadMessagesWithContact(contactId) {
-        const chatId = [currentCounselorId, contactId].sort().join('_');
-        const messagesRef = collection(db, "messages", chatId, "chats");
+        const chatId = [currentUserId, currentContact.id].sort().join('_');
+        const messagesRef = collection(db, "chat_messages", chatId, "msgs");
         const q = query(messagesRef, orderBy("timestamp", "asc"));
         
-        messagesListener = onSnapshot(q, (snapshot) => {
-            const messagesArea = document.getElementById('chatMessagesArea');
+        messageUnsubscribe = onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('chatMessages');
             if (snapshot.empty) {
-                messagesArea.innerHTML = '<div class="text-center text-muted py-4">No messages yet. Start the conversation!</div>';
+                container.innerHTML = '<div class="text-center text-muted py-4">No messages yet.<br>Send a message to start!</div>';
                 return;
             }
             
             let html = '';
             snapshot.forEach(docSnap => {
                 const msg = docSnap.data();
-                const isSent = msg.senderId === currentCounselorId;
-                const senderName = isSent ? 'You' : (msg.senderName || currentContact?.name);
+                const isSent = msg.senderId === currentUserId;
                 const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
                 
                 html += `
-                    <div class="chat-message ${isSent ? 'sent' : 'received'}">
-                        <div><strong>${escapeHtml(senderName)}</strong></div>
+                    <div class="message ${isSent ? 'message-sent' : 'message-received'}">
+                        <div class="message-sender">${isSent ? 'You' : escapeHtml(msg.senderName)}</div>
                         <div>${escapeHtml(msg.text)}</div>
                         <div class="message-time">${time}</div>
                     </div>
                 `;
             });
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
             
-            messagesArea.innerHTML = html;
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+            // Mark as read
+            if (!isChatOpen) {
+                const unreadBadge = document.getElementById('unreadBadge');
+                unreadBadge.style.display = 'flex';
+                unreadBadge.innerText = '1';
+                setTimeout(() => { unreadBadge.style.display = 'none'; }, 3000);
+            }
         });
-    }
+        
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('messageInput').focus();
+    };
     
     // ============ SEND MESSAGE ============
     window.sendMessage = async () => {
-        const input = document.getElementById('chatInput');
+        const input = document.getElementById('messageInput');
         const message = input.value.trim();
-        
-        if (!message || !currentContact) {
-            Swal.fire({ icon: 'warning', title: 'No message', text: 'Select a contact and type a message.', toast: true, timer: 1500, showConfirmButton: false });
-            return;
-        }
+        if (!message || !currentContact) return;
         
         input.value = '';
         
-        const chatId = [currentCounselorId, currentContact.id].sort().join('_');
+        const chatId = [currentUserId, currentContact.id].sort().join('_');
+        await addDoc(collection(db, "chat_messages", chatId, "msgs"), {
+            text: message,
+            senderId: currentUserId,
+            senderName: currentUser.name || 'Counselor',
+            receiverId: currentContact.id,
+            timestamp: serverTimestamp(),
+            read: false
+        });
         
-        try {
-            await addDoc(collection(db, "messages", chatId, "chats"), {
-                text: message,
-                senderId: currentCounselorId,
-                senderName: currentCounselor,
-                senderRole: 'counselor',
-                receiverId: currentContact.id,
-                receiverName: currentContact.name,
-                receiverRole: currentContact.role,
-                timestamp: serverTimestamp(),
-                read: false
-            });
-            
-            await addDoc(collection(db, "notifications"), {
-                userID: currentContact.id,
-                message: `💬 New message from ${currentCounselor} (Counselor): "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
-                sender: currentCounselorId,
-                senderName: currentCounselor,
-                type: "chat",
-                status: "unread",
-                timestamp: serverTimestamp()
-            });
-            
-            const messagesArea = document.getElementById('chatMessagesArea');
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            
-        } catch (error) {
-            console.error('Send error:', error);
-            Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message.' });
-        }
+        // Send notification
+        await addDoc(collection(db, "notifications"), {
+            userID: currentContact.id,
+            message: `💬 New message from Counselor: "${message.substring(0, 50)}"`,
+            sender: currentUserId,
+            type: "chat",
+            status: "unread",
+            timestamp: serverTimestamp()
+        });
+        
+        const container = document.getElementById('chatMessages');
+        container.scrollTop = container.scrollHeight;
     };
     
-    // ============ UNREAD LISTENER ============
-    function startUnreadListener() {
-        setInterval(async () => {
-            let total = 0;
-            for (const contact of allContacts) {
-                const chatId = [currentCounselorId, contact.id].sort().join('_');
-                const messagesRef = collection(db, "messages", chatId, "chats");
-                const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentCounselorId));
-                const unreadSnap = await getDocs(unreadQuery);
-                const unreadCount = unreadSnap.size;
-                
-                if (unreadCount !== contact.unread) {
-                    contact.unread = unreadCount;
-                    if (unreadCount > 0 && !isChatOpen) {
-                        playSound();
-                    }
-                    renderContactsList();
-                }
-                total += unreadCount;
-            }
-            
-            totalUnread = total;
-            if (totalUnread > 0 && !isChatOpen) {
-                document.getElementById('chatUnreadBadge').style.display = 'flex';
-                document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-            } else {
-                document.getElementById('chatUnreadBadge').style.display = 'none';
-            }
-            document.getElementById('interventionCount').innerText = totalUnread;
-        }, 3000);
-    }
-    
-    function calculateTotalUnread() {
-        let total = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
-        totalUnread = total;
-        if (totalUnread > 0 && !isChatOpen) {
-            document.getElementById('chatUnreadBadge').style.display = 'flex';
-            document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-        } else {
-            document.getElementById('chatUnreadBadge').style.display = 'none';
-        }
-    }
-    
-    window.toggleChat = () => {
-        const container = document.getElementById('chatContainer');
-        isChatOpen = container.style.display !== 'flex';
-        container.style.display = isChatOpen ? 'flex' : 'none';
-        if (isChatOpen) {
-            document.getElementById('chatUnreadBadge').style.display = 'none';
-            if (currentContact) {
-                markMessagesAsRead(currentContact.id);
-            }
-            document.getElementById('chatInput').focus();
-        }
-    };
-    
-    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && currentContact) sendMessage();
+    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
     });
     
-    // ============ DATA FUNCTIONS ============
-    async function loadData() {
+    let isChatOpen = false;
+    window.toggleChat = () => {
+        const panel = document.getElementById('chatPanel');
+        isChatOpen = panel.style.display !== 'flex';
+        panel.style.display = isChatOpen ? 'flex' : 'none';
+        if (isChatOpen) {
+            document.getElementById('unreadBadge').style.display = 'none';
+        }
+    };
+    
+    // ============ LOAD STUDENTS DATA ============
+    async function loadAllData() {
         const studentsSnap = await getDocs(collection(db, "users"));
         let students = [];
         studentsSnap.forEach(doc => { 
-            if (doc.data().role === 'student') {
-                students.push({ id: doc.id, ...doc.data() });
-            }
+            if (doc.data().role === 'student') students.push({ id: doc.id, ...doc.data() });
         });
         
         const assessmentsSnap = await getDocs(collection(db, "assessments"));
         const assessments = {};
-        assessmentsSnap.forEach(doc => { 
-            const data = doc.data(); 
-            assessments[data.studentID] = data; 
-        });
+        assessmentsSnap.forEach(doc => { assessments[doc.data().studentID] = doc.data(); });
         
-        allStudents = students.map(s => {
-            const assess = assessments[s.id];
-            return {
-                id: s.id,
-                name: s.name || 'Student',
-                studentId: s.assignedID || s.id,
-                riskLevel: assess?.riskLevel || 'NORMAL',
-                score: assess?.score || '-',
-                lastAssessment: assess?.timestamp?.toDate().toLocaleDateString() || '-'
-            };
-        });
+        allStudents = students.map(s => ({
+            id: s.id,
+            name: s.name || 'Student',
+            studentId: s.assignedID || s.id,
+            riskLevel: assessments[s.id]?.riskLevel || 'NORMAL',
+            score: assessments[s.id]?.score || '-',
+            lastAssessment: assessments[s.id]?.timestamp?.toDate().toLocaleDateString() || '-'
+        }));
         
-        const criticalCount = allStudents.filter(s => s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH').length;
+        const critical = allStudents.filter(s => s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH').length;
         document.getElementById('totalStudents').innerText = allStudents.length;
-        document.getElementById('criticalCount').innerText = criticalCount;
+        document.getElementById('criticalCount').innerText = critical;
         
-        renderStudentTable();
-        updateWellnessChart();
+        renderTable();
+        updateCharts();
+        loadInterventionStats();
     }
     
     async function loadInterventionStats() {
-        const notificationsSnap = await getDocs(query(collection(db, "notifications"), where("sender", "==", "Counselor"), orderBy("timestamp", "desc")));
-        const dailyCounts = {};
-        notificationsSnap.forEach(doc => {
+        const notifSnap = await getDocs(query(collection(db, "notifications"), where("sender", "==", "Counselor"), orderBy("timestamp", "desc")));
+        const daily = {};
+        notifSnap.forEach(doc => {
             const date = doc.data().timestamp?.toDate().toLocaleDateString() || 'Unknown';
-            dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+            daily[date] = (daily[date] || 0) + 1;
         });
-        
-        const dates = Object.keys(dailyCounts).slice(0, 7).reverse();
-        const counts = dates.map(d => dailyCounts[d] || 0);
+        const dates = Object.keys(daily).slice(0, 7).reverse();
+        const counts = dates.map(d => daily[d] || 0);
         
         if (interventionChart) interventionChart.destroy();
         const ctx = document.getElementById('interventionChart').getContext('2d');
         interventionChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: dates, datasets: [{ label: 'Interventions', data: counts, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+            data: { labels: dates, datasets: [{ label: 'Messages', data: counts, borderColor: '#10b981', fill: true }] }
         });
     }
     
-    function updateWellnessChart() {
+    function updateCharts() {
         const riskCounts = { CRITICAL: 0, MEDIUM: 0, NORMAL: 0 };
         allStudents.forEach(s => {
             if (s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH') riskCounts.CRITICAL++;
@@ -543,8 +393,7 @@
         const ctx = document.getElementById('wellnessChart').getContext('2d');
         wellnessChart = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['Critical Risk', 'Medium Risk', 'Normal'], datasets: [{ data: [riskCounts.CRITICAL, riskCounts.MEDIUM, riskCounts.NORMAL], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            data: { labels: ['Critical', 'Medium', 'Normal'], datasets: [{ data: [riskCounts.CRITICAL, riskCounts.MEDIUM, riskCounts.NORMAL], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'] }] }
         });
     }
     
@@ -552,104 +401,65 @@
         currentFilter = filter;
         document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
         document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
-        renderStudentTable();
+        renderTable();
     };
     
-    function renderStudentTable() {
+    function renderTable() {
         let filtered = allStudents;
-        if (currentFilter !== 'all') {
-            filtered = allStudents.filter(s => s.riskLevel === currentFilter);
-        }
+        if (currentFilter !== 'all') filtered = allStudents.filter(s => s.riskLevel === currentFilter);
         
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        if (searchTerm) {
-            filtered = filtered.filter(s => s.name.toLowerCase().includes(searchTerm) || s.studentId.toLowerCase().includes(searchTerm));
-        }
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        if (search) filtered = filtered.filter(s => s.name.toLowerCase().includes(search) || s.studentId.includes(search));
         
         const tbody = document.getElementById('studentTable');
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students found.<\/td><\/tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No students found.<\/td><\/tr>';
             return;
         }
         
         tbody.innerHTML = '';
         filtered.forEach(s => {
-            let riskClass = '';
-            if (s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH') riskClass = 'risk-critical';
-            else if (s.riskLevel === 'MEDIUM') riskClass = 'risk-medium';
-            else riskClass = 'risk-normal';
-            
+            let riskClass = s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH' ? 'risk-critical' : (s.riskLevel === 'MEDIUM' ? 'risk-medium' : 'risk-normal');
             tbody.innerHTML += `
-                <tr class="student-card">
+                <tr>
                     <td class="fw-bold">${escapeHtml(s.name)}<\/td>
                     <td>${escapeHtml(s.studentId)}<\/td>
                     <td><span class="risk-badge ${riskClass}">${s.riskLevel}<\/span><\/td>
                     <td>${s.lastAssessment}<\/td>
                     <td>${s.score !== '-' ? s.score + '/15' : '-'}<\/td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="sendMessageToStudent('${s.id}', '${escapeHtml(s.name)}')">
-                            <i class="bi bi-send me-1"></i> Message
-                        </button>
-                    <\/td>
+                    <td><button class="btn btn-sm btn-success rounded-pill px-3" onclick="openChatWith('${s.id}', '${escapeHtml(s.name)}')"><i class="bi bi-chat"></i> Chat</button><\/td>
                 <\/tr>
             `;
         });
     }
     
-    // Send message to student (opens chat)
-    window.sendMessageToStudent = async (studentId, studentName) => {
-        let contact = allContacts.find(c => c.id === studentId);
-        if (!contact) {
-            contact = { id: studentId, name: studentName, role: 'student', avatar: studentName.charAt(0).toUpperCase(), unread: 0 };
-            allContacts.push(contact);
-            renderContactsList();
-        }
-        
-        currentContact = contact;
-        
-        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
-        const contactItems = document.querySelectorAll('.chat-contact-item');
-        for (let item of contactItems) {
-            if (item.innerText.includes(studentName)) {
-                item.classList.add('active');
+    window.openChatWith = (studentId, studentName) => {
+        const select = document.getElementById('contactSelect');
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === studentId) {
+                select.selectedIndex = i;
                 break;
             }
         }
-        
-        document.getElementById('chatInput').disabled = false;
-        document.querySelector('.chat-send-btn').disabled = false;
-        document.getElementById('chatInput').placeholder = `Message ${studentName} (Student)...`;
-        
-        const container = document.getElementById('chatContainer');
-        if (container.style.display !== 'flex') {
-            container.style.display = 'flex';
-            isChatOpen = true;
-        }
-        
-        if (messagesListener) {
-            messagesListener();
-            messagesListener = null;
-        }
-        
-        await markMessagesAsRead(studentId);
-        loadMessagesWithContact(studentId);
-        document.getElementById('chatInput').focus();
+        loadMessages();
+        if (!isChatOpen) toggleChat();
     };
     
-    // Export Report
-    window.exportCounselorReport = () => {
+    window.sendMessageToStudent = (studentId, studentName) => {
+        openChatWith(studentId, studentName);
+    };
+    
+    window.exportReport = () => {
         let csv = "Student Name,Student ID,Risk Level,Last Assessment,Score\n";
-        allStudents.forEach(s => {
-            csv += `"${s.name}","${s.studentId}","${s.riskLevel}","${s.lastAssessment}","${s.score}"\n`;
-        });
+        allStudents.forEach(s => csv += `"${s.name}","${s.studentId}","${s.riskLevel}","${s.lastAssessment}","${s.score}"\n`);
         const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Counselor_Report_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `Counselor_Report_${new Date().toISOString().slice(0,10)}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        Swal.fire({ toast: true, icon: 'success', title: 'Report Exported', timer: 1500, showConfirmButton: false });
+        Swal.fire({ toast: true, icon: 'success', title: 'Exported!', timer: 1500, showConfirmButton: false });
     };
     
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
@@ -657,9 +467,8 @@
     
     window.logout = () => { signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
-    document.getElementById('searchInput').addEventListener('keyup', () => renderStudentTable());
-    
-    setInterval(() => { loadData(); loadInterventionStats(); }, 30000);
+    document.getElementById('searchInput').addEventListener('keyup', () => renderTable());
+    setInterval(() => { loadAllData(); }, 30000);
 </script>
 </body>
 </html>
