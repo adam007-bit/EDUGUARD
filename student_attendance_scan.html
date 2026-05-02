@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Scanner | Smart RPS</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background: linear-gradient(135deg, #0f172a, #1e293b); font-family: 'Inter', sans-serif; min-height: 100vh; }
+        .container { padding: 20px; }
+        .scanner-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.2); }
+        #reader { width: 100% !important; border-radius: 20px !important; overflow: hidden; }
+        .status-box { background: #1e293b; border-radius: 16px; padding: 15px; margin-top: 20px; text-align: center; }
+        .success { background: #10b98120; border-left: 4px solid #10b981; }
+        .error { background: #ef444420; border-left: 4px solid #ef4444; }
+        .warning { background: #f59e0b20; border-left: 4px solid #f59e0b; }
+        .scanned-list { max-height: 300px; overflow-y: auto; }
+        .student-item { background: #1e293b; border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-scan { background: linear-gradient(135deg, #4361ee, #8b5cf6); border: none; padding: 12px 25px; font-weight: 600; border-radius: 40px; transition: all 0.3s; }
+        .btn-scan:hover { transform: scale(1.05); }
+        .badge-distance { background: #334155; padding: 4px 10px; border-radius: 30px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="scanner-card">
+                <div class="text-center mb-4">
+                    <i class="bi bi-qr-code-scan fs-1 text-primary"></i>
+                    <h2 class="fw-bold text-white mt-2">Scan Attendance</h2>
+                    <p class="text-white-50">Point camera at coordinator's QR code to mark attendance</p>
+                </div>
+
+                <!-- Scanner -->
+                <div id="reader" style="width: 100%; min-height: 300px;"></div>
+
+                <!-- Status -->
+                <div id="statusBox" class="status-box warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <span id="statusMessage">Click "Start Scanner" to begin</span>
+                </div>
+
+                <!-- Controls -->
+                <div class="d-flex gap-3 mt-3">
+                    <button class="btn btn-scan flex-grow-1" onclick="startScanner()">
+                        <i class="bi bi-camera-fill me-2"></i> Start Scanner
+                    </button>
+                    <button class="btn btn-outline-light flex-grow-1" onclick="stopScanner()">
+                        <i class="bi bi-stop-fill me-2"></i> Stop
+                    </button>
+                </div>
+
+                <!-- Today's Scanned Students -->
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-white fw-bold mb-0"><i class="bi bi-clock-history me-2"></i>Today's Attendance</h5>
+                        <span class="badge bg-primary" id="scanCount">0</span>
+                    </div>
+                    <div id="scannedList" class="scanned-list">
+                        <div class="text-center text-muted py-3">No attendance recorded yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getDatabase, ref, set, get, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
+        authDomain: "eduguard-ai-2742b.firebaseapp.com", 
+        projectId: "eduguard-ai-2742b", 
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app", 
+        messagingSenderId: "96233022148", 
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+    
+    let currentStudentId = null;
+    let currentStudentName = null;
+    let html5QrcodeScanner = null;
+    let isProcessing = false;
+    let scannedToday = [];
+    let scanCooldown = new Map(); // Prevent spam
+    
+    const SCAN_COOLDOWN_MS = 5000; // 5 seconds between scans per student
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    
+    // Calculate distance in meters
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+    
+    // Get student's current location
+    async function getCurrentLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('GPS not supported'));
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+                (err) => reject(err),
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+    }
+    
+    // Check if student can scan (rate limiting)
+    function canScan(studentId) {
+        const lastScan = scanCooldown.get(studentId);
+        if (lastScan && (Date.now() - lastScan) < SCAN_COOLDOWN_MS) {
+            return { allowed: false, remaining: Math.ceil((SCAN_COOLDOWN_MS - (Date.now() - lastScan)) / 1000) };
+        }
+        return { allowed: true };
+    }
+    
+    // Load today's scanned students
+    async function loadTodayScans() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const attendanceRef = ref(rtdb, `kehadiran_unimap/${todayStr}`);
+        
+        onValue(attendanceRef, (snapshot) => {
+            const container = document.getElementById('scannedList');
+            const countEl = document.getElementById('scanCount');
+            
+            if (!snapshot.exists()) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No attendance recorded yet</div>';
+                countEl.innerText = '0';
+                return;
+            }
+            
+            const records = snapshot.val();
+            const studentRecords = Object.values(records);
+            countEl.innerText = studentRecords.length;
+            
+            if (studentRecords.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No attendance recorded yet</div>';
+                return;
+            }
+            
+            let html = '';
+            studentRecords.reverse().forEach(rec => {
+                html += `
+                    <div class="student-item">
+                        <div>
+                            <div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div>
+                            <small class="text-muted">${rec.studentID}</small>
+                            <div><span class="badge-distance">📏 ${rec.distanceMeters || '?'}m</span></div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success">Present</span>
+                            <div><small class="text-muted">${rec.masa || '--:--'}</small></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+    
+    // Process scanned QR code
+    async function processScannedQR(decodedText) {
+        if (isProcessing) {
+            updateStatus('Please wait, processing previous scan...', 'warning');
+            return;
+        }
+        
+        isProcessing = true;
+        
+        try {
+            // Parse QR data
+            let qrData;
+            try {
+                qrData = JSON.parse(decodedText);
+            } catch (e) {
+                throw new Error('Invalid QR code format. Please scan the coordinator\'s QR code.');
+            }
+            
+            if (qrData.type !== 'attendance') {
+                throw new Error('This is not a valid attendance QR code.');
+            }
+            
+            // Check if session is active
+            const sessionRef = ref(rtdb, `active_sessions/${qrData.sessionId}`);
+            const sessionSnap = await get(sessionRef);
+            if (!sessionSnap.exists() || sessionSnap.val().active !== true) {
+                throw new Error('This attendance session is no longer active.');
+            }
+            
+            // Check if QR is expired (30 seconds)
+            if (Date.now() - qrData.timestamp > 30000) {
+                throw new Error('QR code expired. Please ask coordinator to refresh.');
+            }
+            
+            // Rate limiting check
+            const rateCheck = canScan(currentStudentId);
+            if (!rateCheck.allowed) {
+                throw new Error(`Please wait ${rateCheck.remaining} seconds before scanning again.`);
+            }
+            
+            // Get student's location
+            let studentLocation;
+            try {
+                studentLocation = await getCurrentLocation();
+                updateStatus('Location obtained, verifying distance...', 'info');
+            } catch (gpsError) {
+                throw new Error('Unable to get your location. Please enable GPS and allow location access.');
+            }
+            
+            // Calculate distance to coordinator
+            const distance = calculateDistance(
+                qrData.coordinatorLat, qrData.coordinatorLng,
+                studentLocation.lat, studentLocation.lng
+            );
+            
+            const requiredRadius = qrData.radius || 20;
+            
+            if (distance > requiredRadius) {
+                throw new Error(`You are ${distance.toFixed(1)} meters away. Must be within ${requiredRadius}m of the coordinator.`);
+            }
+            
+            // Check if already marked today
+            const todayStr = new Date().toISOString().split('T')[0];
+            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${currentStudentId}`);
+            const checkSnap = await get(checkRef);
+            
+            if (checkSnap.exists()) {
+                throw new Error('You have already been marked present today!');
+            }
+            
+            // Record attendance
+            const currentTime = new Date().toLocaleTimeString('ms-MY');
+            
+            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${currentStudentId}`), {
+                studentID: currentStudentId,
+                studentName: currentStudentName,
+                course: qrData.course,
+                masa: currentTime,
+                timestamp: serverTimestamp(),
+                verifiedBy: qrData.coordinatorName || 'Coordinator',
+                verifiedById: qrData.coordinatorId,
+                distanceMeters: distance.toFixed(2),
+                requiredRadius: requiredRadius,
+                sessionId: qrData.sessionId,
+                verifiedAt: new Date().toISOString(),
+                method: "STUDENT_SCAN"
+            });
+            
+            // Add to session scans
+            await push(ref(rtdb, `active_sessions/${qrData.sessionId}/scans`), {
+                studentId: currentStudentId,
+                studentName: currentStudentName,
+                distance: distance.toFixed(2),
+                timestamp: serverTimestamp()
+            });
+            
+            // Update cooldown
+            scanCooldown.set(currentStudentId, Date.now());
+            
+            // Update UI
+            updateStatus(`✅ Attendance recorded! Distance: ${distance.toFixed(1)}m from coordinator`, 'success');
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Attendance Recorded!',
+                html: `<strong>${currentStudentName}</strong><br>Course: ${qrData.course}<br>Distance: ${distance.toFixed(1)}m`,
+                timer: 3000,
+                showConfirmButton: false
+            });
+            
+            // Refresh the list
+            loadTodayScans();
+            
+            // Play success sound
+            try {
+                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                audio.volume = 0.3;
+                audio.play().catch(e => console.log('Audio error'));
+            } catch(e) {}
+            
+        } catch (error) {
+            console.error('Scan error:', error);
+            updateStatus(`❌ ${error.message}`, 'error');
+            Swal.fire({ icon: 'error', title: 'Attendance Failed', text: error.message, timer: 3000, showConfirmButton: false });
+        } finally {
+            setTimeout(() => { isProcessing = false; }, 3000);
+        }
+    }
+    
+    function updateStatus(message, type = 'info') {
+        const box = document.getElementById('statusBox');
+        const msgSpan = document.getElementById('statusMessage');
+        msgSpan.innerText = message;
+        
+        box.classList.remove('success', 'error', 'warning');
+        if (type === 'success') box.classList.add('success');
+        else if (type === 'error') box.classList.add('error');
+        else box.classList.add('warning');
+    }
+    
+    async function startScanner() {
+        // Check authentication first
+        const user = auth.currentUser;
+        if (!user) {
+            updateStatus('Please login first', 'error');
+            Swal.fire({ icon: 'error', title: 'Not Logged In', text: 'Please login to your student account first.' });
+            window.location.href = "index.html";
+            return;
+        }
+        
+        // Get student info
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'student') {
+            updateStatus('Student access only', 'error');
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'This scanner is for students only.' });
+            return;
+        }
+        
+        currentStudentId = user.uid;
+        currentStudentName = userDoc.data().name || 'Student';
+        
+        // Check HTTPS
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            updateStatus('Camera requires HTTPS connection', 'error');
+            Swal.fire({ icon: 'error', title: 'HTTPS Required', text: 'Please use HTTPS to access camera.' });
+            return;
+        }
+        
+        try {
+            // Clear existing scanner
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+            }
+            
+            // Clear reader div
+            const readerDiv = document.getElementById('reader');
+            if (readerDiv) readerDiv.innerHTML = '';
+            
+            updateStatus('Requesting camera permission...', 'info');
+            
+            // Test camera permission
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop());
+            
+            updateStatus('Starting camera...', 'info');
+            
+            // Create scanner
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                fps: 10, 
+                qrbox: { width: 280, height: 280 }, 
+                aspectRatio: 1.0,
+                rememberLastUsedCamera: true
+            });
+            
+            await html5QrcodeScanner.render(
+                (decodedText) => processScannedQR(decodedText),
+                (error) => { /* silent */ }
+            );
+            
+            updateStatus('Camera active - Point at coordinator\'s QR code', 'success');
+            
+        } catch (err) {
+            console.error('Camera error:', err);
+            let errorMsg = 'Camera access failed. ';
+            if (err.name === 'NotAllowedError') {
+                errorMsg = 'Camera access denied. Please allow camera permission in your browser.';
+            } else if (err.name === 'NotFoundError') {
+                errorMsg = 'No camera found on this device.';
+            } else {
+                errorMsg = `Camera error: ${err.message}`;
+            }
+            updateStatus(errorMsg, 'error');
+            Swal.fire({ icon: 'error', title: 'Camera Error', text: errorMsg });
+        }
+    }
+    
+    function stopScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+        }
+        updateStatus('Scanner stopped. Click "Start Scanner" to begin.', 'warning');
+        const readerDiv = document.getElementById('reader');
+        if (readerDiv) readerDiv.innerHTML = '';
+    }
+    
+    // Check authentication on load
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            updateStatus('Please login to continue', 'error');
+            Swal.fire({ icon: 'warning', title: 'Login Required', text: 'Please login to your student account.' });
+            setTimeout(() => { window.location.href = "index.html"; }, 2000);
+            return;
+        }
+        
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'student') {
+            updateStatus('Student access only', 'error');
+            return;
+        }
+        
+        currentStudentId = user.uid;
+        currentStudentName = userDoc.data().name || 'Student';
+        updateStatus(`Welcome ${currentStudentName}! Click "Start Scanner" to begin`, 'info');
+        
+        loadTodayScans();
+    });
+    
+    // Expose functions globally
+    window.startScanner = startScanner;
+    window.stopScanner = stopScanner;
+</script>
+</body>
+</html>
