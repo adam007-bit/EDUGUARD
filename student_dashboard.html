@@ -560,9 +560,10 @@
         }
     }
     
-    async function startScanner() {
+    // MAKE THESE FUNCTIONS GLOBAL (accessible from HTML buttons)
+    window.startScanner = async function() {
         // Check if we're on HTTPS
-        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
             document.getElementById('scanStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Camera requires HTTPS. Please use HTTPS connection.';
             Swal.fire({ 
                 icon: 'error', 
@@ -644,9 +645,9 @@
                 text: errorMessage + '\n\nMake sure you:\n1. Click "Allow" for camera permission\n2. Use HTTPS connection\n3. Close other apps using camera' 
             });
         }
-    }
+    };
     
-    function stopScanner() {
+    window.stopScanner = function() {
         if (html5QrcodeScanner) {
             try {
                 html5QrcodeScanner.clear();
@@ -656,7 +657,7 @@
         document.getElementById('scanStatus').innerHTML = '<i class="bi bi-info-circle me-1"></i> Camera stopped. Click "Start Camera" to scan.';
         const readerDiv = document.getElementById('reader');
         if (readerDiv) readerDiv.innerHTML = '';
-    }
+    };
     
     // ============ CHAT FUNCTIONS ============
     async function loadContacts() {
