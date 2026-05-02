@@ -11,9 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --p-blue: #4361ee; --p-purple: #8b5cf6; --p-green: #10b981; --p-red: #ef4444; --p-orange: #f59e0b; --bg-light: #f8fafc; --dark-mode: #0f172a; }
         body { background: var(--bg-light); font-family: 'Inter', sans-serif; color: #1e293b; transition: background 0.3s, color 0.3s; }
@@ -27,6 +25,11 @@
         .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 25px; box-shadow: 0 4px 12px -6px rgba(0,0,0,0.05); transition: all 0.3s; }
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
+        
+        /* SCANNER BOX */
+        .scanner-box { background: #000; border-radius: 20px; overflow: hidden; position: relative; min-height: 300px; }
+        #reader { width: 100% !important; min-height: 300px !important; }
+        #reader__dashboard_section_csr span { color: white !important; }
         
         /* CHAT STYLES */
         .chat-panel { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
@@ -53,11 +56,8 @@
         body.dark-mode .chat-contact-select select { background: #1e293b; color: white; border-color: #334155; }
         
         .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
-        .qr-container { background: white; padding: 20px; border-radius: 20px; display: inline-block; }
-        .secure-badge { background: #10b981; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 30px; display: inline-block; margin-bottom: 8px; }
         .announcement-card { border-left: 4px solid var(--p-orange); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
         .material-card { border-left: 4px solid var(--p-blue); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-        .gps-status { font-size: 11px; margin-top: 5px; }
         @media (max-width: 640px) { .chat-panel { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
 </head>
@@ -122,15 +122,24 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
             </div>
 
-            <!-- ATTENDANCE QR CODE - READY FOR SCANNER -->
-            <h5 class="fw-bold mb-3"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance QR</h5>
+            <!-- SCANNER SECTION - REPLACED QR CODE -->
+            <h5 class="fw-bold mb-3"><i class="bi bi-upc-scan text-primary me-2"></i>Scan Attendance</h5>
             <div class="glass-card text-center mb-4">
-                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Scan this QR at coordinator's device</span></div>
-                <div id="studentQRCode" class="d-flex justify-content-center mb-3"><div id="qrcodeContainer"></div></div>
-                <div id="qrTimerDisplay" class="mt-2 small"></div>
-                <div id="gpsStatus" class="gps-status text-muted small">Getting GPS location...</div>
-                <button class="btn btn-outline-primary btn-sm rounded-pill mt-2" onclick="refreshQRWithLocation()"><i class="bi bi-arrow-repeat me-1"></i> Refresh QR</button>
-                <button class="btn btn-outline-success btn-sm rounded-pill mt-2 ms-2" onclick="downloadQR()"><i class="bi bi-download me-1"></i> Save QR</button>
+                <div class="mb-2"><span class="badge bg-primary"><i class="bi bi-camera me-1"></i> Point camera at coordinator's QR code</span></div>
+                <div id="scannerContainer" class="scanner-box">
+                    <div id="reader" style="width: 100%;"></div>
+                </div>
+                <div id="scanStatus" class="mt-3 small text-muted">
+                    <i class="bi bi-info-circle me-1"></i> Waiting for QR code...
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="startScanner()">
+                        <i class="bi bi-play-fill me-1"></i> Start Camera
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm rounded-pill ms-2" onclick="stopScanner()">
+                        <i class="bi bi-stop-fill me-1"></i> Stop Camera
+                    </button>
+                </div>
             </div>
 
             <!-- ATTENDANCE HISTORY -->
@@ -184,7 +193,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getDatabase, ref, set, get, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
@@ -205,8 +214,8 @@
     
     let currentUserData = null;
     let gradeChart = null;
-    let qrInterval = null;
-    let currentLocation = null;
+    let html5QrcodeScanner = null;
+    let isProcessingScan = false;
     
     // CHAT VARIABLES
     let allContacts = [];
@@ -214,7 +223,6 @@
     let messageUnsubscribe = null;
     let isChatOpen = false;
     
-    const SECRET_KEY = "RPS_SECURE_KEY_2024";
     const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor' };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
@@ -227,7 +235,19 @@
         } catch(e) {}
     }
     
-    // ============ GPS LOCATION FOR QR ============
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+    
+    // ============ SCANNER FUNCTIONS ============
     async function getCurrentLocation() {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
@@ -235,99 +255,164 @@
                 return;
             }
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    resolve({
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                        accuracy: pos.coords.accuracy
-                    });
-                },
-                (err) => {
-                    reject(err);
-                },
+                (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+                (err) => reject(err),
                 { enableHighAccuracy: true, timeout: 10000 }
             );
         });
     }
     
-    function generateSecureHash(data) {
-        let hash = 0;
-        for (let i = 0; i < data.length; i++) {
-            hash = ((hash << 5) - hash) + data.charCodeAt(i);
-            hash |= 0;
+    async function processScannedQR(decodedText) {
+        if (isProcessingScan) {
+            console.log('Already processing');
+            return;
         }
-        return Math.abs(hash).toString(16);
-    }
-    
-    async function generateSecureQRWithLocation() {
+        
+        isProcessingScan = true;
+        
         try {
-            const location = await getCurrentLocation();
-            currentLocation = location;
-            const studentId = currentUserData?.assignedID || activeID;
-            const studentName = currentUserData?.name || 'Student';
-            const timestamp = Date.now();
-            const timeSlot = Math.floor(timestamp / 30000);
-            const hashBase = `${studentId}_${timeSlot}_${location.lat}_${location.lng}`;
-            const hash = generateSecureHash(hashBase).substring(0, 16);
-            
-            // Format: studentId|studentName|lat|lng|timestamp|hash
-            const qrData = `${studentId}|${studentName}|${location.lat.toFixed(6)}|${location.lng.toFixed(6)}|${timestamp}|${hash}`;
-            
-            const qrContainer = document.getElementById('qrcodeContainer');
-            qrContainer.innerHTML = '';
-            
-            QRCode.toCanvas(document.createElement('canvas'), qrData, { width: 180, margin: 2 }, (error, canvas) => {
-                if (error) {
-                    qrContainer.innerHTML = `<div class="bg-light p-4 rounded-4"><code>${studentId}</code></div>`;
+            // Parse QR data (JSON from coordinator)
+            let qrData;
+            try {
+                qrData = JSON.parse(decodedText);
+            } catch (e) {
+                // Try alternative format
+                if (decodedText.includes('|')) {
+                    const parts = decodedText.split('|');
+                    qrData = {
+                        type: "attendance",
+                        sessionId: parts[0],
+                        course: parts[1],
+                        coordinatorLat: parseFloat(parts[2]),
+                        coordinatorLng: parseFloat(parts[3]),
+                        radius: 20,
+                        timestamp: parseInt(parts[4])
+                    };
                 } else {
-                    canvas.style.width = '180px';
-                    canvas.style.height = '180px';
-                    qrContainer.innerHTML = '';
-                    qrContainer.appendChild(canvas);
+                    throw new Error('Invalid QR format');
                 }
+            }
+            
+            if (qrData.type !== 'attendance') {
+                throw new Error('Not an attendance QR code');
+            }
+            
+            // Check if QR is expired (30 seconds)
+            if (Date.now() - qrData.timestamp > 30000) {
+                throw new Error('QR code expired. Please ask coordinator to refresh.');
+            }
+            
+            // Get student's current location
+            let studentLocation;
+            try {
+                studentLocation = await getCurrentLocation();
+                document.getElementById('scanStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success me-1"></i> Location obtained: ${studentLocation.lat.toFixed(4)}°, ${studentLocation.lng.toFixed(4)}°`;
+            } catch (gpsError) {
+                throw new Error('Unable to get your location. Please enable GPS.');
+            }
+            
+            // Calculate distance to coordinator
+            const distance = calculateDistance(
+                qrData.coordinatorLat, qrData.coordinatorLng,
+                studentLocation.lat, studentLocation.lng
+            );
+            
+            const requiredRadius = qrData.radius || 20;
+            
+            if (distance > requiredRadius) {
+                throw new Error(`You are ${distance.toFixed(1)}m away. Must be within ${requiredRadius}m of coordinator.`);
+            }
+            
+            // Check if already marked today
+            const todayStr = new Date().toISOString().split('T')[0];
+            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${activeID}`);
+            const checkSnap = await get(checkRef);
+            
+            if (checkSnap.exists()) {
+                throw new Error('You have already been marked present today!');
+            }
+            
+            // Record attendance
+            const currentTime = new Date().toLocaleTimeString('ms-MY');
+            
+            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${activeID}`), {
+                studentID: activeID,
+                studentName: currentUserData.name || 'Student',
+                course: qrData.course,
+                masa: currentTime,
+                timestamp: serverTimestamp(),
+                verifiedBy: qrData.coordinatorName || 'Coordinator',
+                verifiedById: qrData.coordinatorId,
+                distanceMeters: distance.toFixed(2),
+                requiredRadius: requiredRadius,
+                verifiedAt: new Date().toISOString(),
+                method: "STUDENT_SCAN"
             });
             
-            document.getElementById('gpsStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success"></i> Location ready - Show this QR to coordinator`;
-            updateQRCountdown();
+            // Also update session scans if sessionId provided
+            if (qrData.sessionId) {
+                await push(ref(rtdb, `active_sessions/${qrData.sessionId}/scans`), {
+                    studentId: activeID,
+                    studentName: currentUserData.name || 'Student',
+                    distance: distance.toFixed(2),
+                    timestamp: serverTimestamp()
+                });
+            }
+            
+            document.getElementById('scanStatus').innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> ✅ Attendance recorded! (${distance.toFixed(1)}m from coordinator)`;
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Attendance Recorded!',
+                html: `You are <strong>${distance.toFixed(1)}m</strong> from coordinator.<br>Course: ${qrData.course}`,
+                timer: 3000,
+                showConfirmButton: false
+            });
+            
+            // Refresh attendance history
+            listenForMyAttendance();
             
         } catch (error) {
-            console.error('GPS Error:', error);
-            document.getElementById('gpsStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> GPS error. Please enable location services.`;
-            // Fallback QR without location
-            const studentId = currentUserData?.assignedID || activeID;
-            const studentName = currentUserData?.name || 'Student';
-            const timestamp = Date.now();
-            const qrData = `${studentId}|${studentName}|0|0|${timestamp}|fallback`;
-            const qrContainer = document.getElementById('qrcodeContainer');
-            qrContainer.innerHTML = '';
-            QRCode.toCanvas(document.createElement('canvas'), qrData, { width: 180, margin: 2 }, (error, canvas) => {
-                if (canvas) {
-                    canvas.style.width = '180px';
-                    canvas.style.height = '180px';
-                    qrContainer.appendChild(canvas);
-                }
-            });
+            console.error('Scan error:', error);
+            document.getElementById('scanStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> ${error.message}`;
+            Swal.fire({ icon: 'error', title: 'Attendance Failed', text: error.message, timer: 3000, showConfirmButton: false });
+        } finally {
+            setTimeout(() => { isProcessingScan = false; }, 3000);
         }
     }
     
-    function updateQRCountdown() {
-        const expiry = Date.now() + 30000;
-        const timerDiv = document.getElementById('qrTimerDisplay');
-        if (qrInterval) clearInterval(qrInterval);
-        const interval = setInterval(() => {
-            const remaining = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
-            if (remaining <= 0) {
-                clearInterval(interval);
-                generateSecureQRWithLocation();
-            }
-            timerDiv.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> QR expires in: ${remaining}s`;
-        }, 1000);
+    function startScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+        }
+        
+        document.getElementById('scanStatus').innerHTML = '<i class="bi bi-camera me-1"></i> Starting camera...';
+        
+        html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+            fps: 10, 
+            qrbox: { width: 280, height: 280 }, 
+            aspectRatio: 1.0,
+            rememberLastUsedCamera: true
+        });
+        
+        html5QrcodeScanner.render(
+            (decodedText) => { processScannedQR(decodedText); },
+            (error) => { console.log('Scan error:', error); }
+        );
+        
+        document.getElementById('scanStatus').innerHTML = '<i class="bi bi-upc-scan me-1"></i> Camera active - Point at coordinator\'s QR code';
     }
     
-    function startSecureQR() { generateSecureQRWithLocation(); if (qrInterval) clearInterval(qrInterval); qrInterval = setInterval(generateSecureQRWithLocation, 30000); }
-    function stopSecureQR() { if (qrInterval) clearInterval(qrInterval); }
-    window.refreshQRWithLocation = () => { generateSecureQRWithLocation(); Swal.fire({ toast: true, icon: 'success', title: 'QR Refreshed!', timer: 1500, showConfirmButton: false }); };
-    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `Attendance_QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); Swal.fire({ toast: true, icon: 'success', title: 'QR Saved!', timer: 1500, showConfirmButton: false }); } };
+    function stopScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+        }
+        document.getElementById('scanStatus').innerHTML = '<i class="bi bi-info-circle me-1"></i> Camera stopped. Click "Start Camera" to scan.';
+        const readerDiv = document.getElementById('reader');
+        if (readerDiv) readerDiv.innerHTML = '';
+    }
     
     // ============ LISTEN FOR ATTENDANCE UPDATES ============
     function listenForMyAttendance() {
@@ -362,17 +447,16 @@
                             <div>
                                 <div class="fw-bold small">📅 ${rec.date}</div>
                                 <div class="small text-muted">⏰ ${rec.masa || '--:--'}</div>
+                                <div class="small text-muted">📚 ${rec.course || '-'}</div>
                             </div>
                             <span class="badge bg-success">✅ Present</span>
                         </div>
-                        <div class="small text-muted mt-1">📍 ${rec.lokasi || 'Campus'}</div>
+                        <div class="small text-muted mt-1">📍 ${rec.distanceMeters ? rec.distanceMeters + 'm from coordinator' : 'Verified'}</div>
                         <div class="small text-muted">✅ Verified by: ${rec.verifiedBy || 'Coordinator'}</div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-            
-            // Update unread count badge
             document.getElementById('unreadCount').innerText = myRecords.length;
         });
     }
@@ -409,12 +493,14 @@
             document.getElementById('btnWellness').innerHTML = '<i class="bi bi-robot me-2"></i> Update Assessment';
         }
         
-        startSecureQR();
         loadAcademicData();
-        listenForMyAttendance(); // Listen for attendance updates
+        listenForMyAttendance();
         loadAnnouncements();
         loadMaterials();
         await loadContacts();
+        
+        // Auto-start scanner
+        setTimeout(() => startScanner(), 1000);
     }
     
     // ============ LOAD CONTACTS FOR CHAT ============
@@ -655,7 +741,7 @@
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
-    window.logout = async () => { stopSecureQR(); if (messageUnsubscribe) messageUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+    window.logout = async () => { if (html5QrcodeScanner) html5QrcodeScanner.clear(); if (messageUnsubscribe) messageUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
