@@ -45,6 +45,15 @@
         .chat-send { background: var(--p-blue); color: white; border: none; border-radius: 20px; padding: 8px 18px; cursor: pointer; }
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
+        /* Make sure scanner container is visible */
+#reader {
+    width: 100% !important;
+    min-height: 300px !important;
+}
+#reader video {
+    width: 100% !important;
+    height: auto !important;
+}
         .chat-unread { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
         @media (max-width: 640px) { .chat-panel { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
@@ -453,7 +462,7 @@
         }
     }
     
-    // ============ SCANNER FUNCTIONS ============
+// ============ SCANNER FUNCTIONS ============
     async function getCurrentLocation() {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
@@ -552,40 +561,96 @@
     }
     
     async function startScanner() {
+        // Check if we're on HTTPS
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Camera requires HTTPS. Please use HTTPS connection.';
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'HTTPS Required', 
+                text: 'Camera access requires HTTPS. Please use https:// or localhost.' 
+            });
+            return;
+        }
+        
         try {
-            await navigator.mediaDevices.getUserMedia({ video: true });
-            
+            // First, clear any existing scanner
             if (html5QrcodeScanner) {
-                await html5QrcodeScanner.clear();
+                try {
+                    await html5QrcodeScanner.clear();
+                } catch(e) {}
                 html5QrcodeScanner = null;
             }
             
+            // Clear the reader div
+            const readerDiv = document.getElementById('reader');
+            if (readerDiv) {
+                readerDiv.innerHTML = '';
+            }
+            
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-camera me-1"></i> Requesting camera permission...';
+            
+            // Test camera permission first
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop()); // Stop test stream
+            
             document.getElementById('scanStatus').innerHTML = '<i class="bi bi-camera me-1"></i> Starting camera...';
             
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-                fps: 10, 
-                qrbox: { width: 250, height: 250 }, 
-                aspectRatio: 1.0,
-                rememberLastUsedCamera: true
-            });
-            
-            await html5QrcodeScanner.render(
-                (decodedText) => processScannedQR(decodedText),
-                (error) => { /* silent */ }
+            // Create new scanner with simpler config
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", 
+                { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 }, 
+                    aspectRatio: 1.0
+                }
             );
             
-            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-upc-scan me-1"></i> Camera active - Scan QR code';
+            // Render scanner
+            await html5QrcodeScanner.render(
+                (decodedText) => {
+                    console.log("QR Scanned:", decodedText);
+                    processScannedQR(decodedText);
+                },
+                (error) => {
+                    // Silent error - just log
+                    if (error && error !== 'No QR code found') {
+                        console.log("Scan error:", error);
+                    }
+                }
+            );
+            
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-upc-scan me-1"></i> Camera active - Point at coordinator\'s QR code';
             
         } catch (err) {
             console.error('Camera error:', err);
-            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Camera access denied. Please allow camera permissions.';
-            Swal.fire({ icon: 'error', title: 'Camera Error', text: 'Unable to access camera. Please check permissions.' });
+            
+            let errorMessage = 'Unable to access camera. ';
+            if (err.name === 'NotAllowedError') {
+                errorMessage = 'Camera access denied. Please click the camera icon in the address bar and allow camera access.';
+            } else if (err.name === 'NotFoundError') {
+                errorMessage = 'No camera found on this device.';
+            } else if (err.name === 'NotReadableError') {
+                errorMessage = 'Camera is already in use by another application.';
+            } else if (err.name === 'OverconstrainedError') {
+                errorMessage = 'Camera does not meet requirements.';
+            } else {
+                errorMessage = `Camera error: ${err.message || err}`;
+            }
+            
+            document.getElementById('scanStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> ${errorMessage}`;
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Camera Error', 
+                text: errorMessage + '\n\nMake sure you:\n1. Click "Allow" for camera permission\n2. Use HTTPS connection\n3. Close other apps using camera' 
+            });
         }
     }
     
     function stopScanner() {
         if (html5QrcodeScanner) {
-            html5QrcodeScanner.clear();
+            try {
+                html5QrcodeScanner.clear();
+            } catch(e) {}
             html5QrcodeScanner = null;
         }
         document.getElementById('scanStatus').innerHTML = '<i class="bi bi-info-circle me-1"></i> Camera stopped. Click "Start Camera" to scan.';
