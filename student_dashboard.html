@@ -28,43 +28,27 @@
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
         
-        /* UNIFIED CHAT STYLES - SINGLE CHAT */
-        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 400px; height: 550px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
-        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .chat-contacts { max-height: 180px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-        .chat-contact-item { padding: 12px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
-        .chat-contact-item:hover { background: #eef2ff; }
-        .chat-contact-item.active { background: #e0e7ff; border-left: 3px solid var(--p-blue); }
-        .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
-        .chat-message { max-width: 80%; display: flex; flex-direction: column; margin-bottom: 8px; }
-        .chat-message.sent { align-self: flex-end; }
-        .chat-message.received { align-self: flex-start; }
-        .message-bubble { padding: 10px 16px; border-radius: 20px; word-wrap: break-word; max-width: 100%; }
-        .chat-message.sent .message-bubble { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
-        .message-sender-name { font-size: 10px; font-weight: 600; margin-bottom: 2px; color: #64748b; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 10px; }
-        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; outline: none; }
-        .chat-input:focus { border-color: var(--p-blue); }
-        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; transition: 0.2s; }
-        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
+        /* SIMPLE CHAT STYLES - ONE CHAT SYSTEM */
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
+        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages-area { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
+        .chat-message { max-width: 80%; padding: 8px 12px; border-radius: 18px; margin-bottom: 4px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .message-time { font-size: 9px; margin-top: 2px; opacity: 0.7; }
+        .chat-input-area { padding: 12px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 8px; }
+        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 8px 15px; font-size: 0.85rem; outline: none; }
+        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 18px; color: white; font-weight: 600; }
+        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
-        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
-        .role-supervisor { background: #fef3c7; color: #92400e; }
-        .role-host { background: #dcfce7; color: #166534; }
-        .role-counselor { background: #fce7f3; color: #9d174d; }
+        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         
         .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
         .qr-container { background: white; padding: 20px; border-radius: 20px; display: inline-block; }
         .secure-badge { background: #10b981; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 30px; display: inline-block; margin-bottom: 8px; }
         .announcement-card { border-left: 4px solid var(--p-orange); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
         .material-card { border-left: 4px solid var(--p-blue); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-        .online-status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-left: 8px; box-shadow: 0 0 5px #10b981; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @media (max-width: 640px) { .chat-container { width: 320px; height: 480px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; bottom: 20px; right: 20px; } }
+        @media (max-width: 640px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
 </head>
 <body>
@@ -83,7 +67,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h2 class="fw-bold mb-1 animate__animated animate__fadeInLeft">Welcome back, <span id="studentNameDisplay" class="text-warning">...</span></h2>
+                <h2 class="fw-bold mb-1">Welcome back, <span id="studentNameDisplay" class="text-warning">...</span></h2>
                 <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> Student ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
                 <p class="opacity-75 small mt-1"><i class="bi bi-person-circle me-1"></i> Supervisor: <span id="supervisorNameDisplay" class="fw-bold">Loading...</span></p>
             </div>
@@ -95,38 +79,32 @@
 </div>
 
 <div class="container pb-5">
-    <!-- Stats Row -->
     <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-journal-bookmark-fill text-primary fs-3"></i><h3 id="totalCourses" class="fw-bold mb-0 mt-2">0</h3><small class="text-muted">Courses</small></div></div>
-        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-graph-up text-success fs-3"></i><h3 id="avgGrade" class="fw-bold mb-0 mt-2">0%</h3><small class="text-muted">Average</small></div></div>
-        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-heart-pulse text-danger fs-3"></i><h3 id="stressLevel" class="fw-bold mb-0 mt-2">-</h3><small class="text-muted">Wellness</small></div></div>
-        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-envelope-paper text-info fs-3"></i><h3 id="unreadCount" class="fw-bold mb-0 mt-2">0</h3><small class="text-muted">Messages</small></div></div>
+        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-journal-bookmark-fill text-primary fs-3"></i><h3 id="totalCourses" class="fw-bold mb-0 mt-2">0</h3><small>Courses</small></div></div>
+        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-graph-up text-success fs-3"></i><h3 id="avgGrade" class="fw-bold mb-0 mt-2">0%</h3><small>Average</small></div></div>
+        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-heart-pulse text-danger fs-3"></i><h3 id="stressLevel" class="fw-bold mb-0 mt-2">-</h3><small>Wellness</small></div></div>
+        <div class="col-md-3 col-6"><div class="stat-card"><i class="bi bi-envelope-paper text-info fs-3"></i><h3 id="unreadCount" class="fw-bold mb-0 mt-2">0</h3><small>Messages</small></div></div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-7">
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-grid-fill text-primary me-2"></i>Academic Performance</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-grid-fill text-primary me-2"></i>Academic Performance</h5>
             <div id="courseList" class="mb-4"></div>
-
-            <h5 class="section-title fw-bold mt-4 mb-3"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Grade Trend</h5>
-            <div class="glass-card mb-4"><canvas id="gradeTrendChart" style="height: 200px; width: 100%;"></canvas></div>
-
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Wellness Check</h5>
+            <h5 class="fw-bold mt-4 mb-3"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Grade Trend</h5>
+            <div class="glass-card mb-4"><canvas id="gradeTrendChart" style="height: 200px;"></canvas></div>
+            <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Wellness Check</h5>
             <div class="glass-card">
                 <div id="wellnessResultArea" class="mb-4 p-3 rounded-4" style="display: none;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div><small class="text-muted d-block">Last Assessment:</small><h5 id="stressLevelLabel" class="fw-bold mb-0">...</h5></div>
-                        <div id="stressDateLabel" class="small text-muted"></div>
-                    </div>
+                    <div class="d-flex justify-content-between"><div><small class="text-muted">Last Assessment:</small><h5 id="stressLevelLabel" class="fw-bold mb-0">...</h5></div><div id="stressDateLabel" class="small text-muted"></div></div>
                 </div>
-                <button class="btn btn-danger w-100 fw-bold py-3 rounded-4 shadow-sm" id="btnWellness" onclick="openWellnessAssessment()">
+                <button class="btn btn-danger w-100 fw-bold py-3 rounded-4" id="btnWellness" onclick="openWellnessAssessment()">
                     <i class="bi bi-robot me-2"></i> Start Wellness Assessment
                 </button>
             </div>
         </div>
 
         <div class="col-lg-5">
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-person-circle text-primary me-2"></i>My Profile</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-person-circle text-primary me-2"></i>My Profile</h5>
             <div class="glass-card mb-4 text-center">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3"><i class="bi bi-person-circle fs-1 text-primary"></i></div>
                 <h5 id="profileName" class="fw-bold">-</h5>
@@ -134,57 +112,50 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
             </div>
 
-            <!-- Secure QR Code -->
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance QR</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance QR</h5>
             <div class="glass-card text-center mb-4">
-                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Dynamic QR - Changes Every 30s</span></div>
+                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Dynamic QR - 30s</span></div>
                 <div id="studentQRCode" class="d-flex justify-content-center mb-3"><div id="qrcodeContainer"></div></div>
                 <div id="qrTimerDisplay" class="mt-2 small"></div>
                 <button class="btn btn-outline-primary btn-sm rounded-pill mt-2" onclick="downloadQR()"><i class="bi bi-download me-1"></i> Save QR</button>
             </div>
 
-            <!-- Attendance History -->
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Attendance History</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Attendance History</h5>
             <div id="attendanceHistoryContainer" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
                 <div id="attendanceList"><div class="text-center py-3 text-muted small">Loading...</div></div>
             </div>
 
-            <!-- Announcements -->
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i>Announcements</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i>Announcements</h5>
             <div id="announcementsList" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
-                <div class="text-center py-3 text-muted small">Loading announcements...</div>
+                <div class="text-center py-3 text-muted small">Loading...</div>
             </div>
 
-            <!-- Resources -->
-            <h5 class="section-title fw-bold mb-3"><i class="bi bi-collection-play-fill text-primary me-2"></i>Learning Resources</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-collection-play-fill text-primary me-2"></i>Resources</h5>
             <div id="materialsList" class="glass-card p-3" style="max-height: 300px; overflow-y: auto;">
-                <div class="text-center py-3 text-muted small">Loading resources...</div>
+                <div class="text-center py-3 text-muted small">Loading...</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- SINGLE FLOATING CHAT BUTTON -->
+<!-- SINGLE CHAT BUTTON -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
     <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
 </div>
 
-<!-- SINGLE CHAT WINDOW - ONE PLACE FOR ALL MESSAGES -->
+<!-- SINGLE CHAT WINDOW -->
 <div id="chatContainer" class="chat-container">
     <div class="chat-header">
-        <span><i class="bi bi-people-fill me-2"></i> Messages - All Contacts</span>
+        <span><i class="bi bi-chat-dots-fill me-2"></i> Messages</span>
         <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
     </div>
-    <div id="chatContactsList" class="chat-contacts">
-        <div class="text-center py-3 text-muted small">Loading contacts...</div>
-    </div>
     <div id="chatMessagesArea" class="chat-messages-area">
-        <div class="text-center text-muted py-5">Select a contact to start chatting</div>
+        <div class="text-center text-muted py-4">Loading messages...</div>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
-        <button class="chat-send-btn" onclick="sendMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button class="chat-send-btn" onclick="sendMessage()"><i class="bi bi-send-fill"></i> Send</button>
     </div>
 </div>
 
@@ -210,34 +181,32 @@
     const auth = getAuth(app);
     const rtdb = getDatabase(app);
     
-    // Get current user from session
     const activeID = sessionStorage.getItem("activeUser");
     if (!activeID) window.location.href = "index.html";
     
     let currentUserData = null;
     let gradeChart = null;
     let qrInterval = null;
-    let currentContact = null;
+    let chatUnsubscribe = null;
     let isChatOpen = false;
-    let allContacts = [];
-    let totalUnread = 0;
-    let messagesListener = null;
+    let supervisorId = null;
+    let coordinatorId = null;
+    let counselorId = null;
+    let unreadCount = 0;
     
     const SECRET_KEY = "RPS_SECURE_KEY_2024";
-    const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor', 'student': 'Student' };
-    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'counselor': 'role-counselor' };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
-    function playNotificationSound() {
+    function playSound() {
         try {
             const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.volume = 0.3;
-            audio.play().catch(e => console.log('Audio play failed'));
-        } catch(e) { console.log('Sound not supported'); }
+            audio.volume = 0.2;
+            audio.play().catch(e => console.log('Audio error'));
+        } catch(e) {}
     }
     
-    // ============ USER AUTHENTICATION ============
+    // ============ INIT ============
     async function initUser() {
         const userDoc = await getDoc(doc(db, "users", activeID));
         if (!userDoc.exists()) { logout(); return; }
@@ -246,24 +215,29 @@
         if (currentUserData.role !== 'student') { window.location.href = "index.html"; return; }
         if (currentUserData.registrationStatus !== 'complete') { window.location.href = "register_course.html"; return; }
         
-        // Get supervisor name
+        // Get supervisor
         if (currentUserData.supervisorEmail) {
             const supervisorQuery = query(collection(db, "users"), where("email", "==", currentUserData.supervisorEmail));
             const supervisorSnap = await getDocs(supervisorQuery);
             if (!supervisorSnap.empty) {
-                const supervisorData = supervisorSnap.docs[0].data();
-                document.getElementById('supervisorNameDisplay').innerHTML = supervisorData.name || currentUserData.supervisorEmail;
-            } else {
-                document.getElementById('supervisorNameDisplay').innerHTML = currentUserData.supervisorEmail;
+                supervisorId = supervisorSnap.docs[0].id;
+                document.getElementById('supervisorNameDisplay').innerHTML = supervisorSnap.docs[0].data().name || currentUserData.supervisorEmail;
             }
         }
+        
+        // Also get coordinator and counselor for chat
+        const usersSnap = await getDocs(collection(db, "users"));
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.role === 'host') coordinatorId = doc.id;
+            if (data.role === 'counselor') counselorId = doc.id;
+        });
         
         document.getElementById('studentNameDisplay').innerText = currentUserData.name || 'Student';
         document.getElementById('studentIDDisplay').innerText = currentUserData.assignedID || activeID;
         document.getElementById('profileName').innerText = currentUserData.name || 'Student';
         document.getElementById('profileEmail').innerText = activeID;
         
-        // Wellness status
         if (currentUserData.stressLevel) {
             document.getElementById('stressLevel').innerHTML = currentUserData.stressLevel === 'CRITICAL' ? '⚠️' : (currentUserData.stressLevel === 'MEDIUM' ? '🟡' : '✅');
             const resultArea = document.getElementById('wellnessResultArea');
@@ -279,120 +253,24 @@
         loadAttendanceHistory();
         loadAnnouncements();
         loadMaterials();
-        
-        // Load all contacts and listen for messages
-        await loadAllContacts();
-        startUnreadListener();
+        listenForMessages();
     }
     
-    // ============ LOAD ALL CONTACTS ============
-    async function loadAllContacts() {
-        const usersSnap = await getDocs(collection(db, "users"));
-        allContacts = [];
-        usersSnap.forEach(doc => {
-            const data = doc.data();
-            if (doc.id !== activeID && data.role !== 'admin' && data.role !== 'student') {
-                allContacts.push({
-                    id: doc.id,
-                    name: data.name || doc.id.split('@')[0],
-                    email: data.email || doc.id,
-                    role: data.role,
-                    avatar: data.name?.charAt(0).toUpperCase() || 'U',
-                    unread: 0
-                });
-            }
-        });
+    // ============ SIMPLE CHAT - ONE SYSTEM ============
+    function listenForMessages() {
+        // Listen to messages where student is sender OR receiver
+        const allMessagesQuery = query(collection(db, "messages"), 
+            where("participants", "array-contains", activeID),
+            orderBy("timestamp", "asc")
+        );
         
-        // Sort by role priority: Supervisor first, then Coordinator, then Counselor
-        const rolePriority = { 'supervisor': 1, 'host': 2, 'counselor': 3 };
-        allContacts.sort((a, b) => (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99));
-        
-        renderContactsList();
-    }
-    
-    function renderContactsList() {
-        const container = document.getElementById('chatContactsList');
-        if (allContacts.length === 0) {
-            container.innerHTML = '<div class="text-center py-3 text-muted small">No contacts available</div>';
-            return;
-        }
-        
-        let html = '';
-        allContacts.forEach(contact => {
-            const roleDisplay = roleNames[contact.role] || contact.role;
-            const roleClass = roleColors[contact.role] || '';
-            const isActive = currentContact?.id === contact.id;
-            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 10px;">${contact.unread}</span>` : '';
-            
-            html += `
-                <div class="chat-contact-item ${isActive ? 'active' : ''}" onclick="selectContact('${contact.id}', '${escapeHtml(contact.name)}', '${contact.role}')">
-                    <div class="contact-avatar">${contact.avatar}</div>
-                    <div class="flex-grow-1">
-                        <div class="fw-semibold small">${escapeHtml(contact.name)} ${unreadBadge}</div>
-                        <div><span class="role-badge ${roleClass}">${roleDisplay}</span></div>
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-    
-    // ============ SELECT CONTACT AND LOAD MESSAGES ============
-    window.selectContact = async (contactId, contactName, contactRole) => {
-        // Clean up previous listener
-        if (messagesListener) {
-            messagesListener();
-            messagesListener = null;
-        }
-        
-        currentContact = { id: contactId, name: contactName, role: contactRole };
-        
-        // Update UI
-        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
-        if (event && event.target && event.target.closest('.chat-contact-item')) {
-            event.target.closest('.chat-contact-item').classList.add('active');
-        }
-        
-        // Enable chat input
-        document.getElementById('chatInput').disabled = false;
-        document.querySelector('.chat-send-btn').disabled = false;
-        document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
-        
-        // Mark messages as read
-        await markMessagesAsRead(contactId);
-        
-        // Load messages with this contact
-        loadMessagesWithContact(contactId);
-    };
-    
-    async function markMessagesAsRead(contactId) {
-        const chatId = [activeID, contactId].sort().join('_');
-        const messagesRef = collection(db, "all_chats", chatId, "messages");
-        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", activeID));
-        const unreadSnap = await getDocs(unreadQuery);
-        
-        unreadSnap.forEach(async (docSnap) => {
-            await updateDoc(doc(db, "all_chats", chatId, "messages", docSnap.id), { read: true });
-        });
-        
-        // Update unread count in contacts list
-        const contact = allContacts.find(c => c.id === contactId);
-        if (contact) {
-            contact.unread = 0;
-            renderContactsList();
-            calculateTotalUnread();
-        }
-    }
-    
-    function loadMessagesWithContact(contactId) {
-        const chatId = [activeID, contactId].sort().join('_');
-        const messagesRef = collection(db, "all_chats", chatId, "messages");
-        const q = query(messagesRef, orderBy("timestamp", "asc"));
-        
-        messagesListener = onSnapshot(q, (snapshot) => {
+        chatUnsubscribe = onSnapshot(allMessagesQuery, (snapshot) => {
             const messagesArea = document.getElementById('chatMessagesArea');
+            let newUnread = 0;
+            
             if (snapshot.empty) {
-                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
+                messagesArea.innerHTML = '<div class="text-center text-muted py-4">No messages yet.<br>Start a conversation!</div>';
+                document.getElementById('chatUnreadBadge').style.display = 'none';
                 return;
             }
             
@@ -400,15 +278,22 @@
             snapshot.forEach(docSnap => {
                 const msg = docSnap.data();
                 const isSent = msg.senderId === activeID;
-                const senderName = isSent ? 'You' : (msg.senderName || currentContact?.name);
                 const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
+                
+                if (!isSent && !msg.read && !isChatOpen) {
+                    newUnread++;
+                    if (!isChatOpen) playSound();
+                }
+                
+                // Mark as read if chat is open
+                if (!isSent && !msg.read && isChatOpen) {
+                    updateDoc(doc(db, "messages", docSnap.id), { read: true });
+                }
                 
                 html += `
                     <div class="chat-message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-sender-name">${escapeHtml(senderName)}</div>
-                        <div class="message-bubble">
-                            ${escapeHtml(msg.text)}
-                        </div>
+                        <div><strong>${isSent ? 'You' : escapeHtml(msg.senderName)}</strong></div>
+                        <div>${escapeHtml(msg.text)}</div>
                         <div class="message-time">${time}</div>
                     </div>
                 `;
@@ -416,43 +301,51 @@
             
             messagesArea.innerHTML = html;
             messagesArea.scrollTop = messagesArea.scrollHeight;
+            
+            unreadCount = newUnread;
+            if (newUnread > 0 && !isChatOpen) {
+                document.getElementById('chatUnreadBadge').style.display = 'flex';
+                document.getElementById('chatUnreadBadge').innerText = newUnread > 9 ? '9+' : newUnread;
+            } else {
+                document.getElementById('chatUnreadBadge').style.display = 'none';
+            }
+            document.getElementById('unreadCount').innerText = newUnread;
         });
     }
     
-    // ============ SEND MESSAGE ============
     window.sendMessage = async () => {
         const input = document.getElementById('chatInput');
         const message = input.value.trim();
-        
-        if (!message || !currentContact) {
-            Swal.fire({ icon: 'warning', title: 'No message', text: 'Please type a message and select a contact.', toast: true, timer: 1500, showConfirmButton: false });
-            return;
-        }
+        if (!message) return;
         
         input.value = '';
         
-        const chatId = [activeID, currentContact.id].sort().join('_');
+        // Find recipient (supervisor if exists, otherwise first available)
+        let recipientId = supervisorId || coordinatorId || counselorId;
+        let recipientRole = 'supervisor';
+        
+        if (!recipientId) {
+            Swal.fire({ icon: 'error', title: 'No Contact', text: 'No supervisor or coordinator found.' });
+            return;
+        }
         
         try {
-            await addDoc(collection(db, "all_chats", chatId, "messages"), {
+            await addDoc(collection(db, "messages"), {
                 text: message,
                 senderId: activeID,
                 senderName: currentUserData.name || 'Student',
-                senderRole: 'student',
-                receiverId: currentContact.id,
-                receiverName: currentContact.name,
-                receiverRole: currentContact.role,
+                receiverId: recipientId,
+                participants: [activeID, recipientId],
                 timestamp: serverTimestamp(),
                 read: false
             });
             
-            // Send notification to the receiver
+            // Also send notification
             await addDoc(collection(db, "notifications"), {
-                userID: currentContact.id,
-                message: `💬 New message from ${currentUserData.name || 'Student'} (Student): "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+                userID: recipientId,
+                message: `💬 New message from ${currentUserData.name || 'Student'}: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
                 sender: activeID,
                 senderName: currentUserData.name || 'Student',
-                senderRole: 'student',
                 type: "chat",
                 status: "unread",
                 timestamp: serverTimestamp()
@@ -462,74 +355,27 @@
             messagesArea.scrollTop = messagesArea.scrollHeight;
             
         } catch (error) {
-            console.error('Send message error:', error);
+            console.error('Send error:', error);
             Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message.' });
         }
     };
     
-    // ============ UNREAD MESSAGES LISTENER ============
-    function startUnreadListener() {
-        setInterval(async () => {
-            let total = 0;
-            for (const contact of allContacts) {
-                const chatId = [activeID, contact.id].sort().join('_');
-                const messagesRef = collection(db, "all_chats", chatId, "messages");
-                const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", activeID));
-                const unreadSnap = await getDocs(unreadQuery);
-                const unreadCount = unreadSnap.size;
-                
-                if (unreadCount !== contact.unread) {
-                    contact.unread = unreadCount;
-                    if (unreadCount > 0 && !isChatOpen) {
-                        playNotificationSound();
-                    }
-                    renderContactsList();
-                }
-                total += unreadCount;
-            }
-            
-            totalUnread = total;
-            if (totalUnread > 0 && !isChatOpen) {
-                document.getElementById('chatUnreadBadge').style.display = 'flex';
-                document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-            } else if (!isChatOpen) {
-                document.getElementById('chatUnreadBadge').style.display = 'none';
-            }
-            document.getElementById('unreadCount').innerText = totalUnread;
-        }, 3000);
-    }
-    
-    function calculateTotalUnread() {
-        let total = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
-        totalUnread = total;
-        if (totalUnread > 0 && !isChatOpen) {
-            document.getElementById('chatUnreadBadge').style.display = 'flex';
-            document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-        } else if (!isChatOpen) {
-            document.getElementById('chatUnreadBadge').style.display = 'none';
-        }
-        document.getElementById('unreadCount').innerText = totalUnread;
-    }
-    
-    window.toggleChat = async () => {
+    window.toggleChat = () => {
         const container = document.getElementById('chatContainer');
         isChatOpen = container.style.display !== 'flex';
         container.style.display = isChatOpen ? 'flex' : 'none';
-        
         if (isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'none';
-            if (currentContact) {
-                await markMessagesAsRead(currentContact.id);
-            }
             document.getElementById('chatInput').focus();
+            unreadCount = 0;
         }
     };
     
     document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && currentContact) sendMessage();
+        if (e.key === 'Enter') sendMessage();
     });
     
-    // ============ QR CODE FUNCTIONS ============
+    // ============ QR CODE ============
     function generateSecureToken(studentId) {
         const timestamp = Math.floor(Date.now() / 30000);
         const hash = CryptoJS.HmacSHA256(`${studentId}_${timestamp}`, SECRET_KEY).toString();
@@ -542,13 +388,12 @@
         const qrContainer = document.getElementById('qrcodeContainer');
         qrContainer.innerHTML = '';
         
-        QRCode.toCanvas(document.createElement('canvas'), secureToken, { width: 180, margin: 2 }, (error, canvas) => {
+        QRCode.toCanvas(document.createElement('canvas'), secureToken, { width: 160, margin: 2 }, (error, canvas) => {
             if (error) {
-                qrContainer.innerHTML = `<div class="bg-light p-4 rounded-4"><code class="fs-6">${studentId}</code></div>`;
+                qrContainer.innerHTML = `<code>${studentId}</code>`;
             } else {
-                canvas.style.width = '180px';
-                canvas.style.height = '180px';
-                qrContainer.innerHTML = '';
+                canvas.style.width = '160px';
+                canvas.style.height = '160px';
                 qrContainer.appendChild(canvas);
             }
         });
@@ -567,16 +412,16 @@
     
     function startSecureQR() { generateSecureQR(); if (qrInterval) clearInterval(qrInterval); qrInterval = setInterval(generateSecureQR, 30000); }
     function stopSecureQR() { if (qrInterval) clearInterval(qrInterval); }
-    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); Swal.fire({ toast: true, icon: 'success', title: 'QR Saved!', timer: 1500, showConfirmButton: false }); } };
+    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); } };
     
-    // ============ ACADEMIC DATA ============
+    // ============ ACADEMIC ============
     async function loadAcademicData() {
         const q = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
         const snap = await getDocs(q);
         const container = document.getElementById('courseList');
         
         if (snap.empty) {
-            container.innerHTML = '<div class="alert alert-warning rounded-4 p-4 text-center small">No courses enrolled yet.</div>';
+            container.innerHTML = '<div class="alert alert-warning p-4 text-center small">No courses enrolled.</div>';
             document.getElementById('totalCourses').innerText = '0';
             document.getElementById('avgGrade').innerText = '0%';
             return;
@@ -593,15 +438,9 @@
             gradeData.push({ course: data.course, mark: mark, grade: data.grade || '-' });
             
             container.innerHTML += `
-                <div class="glass-card mb-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="fw-bold mb-1">${escapeHtml(data.course)}</h6>
-                        <span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'} rounded-pill px-3">${data.status || 'Pending'}</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="text-end"><div class="fw-bold text-primary">${mark}%</div><small class="text-muted">MARK</small></div>
-                        <div class="grade-circle shadow-sm">${data.grade || '-'}</div>
-                    </div>
+                <div class="glass-card mb-3 d-flex justify-content-between align-items-center">
+                    <div><h6 class="fw-bold mb-1">${escapeHtml(data.course)}</h6><span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning'} rounded-pill">${data.status || 'Pending'}</span></div>
+                    <div class="text-end"><div class="fw-bold text-primary">${mark}%</div><div class="grade-circle shadow-sm mt-2">${data.grade || '-'}</div></div>
                 </div>
             `;
         });
@@ -614,17 +453,17 @@
         const ctx = document.getElementById('gradeTrendChart').getContext('2d');
         gradeChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: gradeData.map(g => g.course.length > 15 ? g.course.substring(0, 12) + '...' : g.course), datasets: [{ label: 'Score (%)', data: gradeData.map(g => g.mark), backgroundColor: '#4361ee', borderRadius: 8 }] },
+            data: { labels: gradeData.map(g => g.course.length > 12 ? g.course.substring(0, 10) + '...' : g.course), datasets: [{ label: 'Score (%)', data: gradeData.map(g => g.mark), backgroundColor: '#4361ee' }] },
             options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, max: 100 } } }
         });
     }
     
-    // ============ ATTENDANCE HISTORY ============
+    // ============ ATTENDANCE ============
     function loadAttendanceHistory() {
         const attendanceRef = ref(rtdb, 'kehadiran_unimap');
         onValue(attendanceRef, (snapshot) => {
             const container = document.getElementById('attendanceList');
-            if (!snapshot.exists()) { container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records.</div>'; return; }
+            if (!snapshot.exists()) { container.innerHTML = '<div class="text-center py-3 text-muted small">No records.</div>'; return; }
             
             let records = [];
             snapshot.forEach(dateSnap => {
@@ -634,7 +473,7 @@
             });
             records.sort((a, b) => b.date.localeCompare(a.date));
             
-            if (records.length === 0) { container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records.</div>'; return; }
+            if (records.length === 0) { container.innerHTML = '<div class="text-center py-3 text-muted small">No records.</div>'; return; }
             
             let html = '';
             records.slice(0, 10).forEach(rec => {
@@ -649,18 +488,13 @@
         const q = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc"), limit(20));
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById('announcementsList');
-            if (snapshot.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No announcements yet.</div>'; return; }
+            if (snapshot.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No announcements.</div>'; return; }
             
             let html = '';
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now';
-                html += `
-                    <div class="announcement-card">
-                        <div class="d-flex justify-content-between mb-2"><span class="fw-bold small">📢 ${escapeHtml(data.sender || 'Coordinator')}</span><small class="text-muted">${date}</small></div>
-                        <div class="small" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div>
-                    </div>
-                `;
+                html += `<div class="announcement-card"><div class="fw-bold small mb-1">📢 ${escapeHtml(data.sender || 'System')}</div><div class="small">${escapeHtml(data.message)}</div><small class="text-muted">${date}</small></div>`;
             });
             container.innerHTML = html;
         });
@@ -671,25 +505,19 @@
         const q = query(collection(db, "materials"), orderBy("datePosted", "desc"));
         const snap = await getDocs(q);
         const container = document.getElementById('materialsList');
-        if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No resources yet.</div>'; return; }
+        if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No resources.</div>'; return; }
         
         let html = '';
         snap.forEach(doc => {
             const data = doc.data();
-            html += `<div class="material-card"><div class="fw-bold mb-1">📄 ${escapeHtml(data.title)}</div><a href="${escapeHtml(data.content)}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-2 w-100">Open Resource</a></div>`;
+            html += `<div class="material-card"><div class="fw-bold mb-1">📄 ${escapeHtml(data.title)}</div><a href="${escapeHtml(data.content)}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-2 w-100">Open</a></div>`;
         });
         container.innerHTML = html;
     }
     
-    // ============ WELLNESS ASSESSMENT ============
+    // ============ WELLNESS ============
     window.openWellnessAssessment = async () => {
-        const questions = [
-            "Feeling overwhelmed by academic workload?",
-            "Having difficulty sleeping?",
-            "Lost interest in studies or activities?",
-            "Worried about failing or poor performance?",
-            "Feeling isolated or have no one to talk to?"
-        ];
+        const questions = ["Feeling overwhelmed by workload?", "Having difficulty sleeping?", "Lost interest in studies?", "Worried about failing?", "Feeling isolated?"];
         const options = ["Never", "Rarely", "Often", "Very Often"];
         let score = 0;
         
@@ -709,23 +537,18 @@
         const icon = result === "CRITICAL" ? 'error' : (result === "MEDIUM" ? 'warning' : 'success');
         
         await setDoc(doc(db, "assessments", activeID), {
-            studentID: activeID,
-            studentName: currentUserData.name,
-            score: score,
-            riskLevel: result,
-            timestamp: serverTimestamp()
+            studentID: activeID, studentName: currentUserData.name, score: score, riskLevel: result, timestamp: serverTimestamp()
         });
+        await updateDoc(doc(db, "users", activeID), { stressLevel: result });
         
-        await updateDoc(doc(db, "users", activeID), { stressLevel: result, lastAssessment: serverTimestamp() });
-        
-        Swal.fire({ icon: icon, title: `Wellness Status: ${result}`, text: `Score: ${score}/15. Assessment saved.` });
+        Swal.fire({ icon: icon, title: `Status: ${result}`, text: `Score: ${score}/15` });
         location.reload();
     };
     
     window.viewProfile = () => {
         Swal.fire({
-            title: 'Student Profile',
-            html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>Student ID:</strong> ${currentUserData.assignedID || activeID}<br><strong>Email:</strong> ${activeID}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`,
+            title: 'Profile',
+            html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>ID:</strong> ${currentUserData.assignedID || activeID}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`,
             icon: 'info'
         });
     };
@@ -733,11 +556,10 @@
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
-    window.logout = async () => { stopSecureQR(); if (messagesListener) messagesListener(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+    window.logout = async () => { stopSecureQR(); if (chatUnsubscribe) chatUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
-    // Initialize
     initUser();
 </script>
 </body>
