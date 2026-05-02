@@ -275,7 +275,7 @@
             coordinatorLng: coordinatorLocation.lng,
             radius: REQUIRED_RADIUS_METERS,
             timestamp: Date.now(),
-            expiry: Date.now() + 30000 // 30 seconds expiry
+            expiry: Date.now() + 30000
         });
         
         const qrContainer = document.getElementById('qrcodeContainer');
@@ -291,11 +291,9 @@
             }
         });
         
-        // Update expiry timer
         const expiryTime = new Date(Date.now() + 30000).toLocaleTimeString();
         document.getElementById('qrExpiry').innerHTML = `<i class="bi bi-hourglass-split me-1"></i> QR expires at: ${expiryTime}`;
         
-        // Enable download buttons
         document.getElementById('downloadBtn').disabled = false;
         document.getElementById('refreshBtn').disabled = false;
     }
@@ -318,7 +316,7 @@
         }
     }
     
-    // Start GPS tracking
+    // Start GPS tracking - NO ACCURACY RESTRICTION
     function startCoordinatorGPS() {
         if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
         
@@ -336,14 +334,17 @@
                 document.getElementById('coordAccuracy').innerHTML = Math.round(coordinatorLocation.accuracy);
                 document.getElementById('liveIndicator').className = 'live-indicator active';
                 
+                // Just show status, no blocking
                 const gpsEl = document.getElementById('gpsStatus');
-                if (coordinatorLocation.accuracy <= REQUIRED_RADIUS_METERS) {
-                    gpsEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill"></i> Ready</span>';
+                if (coordinatorLocation.accuracy <= 50) {
+                    gpsEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill"></i> Good</span>';
+                } else if (coordinatorLocation.accuracy <= 100) {
+                    gpsEl.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Acceptable</span>';
                 } else {
-                    gpsEl.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Low Acc (${Math.round(coordinatorLocation.accuracy)}m)</span>`;
+                    gpsEl.innerHTML = '<span class="text-info"><i class="bi bi-info-circle-fill"></i> GPS active</span>';
                 }
                 
-                // Update session location in Firebase for student verification
+                // Update session location in Firebase
                 if (isSessionActive && sessionId) {
                     set(ref(rtdb, `active_sessions/${sessionId}/coordinator_location`), {
                         lat: coordinatorLocation.lat,
@@ -351,7 +352,6 @@
                         accuracy: coordinatorLocation.accuracy,
                         timestamp: serverTimestamp()
                     });
-                    // Regenerate QR with new location
                     generateClassQR();
                 }
             },
@@ -362,11 +362,11 @@
                 document.getElementById('liveIndicator').className = 'live-indicator inactive';
                 document.getElementById('gpsStatus').innerHTML = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> Failed</span>';
             },
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
         );
     }
     
-    // Start attendance session
+    // Start attendance session - NO GPS ACCURACY CHECK
     window.startSession = async () => {
         const course = document.getElementById('courseSelect').value;
         if (!course) {
@@ -379,16 +379,10 @@
             return;
         }
         
-        if (coordinatorLocation.accuracy > 50) {
-            Swal.fire({ icon: 'warning', title: 'Poor GPS Signal', text: `Your GPS accuracy is ${Math.round(coordinatorLocation.accuracy)}m. Please move to an open area.` });
-            return;
-        }
-        
         currentCourse = course;
         isSessionActive = true;
         sessionId = `${currentCoordinatorId}_${Date.now()}`;
         
-        // Create session in Firebase
         await set(ref(rtdb, `active_sessions/${sessionId}`), {
             coordinatorId: currentCoordinatorId,
             coordinatorName: currentCoordinator,
@@ -400,7 +394,6 @@
             radius: REQUIRED_RADIUS_METERS
         });
         
-        // Update UI
         document.getElementById('startSessionBtn').style.display = 'none';
         document.getElementById('endSessionBtn').style.display = 'inline-block';
         document.getElementById('sessionStatus').innerHTML = `
@@ -415,9 +408,8 @@
         
         generateClassQR();
         
-        Swal.fire({ icon: 'success', title: 'Session Started!', text: `QR Code generated for ${currentCourse}. Students can scan within ${REQUIRED_RADIUS_METERS}m.`, timer: 3000, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Session Started!', text: `QR Code generated for ${currentCourse}.`, timer: 2000, showConfirmButton: false });
         
-        // Auto-refresh QR every 30 seconds
         if (qrRefreshInterval) clearInterval(qrRefreshInterval);
         qrRefreshInterval = setInterval(() => {
             if (isSessionActive) generateClassQR();
@@ -457,7 +449,7 @@
         Swal.fire({ icon: 'info', title: 'Session Ended', text: 'Attendance session has been closed.' });
     };
     
-    // This listens for students marking attendance (they will write to Firebase when scanning)
+    // Listen for attendance records
     function listenForAttendance() {
         const attendanceRef = ref(rtdb, `kehadiran_unimap/${todayStr}`);
         
