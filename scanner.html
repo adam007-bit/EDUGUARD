@@ -19,16 +19,19 @@
         .log-scroll::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 10px; }
         .stat-card { background: #1e293b; border-radius: 16px; padding: 15px; text-align: center; border: 1px solid #334155; transition: transform 0.2s; }
         .stat-card:hover { transform: translateY(-3px); }
-        .qr-reader-region { margin: 0 auto !important; }
-        .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .session-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .session-badge.expired { background: #ef4444; }
-        .gps-verified { color: #10b981; }
-        .gps-warning { color: #f59e0b; }
-        .gps-error { color: #ef4444; }
+        .location-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; padding: 15px; border-left: 4px solid #fbbf24; }
+        .coord-location { font-family: monospace; font-size: 13px; background: #00000030; padding: 8px 12px; border-radius: 10px; }
+        .distance-badge { font-size: 24px; font-weight: bold; }
+        .distance-badge.near { color: #10b981; }
+        .distance-badge.far { color: #ef4444; }
+        .live-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        .live-indicator.active { background-color: #10b981; box-shadow: 0 0 5px #10b981; }
+        .live-indicator.inactive { background-color: #ef4444; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .scan-animation { animation: scanFlash 0.3s ease; }
         @keyframes scanFlash { 0% { background-color: transparent; } 50% { background-color: rgba(251,191,36,0.2); } 100% { background-color: transparent; } }
+        .student-near-badge { background: #10b98120; color: #10b981; border: 1px solid #10b981; border-radius: 20px; padding: 2px 10px; font-size: 11px; }
+        .student-far-badge { background: #ef444420; color: #ef4444; border: 1px solid #ef4444; border-radius: 20px; padding: 2px 10px; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -38,18 +41,39 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h4 class="fw-bold text-white mb-0"><i class="bi bi-qr-code-scan me-2"></i>RPS Attendance Scanner</h4>
-                <p class="text-white-50 small mb-0">Scan student QR code for class attendance</p>
+                <p class="text-white-50 small mb-0">Student must be within 20 METERS of coordinator</p>
             </div>
             <div class="status-badge text-white">
                 <i class="bi bi-person-badge me-1"></i> 
                 <span id="coordinatorName">Loading...</span>
-                <span class="ms-2 ps-2 border-start border-light" id="authStatusBadge"></span>
             </div>
         </div>
     </div>
 </div>
 
 <div class="container py-4">
+    <!-- Coordinator Location Card -->
+    <div class="location-card mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <small class="text-muted"><i class="bi bi-geo-alt-fill text-warning me-1"></i> YOUR LOCATION (Coordinator)</small>
+                <div class="coord-location mt-1">
+                    <span id="coordLat">---</span>° N, <span id="coordLng">---</span>° E
+                </div>
+                <div class="small text-muted mt-1">
+                    <i class="bi bi-crosshair"></i> Accuracy: <span id="coordAccuracy">---</span> meters
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="live-indicator active" id="liveIndicator"></div>
+                <small class="text-muted">Live GPS</small>
+                <div class="mt-2">
+                    <span class="badge bg-dark"><i class="bi bi-rulers"></i> Required: <strong class="text-warning">20m</strong> radius</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Stats Row -->
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
@@ -68,9 +92,9 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="stat-card">
-                <i class="bi bi-geo-alt-fill text-success fs-3"></i>
-                <h3 id="gpsStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Checking...</h3>
-                <small class="text-muted">GPS Location</small>
+                <i class="bi bi-compass-fill text-success fs-3"></i>
+                <h3 id="scanRadiusStatus" class="fw-bold text-white mb-0 mt-2 fs-6">Waiting...</h3>
+                <small class="text-muted">Scan Radius (20m)</small>
             </div>
         </div>
         <div class="col-md-3 col-6">
@@ -87,12 +111,17 @@
         <div class="col-lg-7">
             <div class="card bg-dark border-0 rounded-4 shadow-lg overflow-hidden">
                 <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <div id="scannerStatusAlert" class="alert alert-warning small mb-0">
+                            <i class="bi bi-info-circle me-2"></i> Scanner ready - Student must be within 20 meters
+                        </div>
+                    </div>
                     <div id="reader-container">
                         <div id="reader"></div>
                     </div>
                     <div class="mt-3 text-center">
                         <div class="alert alert-info small mb-0">
-                            <i class="bi bi-camera me-2"></i> Letakkan QR code pelajar di hadapan kamera
+                            <i class="bi bi-camera me-2"></i> Student places QR code in front of camera
                         </div>
                     </div>
                 </div>
@@ -122,11 +151,8 @@
         <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 ms-2" onclick="refreshScanner()">
             <i class="bi bi-arrow-repeat me-2"></i> Refresh Scanner
         </button>
-        <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="forceGPS()">
-            <i class="bi bi-satellite me-2"></i> Verify GPS
-        </button>
-        <button class="btn btn-outline-danger btn-sm rounded-pill px-4 ms-2" onclick="logout()">
-            <i class="bi bi-box-arrow-right me-2"></i> Lock Scanner
+        <button class="btn btn-outline-warning btn-sm rounded-pill px-4 ms-2" onclick="forceCoordGPS()">
+            <i class="bi bi-satellite me-2"></i> Update My Location
         </button>
     </div>
 </div>
@@ -134,7 +160,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, serverTimestamp, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getDatabase, ref, set, get, serverTimestamp, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
     import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
@@ -151,30 +177,33 @@
     const db = getFirestore(app);
     const rtdb = getDatabase(app);
     
-    // Campus Location (Pauh Putra)
-    const CAMPUS_LOC = { lat: 6.459908432966171, lng: 100.35170018848842 };
-    const GPS_RADIUS_KM = 0.5;
+    // Constants
+    const REQUIRED_RADIUS_METERS = 20;
+    const GPS_UPDATE_INTERVAL_MS = 5000;
+    const GPS_VALIDITY_MS = 30000;
     
     // State variables
     let html5QrcodeScanner = null;
     let isProcessing = false;
     let currentCoordinator = null;
-    let isInCampus = false;
-    let lastGpsProof = null;
+    let currentCoordinatorId = null;
+    let coordinatorLocation = null;
+    let gpsWatchId = null;
     let scanRateMap = new Map();
     let currentAttendanceData = [];
     const SCAN_LIMIT_PER_MINUTE = 30;
-    const GPS_VALIDITY_MS = 30000;
     const todayStr = new Date().toISOString().split('T')[0];
     
     // Helper Functions
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const R = 6371e3; // Meters
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
     
@@ -192,60 +221,117 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // GPS Functions
-    function verifyGPS() {
+    // Get Student's GPS Location when scanning
+    async function getStudentLocation() {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
-                document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-slash-circle text-danger me-1"></i> Not Supported';
-                reject(new Error('GPS not supported'));
+                reject(new Error('Student device GPS not supported'));
                 return;
             }
             
+            // Get student's location (the device scanning QR)
             navigator.geolocation.getCurrentPosition((pos) => {
-                const distance = calculateDistance(
-                    pos.coords.latitude, pos.coords.longitude,
-                    CAMPUS_LOC.lat, CAMPUS_LOC.lng
-                );
-                
-                isInCampus = distance < GPS_RADIUS_KM;
-                const timestamp = Date.now();
-                const proofData = `${pos.coords.latitude}|${pos.coords.longitude}|${timestamp}|${CAMPUS_LOC.lat}|${CAMPUS_LOC.lng}`;
-                const proofHash = generateSecureHash(proofData);
-                
-                lastGpsProof = {
+                resolve({
                     lat: pos.coords.latitude,
                     lng: pos.coords.longitude,
-                    timestamp: timestamp,
-                    hash: proofHash,
-                    distance: distance
-                };
-                
-                const gpsEl = document.getElementById('gpsStatus');
-                if (isInCampus) {
-                    gpsEl.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Verified (${distance.toFixed(2)}km)`;
-                    gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-verified';
-                } else {
-                    gpsEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> ${distance.toFixed(2)}km from campus`;
-                    gpsEl.className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-warning';
-                }
-                
-                resolve({ isInCampus, distance, proof: lastGpsProof });
+                    accuracy: pos.coords.accuracy,
+                    timestamp: Date.now()
+                });
             }, (err) => {
-                document.getElementById('gpsStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Failed';
-                document.getElementById('gpsStatus').className = 'fw-bold text-white mb-0 mt-2 fs-6 gps-error';
                 reject(err);
-            }, { enableHighAccuracy: true, timeout: 10000 });
+            }, { enableHighAccuracy: true, timeout: 8000 });
         });
     }
     
-    window.forceGPS = () => {
-        Swal.fire({ title: 'Verifying GPS...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        verifyGPS().then(() => {
-            Swal.fire({ icon: 'success', title: isInCampus ? 'Inside Campus' : 'Outside Campus', text: isInCampus ? 'Scanner is active' : 'Please move to campus area', timer: 2000 });
-        }).catch(() => {
-            Swal.fire({ icon: 'error', title: 'GPS Error', text: 'Could not verify location' });
-        });
-    };
+    // Get Coordinator's GPS Location (continuous)
+    function startCoordinatorGPS() {
+        if (gpsWatchId) {
+            navigator.geolocation.clearWatch(gpsWatchId);
+        }
+        
+        gpsWatchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                const newLocation = {
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                    timestamp: Date.now()
+                };
+                
+                coordinatorLocation = newLocation;
+                
+                // Update UI
+                document.getElementById('coordLat').innerHTML = newLocation.lat.toFixed(6);
+                document.getElementById('coordLng').innerHTML = newLocation.lng.toFixed(6);
+                document.getElementById('coordAccuracy').innerHTML = Math.round(newLocation.accuracy);
+                
+                // Update live indicator
+                const indicator = document.getElementById('liveIndicator');
+                indicator.className = 'live-indicator active';
+                
+                // Update coordinator location in Firebase
+                if (currentCoordinatorId) {
+                    set(ref(rtdb, `coordinator_live/${currentCoordinatorId}`), {
+                        lat: newLocation.lat,
+                        lng: newLocation.lng,
+                        accuracy: newLocation.accuracy,
+                        timestamp: serverTimestamp()
+                    });
+                }
+                
+                // Update scan radius status
+                const radiusEl = document.getElementById('scanRadiusStatus');
+                if (newLocation.accuracy <= REQUIRED_RADIUS_METERS) {
+                    radiusEl.innerHTML = `<span class="text-success"><i class="bi bi-check-circle-fill"></i> Ready (${Math.round(newLocation.accuracy)}m acc)</span>`;
+                    radiusEl.className = 'fw-bold text-white mb-0 mt-2 fs-6';
+                } else {
+                    radiusEl.innerHTML = `<span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Low GPS Acc (${Math.round(newLocation.accuracy)}m)</span>`;
+                }
+            },
+            (err) => {
+                console.error('GPS Error:', err);
+                document.getElementById('coordLat').innerHTML = '---';
+                document.getElementById('coordLng').innerHTML = '---';
+                document.getElementById('liveIndicator').className = 'live-indicator inactive';
+                document.getElementById('scanRadiusStatus').innerHTML = '<span class="text-danger"><i class="bi bi-x-circle-fill"></i> GPS Failed</span>';
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+        );
+    }
+    
+    // Verify student is within 20 meters of coordinator
+    async function verifyProximity(studentScannedId) {
+        if (!coordinatorLocation) {
+            return { allowed: false, reason: "Coordinator location not available. Please ensure GPS is active." };
+        }
+        
+        try {
+            const studentLocation = await getStudentLocation();
+            
+            const distance = calculateDistance(
+                coordinatorLocation.lat, coordinatorLocation.lng,
+                studentLocation.lat, studentLocation.lng
+            );
+            
+            const isWithinRadius = distance <= REQUIRED_RADIUS_METERS;
+            
+            return {
+                allowed: isWithinRadius,
+                distance: distance,
+                requiredRadius: REQUIRED_RADIUS_METERS,
+                coordinatorLoc: coordinatorLocation,
+                studentLoc: studentLocation,
+                reason: isWithinRadius ? 
+                    `✓ Student within ${distance.toFixed(1)} meters` : 
+                    `✗ Student is ${distance.toFixed(1)} meters away (must be within ${REQUIRED_RADIUS_METERS}m)`
+            };
+        } catch (error) {
+            return { 
+                allowed: false, 
+                reason: "Could not verify student location. Please ensure student device GPS is enabled." 
+            };
+        }
+    }
     
     // Rate Limiting
     function checkRateLimit(studentId) {
@@ -259,7 +345,7 @@
         return true;
     }
     
-    // Student Validation
+    // Validate Student
     async function validateStudent(studentId) {
         try {
             const userDoc = await getDoc(doc(db, "users", studentId));
@@ -279,10 +365,10 @@
         }
     }
     
-    // Record Attendance
+    // Record Attendance with Proximity Check
     async function recordAttendance(scannedId) {
-        if (!currentCoordinator) {
-            Swal.fire({ icon: 'error', title: 'Session Expired', text: 'Please refresh the page' });
+        if (!currentCoordinator || !currentCoordinatorId) {
+            Swal.fire({ icon: 'error', title: 'Session Error', text: 'Please refresh the page' });
             return;
         }
         
@@ -291,14 +377,13 @@
             return;
         }
         
-        if (!isInCampus) {
-            Swal.fire({ icon: 'error', title: 'Location Error', text: 'You must be within campus area to record attendance!' });
+        if (!coordinatorLocation) {
+            Swal.fire({ icon: 'error', title: 'Location Error', text: 'Coordinator GPS not active. Please wait...' });
             return;
         }
         
-        if (!lastGpsProof || (Date.now() - lastGpsProof.timestamp) > GPS_VALIDITY_MS) {
-            Swal.fire({ icon: 'error', title: 'GPS Expired', text: 'Please verify GPS location first' });
-            verifyGPS();
+        if (coordinatorLocation.accuracy > REQUIRED_RADIUS_METERS * 2) {
+            Swal.fire({ icon: 'error', title: 'Poor GPS Signal', text: `Your GPS accuracy is ${Math.round(coordinatorLocation.accuracy)}m. Please move to an open area.` });
             return;
         }
         
@@ -308,6 +393,15 @@
         }
         
         isProcessing = true;
+        
+        // Show proximity check dialog
+        Swal.fire({
+            title: 'Verifying Student Location',
+            html: '<div class="spinner-border text-primary"></div><br><small>Checking if student is within 20 meters...</small>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
         
         try {
             // Check if already recorded today
@@ -328,34 +422,58 @@
                 return;
             }
             
-            // Record attendance
+            // CRITICAL: Verify student is within 20 meters of coordinator
+            const proximityCheck = await verifyProximity(scannedId);
+            
+            if (!proximityCheck.allowed) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Proximity Check Failed', 
+                    html: `<strong>❌ Student must be within ${REQUIRED_RADIUS_METERS} meters of coordinator!</strong><br><br>
+                           📏 Distance: <strong>${proximityCheck.distance.toFixed(1)} meters</strong><br>
+                           ${proximityCheck.reason}<br><br>
+                           <small>Please ask the student to come closer to your location.</small>`
+                });
+                isProcessing = false;
+                return;
+            }
+            
+            // Record attendance with proximity proof
             const currentTime = new Date().toLocaleTimeString('ms-MY');
-            const verificationHash = generateSecureHash(`${scannedId}|${todayStr}|${lastGpsProof.timestamp}|${currentCoordinator}`);
+            const verificationHash = generateSecureHash(
+                `${scannedId}|${todayStr}|${coordinatorLocation.timestamp}|${studentLocation.timestamp}|${currentCoordinatorId}`
+            );
             
             await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${scannedId}`), {
                 studentID: scannedId,
                 studentName: student.name,
-                lokasi: "Pauh Putra Campus",
+                lokasi: "Coordinator Location",
                 masa: currentTime,
                 timestamp: serverTimestamp(),
                 verifiedBy: currentCoordinator,
-                gpsLat: lastGpsProof.lat,
-                gpsLng: lastGpsProof.lng,
-                gpsDistance: lastGpsProof.distance.toFixed(3),
+                verifiedById: currentCoordinatorId,
+                coordinatorLat: coordinatorLocation.lat,
+                coordinatorLng: coordinatorLocation.lng,
+                studentLat: proximityCheck.studentLoc.lat,
+                studentLng: proximityCheck.studentLoc.lng,
+                proximityDistanceMeters: proximityCheck.distance.toFixed(2),
+                requiredRadiusMeters: REQUIRED_RADIUS_METERS,
                 verificationHash: verificationHash,
-                verifiedAt: new Date().toISOString()
+                verifiedAt: new Date().toISOString(),
+                method: "PROXIMITY_20M"
             });
             
             // Audit log
             await push(ref(rtdb, `audit_logs/${todayStr}`), {
                 studentId: scannedId,
-                coordinatorId: currentCoordinator,
+                coordinatorId: currentCoordinatorId,
+                coordinatorName: currentCoordinator,
+                distanceMeters: proximityCheck.distance.toFixed(2),
                 timestamp: serverTimestamp(),
-                gpsVerified: true,
-                action: "attendance_marked"
+                action: "attendance_marked_proximity"
             });
             
-            // Animate and show success
+            // Animate success
             const readerDiv = document.getElementById('reader');
             if (readerDiv) readerDiv.classList.add('scan-animation');
             setTimeout(() => {
@@ -364,11 +482,11 @@
             
             Swal.fire({ 
                 icon: 'success', 
-                title: 'Attendance Recorded!', 
-                text: `${student.name}`,
-                toast: true,
-                position: 'top-end',
-                timer: 2000,
+                title: '✅ Attendance Recorded!', 
+                html: `<strong>${student.name}</strong><br>
+                       📏 Distance: ${proximityCheck.distance.toFixed(1)} meters<br>
+                       ✓ Within ${REQUIRED_RADIUS_METERS}m radius`,
+                timer: 2500,
                 showConfirmButton: false
             });
             
@@ -376,7 +494,7 @@
             
         } catch (error) {
             console.error('Attendance Error:', error);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to record attendance' });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to record attendance. Please try again.' });
         } finally {
             setTimeout(() => { isProcessing = false; }, 1500);
         }
@@ -399,9 +517,9 @@
                 
                 container.innerHTML = '';
                 records.reverse().forEach(rec => {
-                    const verifiedBadge = rec.verificationHash ? 
-                        '<span class="badge bg-info" style="font-size: 0.55rem;"><i class="bi bi-shield-check"></i> Secure</span>' : 
-                        '<span class="badge bg-secondary" style="font-size: 0.55rem;">Legacy</span>';
+                    const proximityBadge = rec.proximityDistanceMeters ? 
+                        `<span class="student-near-badge"><i class="bi bi-geo-alt"></i> ${rec.proximityDistanceMeters}m away</span>` : 
+                        `<span class="student-far-badge"><i class="bi bi-question-circle"></i> Legacy</span>`;
                     
                     container.innerHTML += `
                         <div class="border-bottom border-secondary p-3">
@@ -409,17 +527,16 @@
                                 <div class="flex-grow-1">
                                     <div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div>
                                     <small class="text-muted">ID: ${rec.studentID}</small>
-                                    <div class="mt-1">${verifiedBadge}</div>
+                                    <div class="mt-1">${proximityBadge}</div>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-success mb-1">Present</span>
                                     <div><small class="text-muted">${rec.masa || '--:--'}</small></div>
-                                    ${rec.verifiedBy ? `<div><small class="text-muted">by ${rec.verifiedBy}</small></div>` : ''}
+                                    <div><small class="text-muted">by ${rec.verifiedBy || 'Coordinator'}</small></div>
                                 </div>
                             </div>
                             <div class="small text-muted mt-2">
-                                <i class="bi bi-geo-alt"></i> ${rec.lokasi || 'Kampus'}
-                                ${rec.gpsDistance ? ` (${rec.gpsDistance}km)` : ''}
+                                <i class="bi bi-rulers"></i> Required: ${REQUIRED_RADIUS_METERS}m | Actual: ${rec.proximityDistanceMeters || '?'}m
                             </div>
                         </div>
                     `;
@@ -429,27 +546,7 @@
             }
             
             document.getElementById('todayCount').innerText = count;
-            
-            // Calculate week count
-            const weekCount = calculateWeekCount();
-            document.getElementById('weekCount').innerText = weekCount;
         });
-    }
-    
-    function calculateWeekCount() {
-        const startOfWeek = new Date();
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-        let total = 0;
-        for (let i = 0; i < 7; i++) {
-            const date = new Date(startOfWeek);
-            date.setDate(startOfWeek.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
-            const attendanceRef = ref(rtdb, `kehadiran_unimap/${dateStr}`);
-            get(attendanceRef).then(snap => {
-                if (snap.exists()) total += Object.keys(snap.val()).length;
-            }).catch(() => {});
-        }
-        return total;
     }
     
     window.refreshLog = () => { loadTodayStats(); };
@@ -477,37 +574,29 @@
                 (error) => { /* Silent error handling */ }
             );
             
-            document.getElementById('authStatusBadge').innerHTML = '<span class="session-badge"><i class="bi bi-camera-fill me-1"></i> Scanner Active</span>';
+            document.getElementById('scannerStatusAlert').innerHTML = `
+                <i class="bi bi-check-circle-fill text-success me-2"></i> 
+                Scanner Active | Student must be within <strong>${REQUIRED_RADIUS_METERS} meters</strong> of your location
+            `;
+            document.getElementById('scannerStatusAlert').className = "alert alert-success small mb-0";
         }, 100);
     }
     
     window.refreshScanner = () => {
         initScanner();
-        verifyGPS();
         Swal.fire({ toast: true, icon: 'success', title: 'Scanner Refreshed', timer: 1500, showConfirmButton: false });
     };
     
-    window.logout = () => {
-        Swal.fire({
-            title: 'Lock Scanner?',
-            text: 'You will need to re-authenticate to use the scanner',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: 'Yes, Lock',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                }
-                currentCoordinator = null;
-                document.getElementById('coordinatorName').innerHTML = '<span class="session-badge expired"><i class="bi bi-lock-fill me-1"></i> Locked</span>';
-                document.getElementById('authStatusBadge').innerHTML = '<span class="session-badge expired">Not Active</span>';
-                Swal.fire({ icon: 'info', title: 'Scanner Locked', text: 'Please refresh the page to re-authenticate' });
-            }
-        });
+    window.forceCoordGPS = () => {
+        Swal.fire({ title: 'Updating Location...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        if (gpsWatchId) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    Swal.fire({ icon: 'success', title: 'Location Updated', text: `Accuracy: ${Math.round(pos.coords.accuracy)}m`, timer: 2000 });
+                },
+                () => { Swal.fire({ icon: 'error', title: 'GPS Error', text: 'Could not get location' }); }
+            );
+        }
     };
     
     // Authentication Check
@@ -526,15 +615,28 @@
         }
         
         currentCoordinator = userDoc.data().name || user.email;
-        document.getElementById('coordinatorName').innerHTML = `<span class="session-badge"><i class="bi bi-person-check-fill me-1"></i> ${currentCoordinator}</span>`;
+        currentCoordinatorId = user.uid;
+        document.getElementById('coordinatorName').innerHTML = `<span class="badge bg-primary"><i class="bi bi-person-check-fill me-1"></i> ${currentCoordinator}</span>`;
         
-        await verifyGPS();
+        // Start GPS tracking
+        startCoordinatorGPS();
         loadTodayStats();
         initScanner();
         
-        // Auto-refresh GPS every 25 seconds
-        setInterval(() => { verifyGPS().catch(() => {}); }, 25000);
-        setInterval(() => { document.getElementById('liveTime').innerHTML = new Date().toLocaleTimeString('ms-MY'); }, 1000);
+        // Update time
+        setInterval(() => { 
+            document.getElementById('liveTime').innerHTML = new Date().toLocaleTimeString('ms-MY'); 
+        }, 1000);
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (gpsWatchId) {
+                navigator.geolocation.clearWatch(gpsWatchId);
+            }
+            if (currentCoordinatorId) {
+                set(ref(rtdb, `coordinator_live/${currentCoordinatorId}`), null);
+            }
+        });
     });
 </script>
 </body>
