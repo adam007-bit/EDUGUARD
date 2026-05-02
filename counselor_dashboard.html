@@ -3,56 +3,548 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Rakan Pembimbing Siswa(RPS) | counselor  Panel</title>
+    <title>Smart RPS | Counselor Wellness Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background: #f0f2f8; font-family: 'Inter', sans-serif; }
+        :root { --counselor-primary: #10b981; --counselor-secondary: #8b5cf6; --counselor-danger: #ef4444; --counselor-warning: #f59e0b; }
+        body { background: linear-gradient(135deg, #e8f4f0 0%, #dbeafe 100%); font-family: 'Inter', sans-serif; min-height: 100vh; }
+        body.dark-mode { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #e2e8f0; }
+        body.dark-mode .glass-card, body.dark-mode .stat-card, body.dark-mode .table-container, body.dark-mode .chat-container { background: #1e293b; border-color: #334155; }
         .navbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
-        .stat-card { background: white; border-radius: 20px; padding: 20px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .table-container { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .risk-badge { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; }
+        body.dark-mode .navbar { background: #1e293b; }
+        .stat-card { background: white; border-radius: 24px; padding: 25px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px -15px rgba(0,0,0,0.15); }
+        .table-container { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .risk-badge { padding: 6px 14px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; display: inline-block; }
         .risk-critical { background: #fee2e2; color: #991b1b; }
         .risk-medium { background: #fef3c7; color: #92400e; }
         .risk-normal { background: #dcfce7; color: #166534; }
+        .glass-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        /* Chat Styles */
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 520px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
+        .chat-header { background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; padding: 15px 20px; font-weight: 700; cursor: pointer; }
+        .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 85%; display: flex; flex-direction: column; }
+        .chat-message.sent { align-self: flex-end; }
+        .chat-message.received { align-self: flex-start; }
+        .message-bubble { padding: 10px 16px; border-radius: 20px; word-wrap: break-word; max-width: 100%; }
+        .chat-message.sent .message-bubble { background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 10px; }
+        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; outline: none; }
+        .chat-send-btn { background: var(--counselor-primary); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; transition: 0.2s; }
+        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--counselor-primary), var(--counselor-secondary)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
+        .floating-chat-btn:hover { transform: scale(1.05); }
+        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .filter-chip { padding: 8px 18px; border-radius: 40px; background: white; border: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: 0.2s; }
+        .filter-chip.active { background: var(--counselor-primary); color: white; border-color: var(--counselor-primary); }
+        .student-card { cursor: pointer; transition: all 0.2s; }
+        .student-card:hover { background: #f8fafc; transform: translateX(5px); }
+        body.dark-mode .student-card:hover { background: #334155; }
+        @media (max-width: 768px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; } }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
     <div class="container d-flex justify-content-between">
-        <a class="navbar-brand fw-bold text-primary" href="#"><i class="bi bi-shield-check-fill me-2"></i>Smart RPS | Counselor Panel</a>
-        <div><span id="counselorName" class="fw-bold me-3">Counselor</span><button class="btn btn-outline-danger btn-sm rounded-pill" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button></div>
+        <a class="navbar-brand fw-bold" href="#" style="color: var(--counselor-primary);"><i class="bi bi-heart-pulse-fill me-2"></i>Smart RPS | Counselor Wellness Hub</a>
+        <div class="d-flex gap-2">
+            <button onclick="toggleDarkMode()" class="btn btn-outline-secondary btn-sm rounded-pill px-3"><i class="bi bi-moon-stars"></i></button>
+            <span id="counselorName" class="fw-bold me-3 d-none d-md-inline">Counselor</span>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        </div>
     </div>
 </nav>
 
 <div class="container py-4">
+    <!-- Stats Row -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-people-fill text-primary fs-2 mb-2 d-block"></i><h3 id="totalStudents" class="fw-bold">0</h3><small class="text-muted">Total Students</small></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-exclamation-triangle-fill text-danger fs-2 mb-2 d-block"></i><h3 id="criticalCount" class="fw-bold">0</h3><small class="text-muted">Critical Cases</small></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-chat-dots-fill text-info fs-2 mb-2 d-block"></i><h3 id="interventionCount" class="fw-bold">0</h3><small class="text-muted">Interventions</small></div></div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="bi bi-people-fill text-primary fs-2 mb-2 d-block"></i>
+                <h3 id="totalStudents" class="fw-bold">0</h3>
+                <small class="text-muted">Total Students</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-2 mb-2 d-block"></i>
+                <h3 id="criticalCount" class="fw-bold">0</h3>
+                <small class="text-muted">Critical Cases</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <i class="bi bi-chat-dots-fill text-info fs-2 mb-2 d-block"></i>
+                <h3 id="interventionCount" class="fw-bold">0</h3>
+                <small class="text-muted">Interventions Sent</small>
+            </div>
+        </div>
     </div>
 
+    <!-- Filters -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <span class="filter-chip active" data-filter="all" onclick="setFilter('all')">All Students</span>
+        <span class="filter-chip" data-filter="CRITICAL" onclick="setFilter('CRITICAL')"><i class="bi bi-exclamation-triangle text-danger me-1"></i> Critical Risk</span>
+        <span class="filter-chip" data-filter="MEDIUM" onclick="setFilter('MEDIUM')"><i class="bi bi-shield-exclamation text-warning me-1"></i> Medium Risk</span>
+        <span class="filter-chip" data-filter="NORMAL" onclick="setFilter('NORMAL')"><i class="bi bi-check-circle text-success me-1"></i> Normal</span>
+    </div>
+
+    <!-- Chart Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Wellness Distribution</h6>
+                <canvas id="wellnessChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-activity text-success me-2"></i>Weekly Interventions</h6>
+                <canvas id="interventionChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Table -->
     <div class="table-container">
-        <div class="d-flex justify-content-between mb-3"><h5 class="fw-bold"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Student Wellness Status</h5><input type="text" id="searchInput" class="form-control w-25" placeholder="Search student..."></div>
-        <div class="table-responsive"><table class="table table-hover align-middle"><thead class="table-light"><tr><th>Student Name</th><th>Student ID</th><th>Risk Level</th><th>Last Assessment</th><th class="text-center">Action</th></tr></thead><tbody id="studentTable"><tr><td colspan="5" class="text-center py-5">Loading...</td></tr></tbody></table></div>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Student Wellness Status</h5>
+            <div class="d-flex gap-2">
+                <input type="text" id="searchInput" class="form-control rounded-pill" placeholder="🔍 Search student..." style="width: 250px;">
+                <button class="btn btn-outline-primary rounded-pill" onclick="exportCounselorReport()"><i class="bi bi-download me-1"></i> Export</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Student ID</th>
+                        <th>Risk Level</th>
+                        <th>Last Assessment</th>
+                        <th>Score</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTable">
+                    <tr><td colspan="6" class="text-center py-5">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<!-- Floating Chat Button -->
+<div class="floating-chat-btn" onclick="toggleChat()">
+    <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
+    <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
+</div>
+
+<!-- Chat Window -->
+<div id="chatContainer" class="chat-container">
+    <div class="chat-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person-circle me-2"></i> Chat with <span id="chatStudentName">Student</span></span>
+        <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
+    </div>
+    <div id="chatMessagesArea" class="chat-messages-area">
+        <div class="text-center text-muted py-5">Select a student to start chatting</div>
+    </div>
+    <div id="typingIndicator" class="typing-indicator"></div>
+    <div class="chat-input-area">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
+        <button class="chat-send-btn" onclick="sendChatMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, addDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    const firebaseConfig = { apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", authDomain: "eduguard-ai-2742b.firebaseapp.com", projectId: "eduguard-ai-2742b", storageBucket: "eduguard-ai-2742b.firebasestorage.app", messagingSenderId: "96233022148", appId: "1:96233022148:web:1f903d72b3f79690409f91" };
-    const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
-    onAuthStateChanged(auth, async (user) => { if (!user) window.location.href = "index.html"; else { const userDoc = await getDoc(doc(db, "users", user.uid)); if (userDoc.data()?.role !== 'counselor') window.location.href = "index.html"; else document.getElementById('counselorName').innerText = userDoc.data().name || 'Counselor'; loadData(); } });
-    async function loadData() { const studentsSnap = await getDocs(collection(db, "users")); let students = []; studentsSnap.forEach(doc => { if (doc.data().role === 'student') students.push({ id: doc.id, ...doc.data() }); }); const assessmentsSnap = await getDocs(collection(db, "assessments")); const assessments = {}; assessmentsSnap.forEach(doc => { const data = doc.data(); assessments[data.studentID] = data; }); let critical = 0; const tbody = document.getElementById('studentTable'); tbody.innerHTML = ''; students.forEach(s => { const assess = assessments[s.id]; const risk = assess?.riskLevel || 'NORMAL'; if (risk === 'CRITICAL' || risk === 'HIGH') critical++; tbody.innerHTML += `<tr><td class="fw-bold">${s.name}</td><td>${s.assignedID || s.id}</td><td><span class="risk-badge risk-${risk === 'CRITICAL' ? 'critical' : (risk === 'MEDIUM' ? 'medium' : 'normal')}">${risk}</span></td><td>${assess?.timestamp?.toDate().toLocaleDateString() || '-'}</td><td class="text-center"><button class="btn btn-sm btn-primary rounded-pill px-3" onclick="intervene('${s.id}', '${s.name}')"><i class="bi bi-chat-dots me-1"></i> Message</button></td></tr>`; }); document.getElementById('totalStudents').innerText = students.length; document.getElementById('criticalCount').innerText = critical; }
-    window.intervene = async (id, name) => { const { value: msg } = await Swal.fire({ title: `Message: ${name}`, input: 'textarea', inputLabel: 'Your advice / message', showCancelButton: true }); if (msg) { await addDoc(collection(db, "notifications"), { studentID: id, message: msg, sender: "Counselor", status: "unread", timestamp: serverTimestamp() }); Swal.fire('Sent!', 'Message delivered to student', 'success'); } };
+    import { getFirestore, doc, getDoc, collection, getDocs, addDoc, serverTimestamp, query, orderBy, onSnapshot, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
+        authDomain: "eduguard-ai-2742b.firebaseapp.com", 
+        projectId: "eduguard-ai-2742b", 
+        storageBucket: "eduguard-ai-2742b.firebasestorage.app", 
+        messagingSenderId: "96233022148", 
+        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    let currentCounselor = null;
+    let currentCounselorId = null;
+    let allStudents = [];
+    let wellnessChart = null;
+    let interventionChart = null;
+    let currentFilter = 'all';
+    let selectedStudent = null;
+    let chatUnsubscribe = null;
+    let unreadChatCount = 0;
+    let isChatOpen = false;
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    
+    // Authentication
+    onAuthStateChanged(auth, async (user) => { 
+        if (!user) { window.location.href = "index.html"; return; } 
+        const userDoc = await getDoc(doc(db, "users", user.uid)); 
+        if (!userDoc.exists() || userDoc.data().role !== 'counselor') { 
+            await signOut(auth); 
+            Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Counselor access only.' }); 
+            window.location.href = "index.html"; 
+            return; 
+        }
+        currentCounselor = userDoc.data().name || 'Counselor';
+        currentCounselorId = user.uid;
+        document.getElementById('counselorName').innerText = currentCounselor;
+        loadData();
+        loadInterventionStats();
+    });
+    
+    async function loadData() {
+        // Get all students
+        const studentsSnap = await getDocs(collection(db, "users"));
+        let students = [];
+        studentsSnap.forEach(doc => { 
+            if (doc.data().role === 'student') {
+                students.push({ id: doc.id, ...doc.data() });
+            }
+        });
+        
+        // Get assessments
+        const assessmentsSnap = await getDocs(collection(db, "assessments"));
+        const assessments = {};
+        assessmentsSnap.forEach(doc => { 
+            const data = doc.data(); 
+            assessments[data.studentID] = data; 
+        });
+        
+        // Get intervention counts (messages sent to students)
+        const notificationsSnap = await getDocs(query(collection(db, "notifications"), where("sender", "==", "Counselor")));
+        const interventionCount = notificationsSnap.size;
+        document.getElementById('interventionCount').innerText = interventionCount;
+        
+        allStudents = students.map(s => {
+            const assess = assessments[s.id];
+            return {
+                id: s.id,
+                name: s.name || 'Student',
+                studentId: s.assignedID || s.id,
+                riskLevel: assess?.riskLevel || 'NORMAL',
+                score: assess?.score || '-',
+                lastAssessment: assess?.timestamp?.toDate().toLocaleDateString() || '-',
+                timestamp: assess?.timestamp
+            };
+        });
+        
+        // Calculate stats
+        const criticalCount = allStudents.filter(s => s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH').length;
+        document.getElementById('totalStudents').innerText = allStudents.length;
+        document.getElementById('criticalCount').innerText = criticalCount;
+        
+        renderStudentTable();
+        updateWellnessChart();
+    }
+    
+    async function loadInterventionStats() {
+        // Get last 7 days interventions
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        const notificationsSnap = await getDocs(query(collection(db, "notifications"), where("sender", "==", "Counselor"), orderBy("timestamp", "desc")));
+        
+        const dailyCounts = {};
+        notificationsSnap.forEach(doc => {
+            const date = doc.data().timestamp?.toDate().toLocaleDateString() || 'Unknown';
+            dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+        });
+        
+        const dates = Object.keys(dailyCounts).slice(0, 7).reverse();
+        const counts = dates.map(d => dailyCounts[d] || 0);
+        
+        if (interventionChart) interventionChart.destroy();
+        const ctx = document.getElementById('interventionChart').getContext('2d');
+        interventionChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: dates, datasets: [{ label: 'Interventions', data: counts, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+        });
+    }
+    
+    function updateWellnessChart() {
+        const riskCounts = { CRITICAL: 0, MEDIUM: 0, NORMAL: 0 };
+        allStudents.forEach(s => {
+            if (s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH') riskCounts.CRITICAL++;
+            else if (s.riskLevel === 'MEDIUM') riskCounts.MEDIUM++;
+            else riskCounts.NORMAL++;
+        });
+        
+        if (wellnessChart) wellnessChart.destroy();
+        const ctx = document.getElementById('wellnessChart').getContext('2d');
+        wellnessChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['Critical Risk', 'Medium Risk', 'Normal'], datasets: [{ data: [riskCounts.CRITICAL, riskCounts.MEDIUM, riskCounts.NORMAL], backgroundColor: ['#ef4444', '#f59e0b', '#10b981'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+    
+    window.setFilter = (filter) => {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+        document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
+        renderStudentTable();
+    };
+    
+    function renderStudentTable() {
+        let filtered = allStudents;
+        if (currentFilter !== 'all') {
+            filtered = allStudents.filter(s => s.riskLevel === currentFilter);
+        }
+        
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        if (searchTerm) {
+            filtered = filtered.filter(s => s.name.toLowerCase().includes(searchTerm) || s.studentId.toLowerCase().includes(searchTerm));
+        }
+        
+        const tbody = document.getElementById('studentTable');
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No students found.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        filtered.forEach(s => {
+            let riskClass = '';
+            if (s.riskLevel === 'CRITICAL' || s.riskLevel === 'HIGH') riskClass = 'risk-critical';
+            else if (s.riskLevel === 'MEDIUM') riskClass = 'risk-medium';
+            else riskClass = 'risk-normal';
+            
+            tbody.innerHTML += `
+                <tr class="student-card">
+                    <td class="fw-bold">${escapeHtml(s.name)}</td>
+                    <td>${escapeHtml(s.studentId)}</td>
+                    <td><span class="risk-badge ${riskClass}">${s.riskLevel}</span></td>
+                    <td>${s.lastAssessment}</td>
+                    <td>${s.score !== '-' ? s.score + '/15' : '-'}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-success rounded-pill px-3 me-1" onclick="openChat('${s.id}', '${escapeHtml(s.name)}')">
+                            <i class="bi bi-chat-dots me-1"></i> Chat
+                        </button>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="sendIntervention('${s.id}', '${escapeHtml(s.name)}')">
+                            <i class="bi bi-send me-1"></i> Message
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    document.getElementById('searchInput').addEventListener('keyup', () => renderStudentTable());
+    
+    // ============ CHAT SYSTEM WITH STUDENTS ============
+    window.openChat = async (studentId, studentName) => {
+        selectedStudent = { id: studentId, name: studentName };
+        document.getElementById('chatStudentName').innerHTML = studentName;
+        document.getElementById('chatInput').disabled = false;
+        document.getElementById('chatSendBtn')?.removeAttribute('disabled');
+        
+        // Open chat container
+        const container = document.getElementById('chatContainer');
+        if (container.style.display !== 'flex') {
+            container.style.display = 'flex';
+            isChatOpen = true;
+        }
+        
+        // Mark messages as read
+        await markMessagesAsRead(studentId);
+        
+        // Load chat messages
+        loadChatMessages(studentId);
+    };
+    
+    async function markMessagesAsRead(studentId) {
+        const chatId = [currentCounselorId, studentId].sort().join('_');
+        const messagesRef = collection(db, "counselor_chats", chatId, "messages");
+        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentCounselorId));
+        const unreadSnap = await getDocs(unreadQuery);
+        
+        unreadSnap.forEach(async (docSnap) => {
+            await updateDoc(doc(db, "counselor_chats", chatId, "messages", docSnap.id), { read: true });
+        });
+        
+        updateUnreadCount();
+    }
+    
+    function loadChatMessages(studentId) {
+        if (chatUnsubscribe) chatUnsubscribe();
+        
+        const chatId = [currentCounselorId, studentId].sort().join('_');
+        const messagesRef = collection(db, "counselor_chats", chatId, "messages");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+        
+        chatUnsubscribe = onSnapshot(q, (snapshot) => {
+            const messagesArea = document.getElementById('chatMessagesArea');
+            if (snapshot.empty) {
+                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(docSnap => {
+                const msg = docSnap.data();
+                const isSent = msg.senderId === currentCounselorId;
+                const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
+                
+                html += `
+                    <div class="chat-message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-bubble">
+                            <div class="small fw-semibold mb-1" style="font-size: 0.7rem;">${isSent ? 'You' : msg.senderName || 'Student'}</div>
+                            ${escapeHtml(msg.text)}
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            });
+            
+            messagesArea.innerHTML = html;
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        });
+    }
+    
+    window.sendChatMessage = async () => {
+        const message = document.getElementById('chatInput').value.trim();
+        if (!message || !selectedStudent) return;
+        
+        document.getElementById('chatInput').value = '';
+        
+        const chatId = [currentCounselorId, selectedStudent.id].sort().join('_');
+        
+        await addDoc(collection(db, "counselor_chats", chatId, "messages"), {
+            text: message,
+            senderId: currentCounselorId,
+            senderName: currentCounselor,
+            receiverId: selectedStudent.id,
+            timestamp: serverTimestamp(),
+            read: false
+        });
+        
+        // Also add notification for student
+        await addDoc(collection(db, "notifications"), {
+            studentID: selectedStudent.id,
+            message: `💚 Counselor message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+            sender: "Counselor",
+            senderType: "counselor",
+            status: "unread",
+            timestamp: serverTimestamp()
+        });
+        
+        // Update intervention stats
+        loadInterventionStats();
+        
+        const messagesArea = document.getElementById('chatMessagesArea');
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    };
+    
+    window.toggleChat = () => {
+        const container = document.getElementById('chatContainer');
+        isChatOpen = container.style.display !== 'flex';
+        container.style.display = isChatOpen ? 'flex' : 'none';
+        
+        if (isChatOpen && selectedStudent) {
+            markMessagesAsRead(selectedStudent.id);
+            document.getElementById('chatInput').focus();
+        }
+    };
+    
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && selectedStudent) sendChatMessage();
+    });
+    
+    async function updateUnreadCount() {
+        let totalUnread = 0;
+        for (const student of allStudents) {
+            const chatId = [currentCounselorId, student.id].sort().join('_');
+            const unreadQuery = query(collection(db, "counselor_chats", chatId, "messages"), where("read", "==", false), where("senderId", "!=", currentCounselorId));
+            const unreadSnap = await getDocs(unreadQuery);
+            totalUnread += unreadSnap.size;
+        }
+        
+        unreadChatCount = totalUnread;
+        if (totalUnread > 0 && !isChatOpen) {
+            document.getElementById('chatUnreadBadge').style.display = 'flex';
+            document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+        } else {
+            document.getElementById('chatUnreadBadge').style.display = 'none';
+        }
+    }
+    
+    // ============ INTERVENTION FUNCTIONS ============
+    window.sendIntervention = async (studentId, studentName) => {
+        const { value: message } = await Swal.fire({
+            title: `Message to: ${studentName}`,
+            input: 'textarea',
+            inputLabel: 'Wellness Message / Advice',
+            inputPlaceholder: 'Write your message here...',
+            showCancelButton: true,
+            confirmButtonText: 'Send Message',
+            confirmButtonColor: '#10b981'
+        });
+        
+        if (message && message.trim()) {
+            try {
+                await addDoc(collection(db, "notifications"), {
+                    studentID: studentId,
+                    message: `💚 ${message.trim()}`,
+                    sender: "Counselor",
+                    senderType: "counselor",
+                    status: "unread",
+                    timestamp: serverTimestamp()
+                });
+                
+                Swal.fire({ icon: 'success', title: 'Message Sent!', text: `Intervention sent to ${studentName}`, timer: 2000, showConfirmButton: false });
+                loadInterventionStats();
+            } catch (e) {
+                Swal.fire('Error', 'Failed to send message.', 'error');
+            }
+        }
+    };
+    
+    // ============ EXPORT REPORT ============
+    window.exportCounselorReport = () => {
+        let csv = "Student Name,Student ID,Risk Level,Last Assessment,Score\n";
+        allStudents.forEach(s => {
+            csv += `"${s.name}","${s.studentId}","${s.riskLevel}","${s.lastAssessment}","${s.score}"\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Counselor_Report_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        Swal.fire({ toast: true, icon: 'success', title: 'Report Exported', timer: 1500, showConfirmButton: false });
+    };
+    
+    // ============ DARK MODE ============
+    window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
+    if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+    
     window.logout = () => { signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
-    document.getElementById('searchInput').addEventListener('keyup', function() { const filter = this.value.toUpperCase(); const rows = document.querySelectorAll('#studentTable tr'); rows.forEach(row => { row.style.display = row.innerText.toUpperCase().includes(filter) ? '' : 'none'; }); });
+    
+    // Refresh data periodically
+    setInterval(() => { loadData(); loadInterventionStats(); updateUnreadCount(); }, 30000);
 </script>
 </body>
 </html>
