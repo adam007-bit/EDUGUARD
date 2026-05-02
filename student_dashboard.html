@@ -21,16 +21,21 @@
         body.dark-mode .glass-card, body.dark-mode .material-card, body.dark-mode .nav-custom, body.dark-mode .stat-card, body.dark-mode .announcement-card, body.dark-mode .chat-container { background: #1e293b; border-color: #334155; color: #e2e8f0; }
         body.dark-mode .bg-light { background: #334155 !important; }
         body.dark-mode .chat-messages-area { background: #0f172a; }
-        body.dark-mode .message-bubble.received { background: #334155; color: #e2e8f0; }
+        body.dark-mode .chat-message.received { background: #334155; color: #e2e8f0; }
         .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
         .header-box { background: linear-gradient(135deg, #1e293b 0%, #2d3a4a 100%); color: white; padding: 40px 0; border-radius: 0 0 40px 40px; margin-bottom: 40px; }
         .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 25px; box-shadow: 0 4px 12px -6px rgba(0,0,0,0.05); transition: all 0.3s; }
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
         
-        /* SIMPLE CHAT STYLES - ONE CHAT SYSTEM */
+        /* CHAT WITH CONTACT LIST - LIKE SUPERVISOR/COUNSELOR */
         .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
-        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .chat-contacts { max-height: 160px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .chat-contact-item { padding: 10px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
+        .chat-contact-item:hover { background: #eef2ff; }
+        .chat-contact-item.active { background: #e0e7ff; border-left: 3px solid var(--p-blue); }
+        .contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
         .chat-messages-area { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
         .chat-message { max-width: 80%; padding: 8px 12px; border-radius: 18px; margin-bottom: 4px; }
         .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; border-bottom-right-radius: 4px; }
@@ -42,6 +47,10 @@
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
         .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
+        .role-supervisor { background: #fef3c7; color: #92400e; }
+        .role-host { background: #dcfce7; color: #166534; }
+        .role-counselor { background: #fce7f3; color: #9d174d; }
         
         .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
         .qr-container { background: white; padding: 20px; border-radius: 20px; display: inline-block; }
@@ -138,24 +147,27 @@
     </div>
 </div>
 
-<!-- SINGLE CHAT BUTTON -->
+<!-- SINGLE FLOATING CHAT BUTTON -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
     <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
 </div>
 
-<!-- SINGLE CHAT WINDOW -->
+<!-- CHAT WINDOW WITH CONTACT LIST -->
 <div id="chatContainer" class="chat-container">
     <div class="chat-header">
-        <span><i class="bi bi-chat-dots-fill me-2"></i> Messages</span>
+        <span><i class="bi bi-people-fill me-2"></i> Messages - All Contacts</span>
         <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
     </div>
+    <div id="chatContactsList" class="chat-contacts">
+        <div class="text-center py-3 text-muted small">Loading contacts...</div>
+    </div>
     <div id="chatMessagesArea" class="chat-messages-area">
-        <div class="text-center text-muted py-4">Loading messages...</div>
+        <div class="text-center text-muted py-4">Select a contact to start chatting</div>
     </div>
     <div class="chat-input-area">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
-        <button class="chat-send-btn" onclick="sendMessage()"><i class="bi bi-send-fill"></i> Send</button>
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
+        <button class="chat-send-btn" onclick="sendMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
     </div>
 </div>
 
@@ -187,14 +199,17 @@
     let currentUserData = null;
     let gradeChart = null;
     let qrInterval = null;
-    let chatUnsubscribe = null;
     let isChatOpen = false;
-    let supervisorId = null;
-    let coordinatorId = null;
-    let counselorId = null;
-    let unreadCount = 0;
+    
+    // CHAT VARIABLES
+    let allContacts = [];
+    let currentContact = null;
+    let messagesListener = null;
+    let totalUnread = 0;
     
     const SECRET_KEY = "RPS_SECURE_KEY_2024";
+    const roleNames = { 'supervisor': 'RPS', 'host': 'Coordinator', 'counselor': 'Counselor' };
+    const roleColors = { 'supervisor': 'role-supervisor', 'host': 'role-host', 'counselor': 'role-counselor' };
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
@@ -215,23 +230,14 @@
         if (currentUserData.role !== 'student') { window.location.href = "index.html"; return; }
         if (currentUserData.registrationStatus !== 'complete') { window.location.href = "register_course.html"; return; }
         
-        // Get supervisor
+        // Get supervisor name
         if (currentUserData.supervisorEmail) {
             const supervisorQuery = query(collection(db, "users"), where("email", "==", currentUserData.supervisorEmail));
             const supervisorSnap = await getDocs(supervisorQuery);
             if (!supervisorSnap.empty) {
-                supervisorId = supervisorSnap.docs[0].id;
                 document.getElementById('supervisorNameDisplay').innerHTML = supervisorSnap.docs[0].data().name || currentUserData.supervisorEmail;
             }
         }
-        
-        // Also get coordinator and counselor for chat
-        const usersSnap = await getDocs(collection(db, "users"));
-        usersSnap.forEach(doc => {
-            const data = doc.data();
-            if (data.role === 'host') coordinatorId = doc.id;
-            if (data.role === 'counselor') counselorId = doc.id;
-        });
         
         document.getElementById('studentNameDisplay').innerText = currentUserData.name || 'Student';
         document.getElementById('studentIDDisplay').innerText = currentUserData.assignedID || activeID;
@@ -253,24 +259,110 @@
         loadAttendanceHistory();
         loadAnnouncements();
         loadMaterials();
-        listenForMessages();
+        
+        await loadAllContacts();
+        startUnreadListener();
     }
     
-    // ============ SIMPLE CHAT - ONE SYSTEM ============
-    function listenForMessages() {
-        // Listen to messages where student is sender OR receiver
-        const allMessagesQuery = query(collection(db, "messages"), 
-            where("participants", "array-contains", activeID),
-            orderBy("timestamp", "asc")
-        );
+    // ============ LOAD ALL CONTACTS ============
+    async function loadAllContacts() {
+        const usersSnap = await getDocs(collection(db, "users"));
+        allContacts = [];
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            if (doc.id !== activeID && data.role !== 'admin' && data.role !== 'student') {
+                allContacts.push({
+                    id: doc.id,
+                    name: data.name || doc.id.split('@')[0],
+                    email: data.email || doc.id,
+                    role: data.role,
+                    avatar: data.name?.charAt(0).toUpperCase() || 'U',
+                    unread: 0
+                });
+            }
+        });
         
-        chatUnsubscribe = onSnapshot(allMessagesQuery, (snapshot) => {
-            const messagesArea = document.getElementById('chatMessagesArea');
-            let newUnread = 0;
+        const rolePriority = { 'supervisor': 1, 'host': 2, 'counselor': 3 };
+        allContacts.sort((a, b) => (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99));
+        renderContactsList();
+    }
+    
+    function renderContactsList() {
+        const container = document.getElementById('chatContactsList');
+        if (allContacts.length === 0) {
+            container.innerHTML = '<div class="text-center py-3 text-muted small">No contacts available</div>';
+            return;
+        }
+        
+        let html = '';
+        allContacts.forEach(contact => {
+            const roleDisplay = roleNames[contact.role] || contact.role;
+            const roleClass = roleColors[contact.role] || '';
+            const isActive = currentContact?.id === contact.id;
+            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 9px;">${contact.unread}</span>` : '';
             
+            html += `
+                <div class="chat-contact-item ${isActive ? 'active' : ''}" onclick="selectContact('${contact.id}', '${escapeHtml(contact.name)}', '${contact.role}')">
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">${escapeHtml(contact.name)} ${unreadBadge}</div>
+                        <div><span class="role-badge ${roleClass}">${roleDisplay}</span></div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    // ============ SELECT CONTACT ============
+    window.selectContact = async (contactId, contactName, contactRole) => {
+        if (messagesListener) {
+            messagesListener();
+            messagesListener = null;
+        }
+        
+        currentContact = { id: contactId, name: contactName, role: contactRole };
+        
+        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
+        if (event && event.target && event.target.closest('.chat-contact-item')) {
+            event.target.closest('.chat-contact-item').classList.add('active');
+        }
+        
+        document.getElementById('chatInput').disabled = false;
+        document.querySelector('.chat-send-btn').disabled = false;
+        document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
+        
+        await markMessagesAsRead(contactId);
+        loadMessagesWithContact(contactId);
+    };
+    
+    async function markMessagesAsRead(contactId) {
+        const chatId = [activeID, contactId].sort().join('_');
+        const messagesRef = collection(db, "messages", chatId, "chats");
+        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", activeID));
+        const unreadSnap = await getDocs(unreadQuery);
+        
+        unreadSnap.forEach(async (docSnap) => {
+            await updateDoc(doc(db, "messages", chatId, "chats", docSnap.id), { read: true });
+        });
+        
+        const contact = allContacts.find(c => c.id === contactId);
+        if (contact) {
+            contact.unread = 0;
+            renderContactsList();
+            calculateTotalUnread();
+        }
+    }
+    
+    function loadMessagesWithContact(contactId) {
+        const chatId = [activeID, contactId].sort().join('_');
+        const messagesRef = collection(db, "messages", chatId, "chats");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+        
+        messagesListener = onSnapshot(q, (snapshot) => {
+            const messagesArea = document.getElementById('chatMessagesArea');
             if (snapshot.empty) {
-                messagesArea.innerHTML = '<div class="text-center text-muted py-4">No messages yet.<br>Start a conversation!</div>';
-                document.getElementById('chatUnreadBadge').style.display = 'none';
+                messagesArea.innerHTML = '<div class="text-center text-muted py-4">No messages yet. Start the conversation!</div>';
                 return;
             }
             
@@ -278,21 +370,12 @@
             snapshot.forEach(docSnap => {
                 const msg = docSnap.data();
                 const isSent = msg.senderId === activeID;
+                const senderName = isSent ? 'You' : (msg.senderName || currentContact?.name);
                 const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
-                
-                if (!isSent && !msg.read && !isChatOpen) {
-                    newUnread++;
-                    if (!isChatOpen) playSound();
-                }
-                
-                // Mark as read if chat is open
-                if (!isSent && !msg.read && isChatOpen) {
-                    updateDoc(doc(db, "messages", docSnap.id), { read: true });
-                }
                 
                 html += `
                     <div class="chat-message ${isSent ? 'sent' : 'received'}">
-                        <div><strong>${isSent ? 'You' : escapeHtml(msg.senderName)}</strong></div>
+                        <div><strong>${escapeHtml(senderName)}</strong></div>
                         <div>${escapeHtml(msg.text)}</div>
                         <div class="message-time">${time}</div>
                     </div>
@@ -301,48 +384,38 @@
             
             messagesArea.innerHTML = html;
             messagesArea.scrollTop = messagesArea.scrollHeight;
-            
-            unreadCount = newUnread;
-            if (newUnread > 0 && !isChatOpen) {
-                document.getElementById('chatUnreadBadge').style.display = 'flex';
-                document.getElementById('chatUnreadBadge').innerText = newUnread > 9 ? '9+' : newUnread;
-            } else {
-                document.getElementById('chatUnreadBadge').style.display = 'none';
-            }
-            document.getElementById('unreadCount').innerText = newUnread;
         });
     }
     
+    // ============ SEND MESSAGE ============
     window.sendMessage = async () => {
         const input = document.getElementById('chatInput');
         const message = input.value.trim();
-        if (!message) return;
         
-        input.value = '';
-        
-        // Find recipient (supervisor if exists, otherwise first available)
-        let recipientId = supervisorId || coordinatorId || counselorId;
-        let recipientRole = 'supervisor';
-        
-        if (!recipientId) {
-            Swal.fire({ icon: 'error', title: 'No Contact', text: 'No supervisor or coordinator found.' });
+        if (!message || !currentContact) {
+            Swal.fire({ icon: 'warning', title: 'No message', text: 'Select a contact and type a message.', toast: true, timer: 1500, showConfirmButton: false });
             return;
         }
         
+        input.value = '';
+        
+        const chatId = [activeID, currentContact.id].sort().join('_');
+        
         try {
-            await addDoc(collection(db, "messages"), {
+            await addDoc(collection(db, "messages", chatId, "chats"), {
                 text: message,
                 senderId: activeID,
                 senderName: currentUserData.name || 'Student',
-                receiverId: recipientId,
-                participants: [activeID, recipientId],
+                senderRole: 'student',
+                receiverId: currentContact.id,
+                receiverName: currentContact.name,
+                receiverRole: currentContact.role,
                 timestamp: serverTimestamp(),
                 read: false
             });
             
-            // Also send notification
             await addDoc(collection(db, "notifications"), {
-                userID: recipientId,
+                userID: currentContact.id,
                 message: `💬 New message from ${currentUserData.name || 'Student'}: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
                 sender: activeID,
                 senderName: currentUserData.name || 'Student',
@@ -360,19 +433,64 @@
         }
     };
     
+    // ============ UNREAD LISTENER ============
+    function startUnreadListener() {
+        setInterval(async () => {
+            let total = 0;
+            for (const contact of allContacts) {
+                const chatId = [activeID, contact.id].sort().join('_');
+                const messagesRef = collection(db, "messages", chatId, "chats");
+                const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", activeID));
+                const unreadSnap = await getDocs(unreadQuery);
+                const unreadCount = unreadSnap.size;
+                
+                if (unreadCount !== contact.unread) {
+                    contact.unread = unreadCount;
+                    if (unreadCount > 0 && !isChatOpen) {
+                        playSound();
+                    }
+                    renderContactsList();
+                }
+                total += unreadCount;
+            }
+            
+            totalUnread = total;
+            if (totalUnread > 0 && !isChatOpen) {
+                document.getElementById('chatUnreadBadge').style.display = 'flex';
+                document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+            } else {
+                document.getElementById('chatUnreadBadge').style.display = 'none';
+            }
+            document.getElementById('unreadCount').innerText = totalUnread;
+        }, 3000);
+    }
+    
+    function calculateTotalUnread() {
+        let total = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
+        totalUnread = total;
+        if (totalUnread > 0 && !isChatOpen) {
+            document.getElementById('chatUnreadBadge').style.display = 'flex';
+            document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+        } else {
+            document.getElementById('chatUnreadBadge').style.display = 'none';
+        }
+    }
+    
     window.toggleChat = () => {
         const container = document.getElementById('chatContainer');
         isChatOpen = container.style.display !== 'flex';
         container.style.display = isChatOpen ? 'flex' : 'none';
         if (isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'none';
+            if (currentContact) {
+                markMessagesAsRead(currentContact.id);
+            }
             document.getElementById('chatInput').focus();
-            unreadCount = 0;
         }
     };
     
     document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
+        if (e.key === 'Enter' && currentContact) sendMessage();
     });
     
     // ============ QR CODE ============
@@ -556,7 +674,7 @@
     window.toggleDarkMode = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); };
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
-    window.logout = async () => { stopSecureQR(); if (chatUnsubscribe) chatUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
+    window.logout = async () => { stopSecureQR(); if (messagesListener) messagesListener(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
     
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
