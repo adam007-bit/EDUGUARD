@@ -42,42 +42,38 @@
         
         .live-badge { display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
         
-        /* UNIFIED CHAT STYLES - SINGLE CHAT */
-        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 400px; height: 550px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
+        /* SIMPLE UNIFIED CHAT - SINGLE CHAT SYSTEM */
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
         .chat-header { background: linear-gradient(135deg, var(--p-blue), #8b5cf6); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .chat-contacts { max-height: 180px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-        .chat-contact-item { padding: 12px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
+        .chat-contacts { max-height: 160px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .chat-contact-item { padding: 10px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
         .chat-contact-item:hover { background: #eef2ff; }
         .chat-contact-item.active { background: #e0e7ff; border-left: 3px solid var(--p-blue); }
-        .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
-        .chat-message { max-width: 80%; display: flex; flex-direction: column; margin-bottom: 8px; }
-        .chat-message.sent { align-self: flex-end; }
-        .chat-message.received { align-self: flex-start; }
-        .message-bubble { padding: 10px 16px; border-radius: 20px; word-wrap: break-word; max-width: 100%; }
-        .chat-message.sent .message-bubble { background: linear-gradient(135deg, var(--p-blue), #8b5cf6); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
-        .message-sender-name { font-size: 10px; font-weight: 600; margin-bottom: 2px; color: #64748b; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 10px; }
-        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; outline: none; }
-        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; transition: 0.2s; }
-        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
+        .contact-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; }
+        .chat-messages-area { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
+        .chat-message { max-width: 80%; padding: 8px 12px; border-radius: 18px; margin-bottom: 4px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--p-blue), #8b5cf6); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .message-time { font-size: 9px; margin-top: 2px; opacity: 0.7; }
+        .chat-input-area { padding: 12px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 8px; }
+        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 8px 15px; font-size: 0.85rem; outline: none; }
+        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 18px; color: white; font-weight: 600; }
+        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
-        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
         .role-host { background: #dcfce7; color: #166534; }
         .role-counselor { background: #fce7f3; color: #9d174d; }
         .role-student { background: #dbeafe; color: #1e40af; }
         
         body.dark-mode .chat-messages-area { background: #0f172a; }
-        body.dark-mode .chat-message.received .message-bubble { background: #334155; color: #e2e8f0; }
+        body.dark-mode .chat-message.received { background: #334155; color: #e2e8f0; }
         body.dark-mode .chat-contacts { background: #1e293b; }
         body.dark-mode .chat-contact-item:hover { background: #334155; }
         body.dark-mode .chat-contact-item.active { background: #2d3a4a; }
         
         @media print { .no-print { display: none !important; } .stat-card { border: 1px solid #ddd; } }
-        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } .chat-container { width: 320px; height: 480px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; } }
+        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
 </head>
 <body id="dashboardContent">
@@ -160,7 +156,7 @@
         <span class="filter-chip" data-filter="stable" onclick="setFilter('stable')"><i class="bi bi-check-circle text-success me-1"></i>Stable</span>
     </div>
 
-    <!-- Main Table -->
+    <!-- Main Table - NO CHAT BUTTONS INSIDE -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
         <div class="table-responsive">
             <table class="table align-middle mb-0">
@@ -219,7 +215,7 @@
         <div class="text-center py-3 text-muted small">Loading contacts...</div>
     </div>
     <div id="chatMessagesArea" class="chat-messages-area">
-        <div class="text-center text-muted py-5">Select a contact to start chatting</div>
+        <div class="text-center text-muted py-4">Select a contact to start chatting</div>
     </div>
     <div class="chat-input-area">
         <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" disabled>
@@ -268,15 +264,15 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
     
-    function playNotificationSound() {
+    function playSound() {
         try {
             const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.volume = 0.3;
-            audio.play().catch(e => console.log('Audio play failed'));
-        } catch(e) { console.log('Sound not supported'); }
+            audio.volume = 0.2;
+            audio.play().catch(e => console.log('Audio error'));
+        } catch(e) {}
     }
 
-    // ============ AUTHENTICATION & ROLE VERIFICATION ============
+    // ============ AUTHENTICATION ============
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "index.html";
@@ -297,7 +293,6 @@
         document.getElementById('svNameDisplay').innerText = currentUserName;
         loadData(user.email);
         
-        // Load all contacts and listen for messages
         await loadAllContacts();
         startUnreadListener();
     });
@@ -320,10 +315,8 @@
             }
         });
         
-        // Sort by role priority: Student first, then Coordinator, then Counselor
         const rolePriority = { 'student': 1, 'host': 2, 'counselor': 3 };
         allContacts.sort((a, b) => (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99));
-        
         renderContactsList();
     }
     
@@ -339,7 +332,7 @@
             const roleDisplay = roleNames[contact.role] || contact.role;
             const roleClass = roleColors[contact.role] || '';
             const isActive = currentContact?.id === contact.id;
-            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 10px;">${contact.unread}</span>` : '';
+            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 9px;">${contact.unread}</span>` : '';
             
             html += `
                 <div class="chat-contact-item ${isActive ? 'active' : ''}" onclick="selectContact('${contact.id}', '${escapeHtml(contact.name)}', '${contact.role}')">
@@ -354,9 +347,8 @@
         container.innerHTML = html;
     }
     
-    // ============ SELECT CONTACT AND LOAD MESSAGES ============
+    // ============ SELECT CONTACT ============
     window.selectContact = async (contactId, contactName, contactRole) => {
-        // Clean up previous listener
         if (messagesListener) {
             messagesListener();
             messagesListener = null;
@@ -364,35 +356,29 @@
         
         currentContact = { id: contactId, name: contactName, role: contactRole };
         
-        // Update UI
         document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
         if (event && event.target && event.target.closest('.chat-contact-item')) {
             event.target.closest('.chat-contact-item').classList.add('active');
         }
         
-        // Enable chat input
         document.getElementById('chatInput').disabled = false;
         document.querySelector('.chat-send-btn').disabled = false;
         document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
         
-        // Mark messages as read
         await markMessagesAsRead(contactId);
-        
-        // Load messages with this contact
         loadMessagesWithContact(contactId);
     };
     
     async function markMessagesAsRead(contactId) {
         const chatId = [currentUserId, contactId].sort().join('_');
-        const messagesRef = collection(db, "all_chats", chatId, "messages");
+        const messagesRef = collection(db, "messages", chatId, "chats");
         const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentUserId));
         const unreadSnap = await getDocs(unreadQuery);
         
         unreadSnap.forEach(async (docSnap) => {
-            await updateDoc(doc(db, "all_chats", chatId, "messages", docSnap.id), { read: true });
+            await updateDoc(doc(db, "messages", chatId, "chats", docSnap.id), { read: true });
         });
         
-        // Update unread count in contacts list
         const contact = allContacts.find(c => c.id === contactId);
         if (contact) {
             contact.unread = 0;
@@ -403,13 +389,13 @@
     
     function loadMessagesWithContact(contactId) {
         const chatId = [currentUserId, contactId].sort().join('_');
-        const messagesRef = collection(db, "all_chats", chatId, "messages");
+        const messagesRef = collection(db, "messages", chatId, "chats");
         const q = query(messagesRef, orderBy("timestamp", "asc"));
         
         messagesListener = onSnapshot(q, (snapshot) => {
             const messagesArea = document.getElementById('chatMessagesArea');
             if (snapshot.empty) {
-                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
+                messagesArea.innerHTML = '<div class="text-center text-muted py-4">No messages yet. Start the conversation!</div>';
                 return;
             }
             
@@ -422,10 +408,8 @@
                 
                 html += `
                     <div class="chat-message ${isSent ? 'sent' : 'received'}">
-                        <div class="message-sender-name">${escapeHtml(senderName)}</div>
-                        <div class="message-bubble">
-                            ${escapeHtml(msg.text)}
-                        </div>
+                        <div><strong>${escapeHtml(senderName)}</strong></div>
+                        <div>${escapeHtml(msg.text)}</div>
                         <div class="message-time">${time}</div>
                     </div>
                 `;
@@ -442,7 +426,7 @@
         const message = input.value.trim();
         
         if (!message || !currentContact) {
-            Swal.fire({ icon: 'warning', title: 'No message', text: 'Please type a message and select a contact.', toast: true, timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'warning', title: 'No message', text: 'Select a contact and type a message.', toast: true, timer: 1500, showConfirmButton: false });
             return;
         }
         
@@ -451,7 +435,7 @@
         const chatId = [currentUserId, currentContact.id].sort().join('_');
         
         try {
-            await addDoc(collection(db, "all_chats", chatId, "messages"), {
+            await addDoc(collection(db, "messages", chatId, "chats"), {
                 text: message,
                 senderId: currentUserId,
                 senderName: currentUserName,
@@ -463,13 +447,11 @@
                 read: false
             });
             
-            // Send notification to the receiver
             await addDoc(collection(db, "notifications"), {
                 userID: currentContact.id,
                 message: `💬 New message from ${currentUserName} (Supervisor): "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
                 sender: currentUserId,
                 senderName: currentUserName,
-                senderRole: 'supervisor',
                 type: "chat",
                 status: "unread",
                 timestamp: serverTimestamp()
@@ -479,18 +461,18 @@
             messagesArea.scrollTop = messagesArea.scrollHeight;
             
         } catch (error) {
-            console.error('Send message error:', error);
+            console.error('Send error:', error);
             Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message.' });
         }
     };
     
-    // ============ UNREAD MESSAGES LISTENER ============
+    // ============ UNREAD LISTENER ============
     function startUnreadListener() {
         setInterval(async () => {
             let total = 0;
             for (const contact of allContacts) {
                 const chatId = [currentUserId, contact.id].sort().join('_');
-                const messagesRef = collection(db, "all_chats", chatId, "messages");
+                const messagesRef = collection(db, "messages", chatId, "chats");
                 const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentUserId));
                 const unreadSnap = await getDocs(unreadQuery);
                 const unreadCount = unreadSnap.size;
@@ -498,7 +480,7 @@
                 if (unreadCount !== contact.unread) {
                     contact.unread = unreadCount;
                     if (unreadCount > 0 && !isChatOpen) {
-                        playNotificationSound();
+                        playSound();
                     }
                     renderContactsList();
                 }
@@ -509,7 +491,7 @@
             if (totalUnread > 0 && !isChatOpen) {
                 document.getElementById('chatUnreadBadge').style.display = 'flex';
                 document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-            } else if (!isChatOpen) {
+            } else {
                 document.getElementById('chatUnreadBadge').style.display = 'none';
             }
         }, 3000);
@@ -521,20 +503,19 @@
         if (totalUnread > 0 && !isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'flex';
             document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
-        } else if (!isChatOpen) {
+        } else {
             document.getElementById('chatUnreadBadge').style.display = 'none';
         }
     }
     
-    window.toggleChat = async () => {
+    window.toggleChat = () => {
         const container = document.getElementById('chatContainer');
         isChatOpen = container.style.display !== 'flex';
         container.style.display = isChatOpen ? 'flex' : 'none';
-        
         if (isChatOpen) {
             document.getElementById('chatUnreadBadge').style.display = 'none';
             if (currentContact) {
-                await markMessagesAsRead(currentContact.id);
+                markMessagesAsRead(currentContact.id);
             }
             document.getElementById('chatInput').focus();
         }
@@ -546,7 +527,6 @@
     
     // ============ OPEN CHAT FROM STUDENT ROW ============
     window.openChatFromSupervisor = async (contactId, contactName, contactRole) => {
-        // Find or add to contacts
         let contact = allContacts.find(c => c.id === contactId);
         if (!contact) {
             contact = { id: contactId, name: contactName, role: contactRole, avatar: contactName.charAt(0).toUpperCase(), unread: 0 };
@@ -554,10 +534,8 @@
             renderContactsList();
         }
         
-        // Select this contact
         currentContact = contact;
         
-        // Update UI
         document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
         const contactItems = document.querySelectorAll('.chat-contact-item');
         for (let item of contactItems) {
@@ -567,27 +545,22 @@
             }
         }
         
-        // Enable chat input
         document.getElementById('chatInput').disabled = false;
         document.querySelector('.chat-send-btn').disabled = false;
         document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
         
-        // Open chat if not open
         const container = document.getElementById('chatContainer');
         if (container.style.display !== 'flex') {
             container.style.display = 'flex';
             isChatOpen = true;
         }
         
-        // Mark messages as read and load
-        await markMessagesAsRead(contactId);
-        
-        // Clean up previous listener
         if (messagesListener) {
             messagesListener();
             messagesListener = null;
         }
         
+        await markMessagesAsRead(contactId);
         loadMessagesWithContact(contactId);
         document.getElementById('chatInput').focus();
     };
@@ -709,7 +682,7 @@
                     <td class="text-center">${statusBadge}</td>
                     <td class="text-end pe-4">
                         <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="event.stopPropagation(); openChatFromSupervisor('${id}', '${escapeHtml(stu.name)}', 'student')">
-                            <i class="bi bi-chat-dots me-1"></i> Chat
+                            <i class="bi bi-chat-dots me-1"></i> Message
                         </button>
                         <i class="bi bi-chevron-down ms-2 text-muted"></i>
                       </td>
@@ -760,7 +733,7 @@
                             </div>
                         </div>
                       </td>
-                 <\/tr>
+                  </tr>
             `;
         });
     }
