@@ -16,22 +16,20 @@
         :root { --p-blue: #4361ee; --p-purple: #8b5cf6; --p-green: #10b981; --p-red: #ef4444; --p-orange: #f59e0b; --bg-light: #f8fafc; --dark-mode: #0f172a; }
         body { background: var(--bg-light); font-family: 'Inter', sans-serif; color: #1e293b; transition: background 0.3s, color 0.3s; }
         body.dark-mode { background: #0f172a; color: #e2e8f0; }
-        body.dark-mode .glass-card, body.dark-mode .material-card, body.dark-mode .nav-custom, body.dark-mode .stat-card, body.dark-mode .announcement-card, body.dark-mode .chat-container { background: #1e293b; border-color: #334155; color: #e2e8f0; }
-        body.dark-mode .bg-light { background: #334155 !important; }
-        body.dark-mode .chat-messages-area { background: #0f172a; }
-        body.dark-mode .chat-message.received { background: #334155; color: #e2e8f0; }
+        body.dark-mode .glass-card, body.dark-mode .material-card, body.dark-mode .nav-custom, body.dark-mode .stat-card, body.dark-mode .announcement-card { background: #1e293b; border-color: #334155; color: #e2e8f0; }
         .nav-custom { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 0; position: sticky; top: 0; z-index: 1000; }
         .header-box { background: linear-gradient(135deg, #1e293b 0%, #2d3a4a 100%); color: white; padding: 40px 0; border-radius: 0 0 40px 40px; margin-bottom: 40px; }
         .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 25px; box-shadow: 0 4px 12px -6px rgba(0,0,0,0.05); transition: all 0.3s; }
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
-        
-        /* SCANNER BOX */
         .scanner-box { background: #000; border-radius: 20px; overflow: hidden; position: relative; min-height: 300px; }
         #reader { width: 100% !important; min-height: 300px !important; }
-        #reader__dashboard_section_csr span { color: white !important; }
+        .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
+        .announcement-card { border-left: 4px solid var(--p-orange); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .material-card { border-left: 4px solid var(--p-blue); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #4361ee; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* CHAT STYLES */
         .chat-panel { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
         .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 12px 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .chat-contact-select { padding: 10px; border-bottom: 1px solid #ddd; background: #f9f9f9; }
@@ -48,16 +46,6 @@
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
         .chat-unread { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
-        
-        body.dark-mode .chat-panel { background: #1e293b; border-color: #334155; }
-        body.dark-mode .chat-messages { background: #0f172a; }
-        body.dark-mode .message-received { background: #334155; color: #e2e8f0; }
-        body.dark-mode .chat-contact-select { background: #1e293b; border-color: #334155; }
-        body.dark-mode .chat-contact-select select { background: #1e293b; color: white; border-color: #334155; }
-        
-        .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
-        .announcement-card { border-left: 4px solid var(--p-orange); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-        .material-card { border-left: 4px solid var(--p-blue); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
         @media (max-width: 640px) { .chat-panel { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
 </head>
@@ -77,8 +65,8 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h2 class="fw-bold mb-1">Welcome back, <span id="studentNameDisplay" class="text-warning">...</span></h2>
-                <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> Student ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
+                <h2 class="fw-bold mb-1">Welcome back, <span id="studentNameDisplay" class="text-warning">Loading...</span></h2>
+                <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> Student ID: <span id="studentIDDisplay" class="fw-bold">Loading...</span></p>
                 <p class="opacity-75 small mt-1"><i class="bi bi-person-circle me-1"></i> Supervisor: <span id="supervisorNameDisplay" class="fw-bold">Loading...</span></p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -99,9 +87,9 @@
     <div class="row g-4">
         <div class="col-lg-7">
             <h5 class="fw-bold mb-3"><i class="bi bi-grid-fill text-primary me-2"></i>Academic Performance</h5>
-            <div id="courseList" class="mb-4"></div>
+            <div id="courseList" class="mb-4"><div class="text-center py-4"><span class="loading-spinner"></span> Loading courses...</div></div>
             <h5 class="fw-bold mt-4 mb-3"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Grade Trend</h5>
-            <div class="glass-card mb-4"><canvas id="gradeTrendChart" style="height: 200px;"></canvas></div>
+            <div class="glass-card mb-4"><canvas id="gradeTrendChart" style="height: 200px; width: 100%;"></canvas></div>
             <h5 class="fw-bold mb-3"><i class="bi bi-heart-pulse-fill text-danger me-2"></i>Wellness Check</h5>
             <div class="glass-card">
                 <div id="wellnessResultArea" class="mb-4 p-3 rounded-4" style="display: none;">
@@ -145,17 +133,17 @@
             <!-- ATTENDANCE HISTORY -->
             <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>My Attendance History</h5>
             <div id="attendanceHistoryContainer" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
-                <div id="attendanceList"><div class="text-center py-3 text-muted small">Loading...</div></div>
+                <div id="attendanceList"><div class="text-center py-3 text-muted small">Loading attendance...</div></div>
             </div>
 
             <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i>Announcements</h5>
             <div id="announcementsList" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
-                <div class="text-center py-3 text-muted small">Loading...</div>
+                <div class="text-center py-3 text-muted small">Loading announcements...</div>
             </div>
 
             <h5 class="fw-bold mb-3"><i class="bi bi-collection-play-fill text-primary me-2"></i>Resources</h5>
             <div id="materialsList" class="glass-card p-3" style="max-height: 300px; overflow-y: auto;">
-                <div class="text-center py-3 text-muted small">Loading...</div>
+                <div class="text-center py-3 text-muted small">Loading resources...</div>
             </div>
         </div>
     </div>
@@ -191,9 +179,9 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    import { getDatabase, ref, set, get, serverTimestamp, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getDatabase, ref, set, get, serverTimestamp as rtdbServerTimestamp, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
@@ -209,10 +197,8 @@
     const auth = getAuth(app);
     const rtdb = getDatabase(app);
     
-    const activeID = sessionStorage.getItem("activeUser");
-    if (!activeID) window.location.href = "index.html";
-    
     let currentUserData = null;
+    let currentUserId = null;
     let gradeChart = null;
     let html5QrcodeScanner = null;
     let isProcessingScan = false;
@@ -227,14 +213,6 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
-    function playSound() {
-        try {
-            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-            audio.volume = 0.2;
-            audio.play().catch(e => console.log('Audio error'));
-        } catch(e) {}
-    }
-    
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371e3;
         const φ1 = lat1 * Math.PI / 180;
@@ -245,6 +223,234 @@
                   Math.cos(φ1) * Math.cos(φ2) *
                   Math.sin(Δλ/2) * Math.sin(Δλ/2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+    
+    // ============ AUTHENTICATION ============
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "index.html";
+            return;
+        }
+        
+        currentUserId = user.uid;
+        
+        const userDoc = await getDoc(doc(db, "users", currentUserId));
+        if (!userDoc.exists()) {
+            await signOut(auth);
+            window.location.href = "index.html";
+            return;
+        }
+        
+        currentUserData = userDoc.data();
+        if (currentUserData.role !== 'student') {
+            window.location.href = "index.html";
+            return;
+        }
+        
+        // Display user info
+        document.getElementById('studentNameDisplay').innerText = currentUserData.name || 'Student';
+        document.getElementById('studentIDDisplay').innerText = currentUserData.assignedID || currentUserId;
+        document.getElementById('profileName').innerText = currentUserData.name || 'Student';
+        document.getElementById('profileEmail').innerText = currentUserId;
+        
+        // Get supervisor name
+        if (currentUserData.supervisorEmail) {
+            const supervisorQuery = query(collection(db, "users"), where("email", "==", currentUserData.supervisorEmail));
+            const supervisorSnap = await getDocs(supervisorQuery);
+            if (!supervisorSnap.empty) {
+                document.getElementById('supervisorNameDisplay').innerHTML = supervisorSnap.docs[0].data().name || currentUserData.supervisorEmail;
+            } else {
+                document.getElementById('supervisorNameDisplay').innerHTML = currentUserData.supervisorEmail;
+            }
+        }
+        
+        // Wellness status
+        if (currentUserData.stressLevel) {
+            document.getElementById('stressLevel').innerHTML = currentUserData.stressLevel === 'CRITICAL' ? '⚠️' : (currentUserData.stressLevel === 'MEDIUM' ? '🟡' : '✅');
+            const resultArea = document.getElementById('wellnessResultArea');
+            resultArea.style.display = 'block';
+            let colorClass = currentUserData.stressLevel === 'CRITICAL' ? 'text-danger' : (currentUserData.stressLevel === 'MEDIUM' ? 'text-warning' : 'text-success');
+            document.getElementById('stressLevelLabel').innerHTML = currentUserData.stressLevel;
+            document.getElementById('stressLevelLabel').className = `fw-bold mb-0 ${colorClass}`;
+            document.getElementById('btnWellness').innerHTML = '<i class="bi bi-robot me-2"></i> Update Assessment';
+        }
+        
+        // Load all data
+        await loadAcademicData();
+        await loadAttendanceHistory();
+        await loadAnnouncements();
+        await loadMaterials();
+        await loadContacts();
+        
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    });
+    
+    // ============ ACADEMIC DATA ============
+    async function loadAcademicData() {
+        try {
+            const q = query(collection(db, "course_registrations"), where("studentID", "==", currentUserId));
+            const snap = await getDocs(q);
+            const container = document.getElementById('courseList');
+            
+            if (snap.empty) {
+                container.innerHTML = '<div class="alert alert-warning p-4 text-center small">No courses enrolled yet.</div>';
+                document.getElementById('totalCourses').innerText = '0';
+                document.getElementById('avgGrade').innerText = '0%';
+                return;
+            }
+            
+            let courses = [];
+            let totalMarks = 0;
+            let gradeData = [];
+            container.innerHTML = '';
+            
+            snap.forEach(doc => {
+                const data = doc.data();
+                const mark = parseFloat(data.totalMark) || 0;
+                courses.push(data.course);
+                totalMarks += mark;
+                gradeData.push({ course: data.course, mark: mark, grade: data.grade || '-' });
+                
+                container.innerHTML += `
+                    <div class="glass-card mb-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">${escapeHtml(data.course)}</h6>
+                            <span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning text-dark'} rounded-pill px-3">${data.status || 'Pending'}</span>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-primary">${mark}%</div>
+                            <div class="grade-circle shadow-sm mt-2">${data.grade || '-'}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('totalCourses').innerText = courses.length;
+            const avg = courses.length > 0 ? (totalMarks / courses.length).toFixed(1) : 0;
+            document.getElementById('avgGrade').innerText = avg + '%';
+            
+            // Update chart
+            if (gradeChart) gradeChart.destroy();
+            const ctx = document.getElementById('gradeTrendChart').getContext('2d');
+            gradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: gradeData.map(g => g.course.length > 15 ? g.course.substring(0, 12) + '...' : g.course),
+                    datasets: [{ label: 'Score (%)', data: gradeData.map(g => g.mark), backgroundColor: '#4361ee', borderRadius: 8 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        } catch (error) {
+            console.error('Error loading academic data:', error);
+            document.getElementById('courseList').innerHTML = '<div class="alert alert-danger p-4 text-center small">Error loading courses.</div>';
+        }
+    }
+    
+    // ============ ATTENDANCE HISTORY ============
+    async function loadAttendanceHistory() {
+        const attendanceRef = ref(rtdb, 'kehadiran_unimap');
+        onValue(attendanceRef, (snapshot) => {
+            const container = document.getElementById('attendanceList');
+            if (!snapshot.exists()) {
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                return;
+            }
+            
+            let records = [];
+            snapshot.forEach(dateSnap => {
+                const date = dateSnap.key;
+                const dayData = dateSnap.val();
+                if (dayData && dayData[currentUserId]) {
+                    records.push({ date: date, ...dayData[currentUserId] });
+                }
+            });
+            records.sort((a, b) => b.date.localeCompare(a.date));
+            
+            if (records.length === 0) {
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            records.slice(0, 10).forEach(rec => {
+                html += `
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="fw-bold small">📅 ${rec.date}</div>
+                                <div class="small text-muted">⏰ ${rec.masa || '--:--'}</div>
+                                <div class="small text-muted">📚 ${rec.course || '-'}</div>
+                            </div>
+                            <span class="badge bg-success">✅ Present</span>
+                        </div>
+                        <div class="small text-muted mt-1">📍 ${rec.distanceMeters ? rec.distanceMeters + 'm from coordinator' : 'Verified'}</div>
+                        <div class="small text-muted">✅ Verified by: ${rec.verifiedBy || 'Coordinator'}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.getElementById('unreadCount').innerText = records.length;
+        });
+    }
+    
+    // ============ ANNOUNCEMENTS ============
+    async function loadAnnouncements() {
+        const q = query(collection(db, "notifications"), where("studentID", "==", currentUserId), orderBy("timestamp", "desc"), limit(20));
+        onSnapshot(q, (snapshot) => {
+            const container = document.getElementById('announcementsList');
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No announcements yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now';
+                html += `
+                    <div class="announcement-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold small">📢 ${escapeHtml(data.sender || 'System')}</span>
+                            <small class="text-muted">${date}</small>
+                        </div>
+                        <div class="small" style="white-space: pre-wrap;">${escapeHtml(data.message)}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+    
+    // ============ RESOURCES ============
+    async function loadMaterials() {
+        try {
+            const q = query(collection(db, "materials"), orderBy("datePosted", "desc"));
+            const snap = await getDocs(q);
+            const container = document.getElementById('materialsList');
+            if (snap.empty) {
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No resources yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            snap.forEach(doc => {
+                const data = doc.data();
+                html += `
+                    <div class="material-card">
+                        <div class="fw-bold mb-1">📄 ${escapeHtml(data.title)}</div>
+                        <a href="${escapeHtml(data.content)}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-2 w-100">Open Resource</a>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Error loading materials:', error);
+            document.getElementById('materialsList').innerHTML = '<div class="text-center py-3 text-muted small">Error loading resources.</div>';
+        }
     }
     
     // ============ SCANNER FUNCTIONS ============
@@ -264,7 +470,6 @@
     
     async function processScannedQR(decodedText) {
         if (isProcessingScan) return;
-        
         isProcessingScan = true;
         
         try {
@@ -279,12 +484,10 @@
                 throw new Error('Not an attendance QR code');
             }
             
-            // Check if expired (30 seconds)
             if (Date.now() - qrData.timestamp > 30000) {
                 throw new Error('QR code expired. Please ask coordinator to refresh.');
             }
             
-            // Get student location
             let studentLocation;
             try {
                 studentLocation = await getCurrentLocation();
@@ -293,7 +496,6 @@
                 throw new Error('Unable to get your location. Please enable GPS.');
             }
             
-            // Calculate distance
             const distance = calculateDistance(
                 qrData.coordinatorLat, qrData.coordinatorLng,
                 studentLocation.lat, studentLocation.lng
@@ -305,24 +507,22 @@
                 throw new Error(`You are ${distance.toFixed(1)}m away. Must be within ${requiredRadius}m.`);
             }
             
-            // Check if already marked today
             const todayStr = new Date().toISOString().split('T')[0];
-            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${activeID}`);
+            const checkRef = ref(rtdb, `kehadiran_unimap/${todayStr}/${currentUserId}`);
             const checkSnap = await get(checkRef);
             
             if (checkSnap.exists()) {
                 throw new Error('Already marked present today!');
             }
             
-            // Record attendance
             const currentTime = new Date().toLocaleTimeString('ms-MY');
             
-            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${activeID}`), {
-                studentID: activeID,
+            await set(ref(rtdb, `kehadiran_unimap/${todayStr}/${currentUserId}`), {
+                studentID: currentUserId,
                 studentName: currentUserData.name || 'Student',
                 course: qrData.course,
                 masa: currentTime,
-                timestamp: serverTimestamp(),
+                timestamp: rtdbServerTimestamp(),
                 verifiedBy: qrData.coordinatorName || 'Coordinator',
                 verifiedById: qrData.coordinatorId,
                 distanceMeters: distance.toFixed(2),
@@ -341,7 +541,7 @@
                 showConfirmButton: false
             });
             
-            listenForMyAttendance();
+            loadAttendanceHistory();
             
         } catch (error) {
             document.getElementById('scanStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> ${error.message}`;
@@ -353,7 +553,6 @@
     
     async function startScanner() {
         try {
-            // Request camera permission first
             await navigator.mediaDevices.getUserMedia({ video: true });
             
             if (html5QrcodeScanner) {
@@ -367,8 +566,7 @@
                 fps: 10, 
                 qrbox: { width: 250, height: 250 }, 
                 aspectRatio: 1.0,
-                rememberLastUsedCamera: true,
-                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+                rememberLastUsedCamera: true
             });
             
             await html5QrcodeScanner.render(
@@ -395,114 +593,32 @@
         if (readerDiv) readerDiv.innerHTML = '';
     }
     
-    // ============ LISTEN FOR ATTENDANCE UPDATES ============
-    function listenForMyAttendance() {
-        const attendanceRef = ref(rtdb, `kehadiran_unimap`);
-        onValue(attendanceRef, (snapshot) => {
-            const container = document.getElementById('attendanceList');
-            if (!snapshot.exists()) { 
-                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
-                return; 
-            }
-            
-            let myRecords = [];
-            snapshot.forEach(dateSnap => {
-                const date = dateSnap.key;
-                const dayData = dateSnap.val();
-                if (dayData && dayData[activeID]) {
-                    myRecords.push({ date: date, ...dayData[activeID] });
+    // ============ CHAT FUNCTIONS ============
+    async function loadContacts() {
+        try {
+            const usersSnap = await getDocs(collection(db, "users"));
+            allContacts = [];
+            usersSnap.forEach(doc => {
+                const data = doc.data();
+                if (doc.id !== currentUserId && data.role !== 'admin' && data.role !== 'student') {
+                    allContacts.push({
+                        id: doc.id,
+                        name: data.name || doc.id.split('@')[0],
+                        role: data.role
+                    });
                 }
             });
-            myRecords.sort((a, b) => b.date.localeCompare(a.date));
             
-            if (myRecords.length === 0) {
-                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
-                return;
-            }
-            
-            let html = '';
-            myRecords.slice(0, 10).forEach(rec => {
-                html += `
-                    <div class="border-bottom pb-2 mb-2">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <div class="fw-bold small">📅 ${rec.date}</div>
-                                <div class="small text-muted">⏰ ${rec.masa || '--:--'}</div>
-                                <div class="small text-muted">📚 ${rec.course || '-'}</div>
-                            </div>
-                            <span class="badge bg-success">✅ Present</span>
-                        </div>
-                        <div class="small text-muted mt-1">📍 ${rec.distanceMeters ? rec.distanceMeters + 'm from coordinator' : 'Verified'}</div>
-                    </div>
-                `;
+            const select = document.getElementById('contactSelect');
+            select.innerHTML = '<option value="">-- Select Contact --</option>';
+            allContacts.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${roleNames[c.role] || c.role})</option>`;
             });
-            container.innerHTML = html;
-            document.getElementById('unreadCount').innerText = myRecords.length;
-        });
-    }
-    
-    // ============ INIT ============
-    async function initUser() {
-        const userDoc = await getDoc(doc(db, "users", activeID));
-        if (!userDoc.exists()) { logout(); return; }
-        
-        currentUserData = userDoc.data();
-        if (currentUserData.role !== 'student') { window.location.href = "index.html"; return; }
-        if (currentUserData.registrationStatus !== 'complete') { window.location.href = "register_course.html"; return; }
-        
-        if (currentUserData.supervisorEmail) {
-            const supervisorQuery = query(collection(db, "users"), where("email", "==", currentUserData.supervisorEmail));
-            const supervisorSnap = await getDocs(supervisorQuery);
-            if (!supervisorSnap.empty) {
-                document.getElementById('supervisorNameDisplay').innerHTML = supervisorSnap.docs[0].data().name || currentUserData.supervisorEmail;
-            }
+        } catch (error) {
+            console.error('Error loading contacts:', error);
         }
-        
-        document.getElementById('studentNameDisplay').innerText = currentUserData.name || 'Student';
-        document.getElementById('studentIDDisplay').innerText = currentUserData.assignedID || activeID;
-        document.getElementById('profileName').innerText = currentUserData.name || 'Student';
-        document.getElementById('profileEmail').innerText = activeID;
-        
-        if (currentUserData.stressLevel) {
-            document.getElementById('stressLevel').innerHTML = currentUserData.stressLevel === 'CRITICAL' ? '⚠️' : (currentUserData.stressLevel === 'MEDIUM' ? '🟡' : '✅');
-            const resultArea = document.getElementById('wellnessResultArea');
-            resultArea.style.display = 'block';
-            let colorClass = currentUserData.stressLevel === 'CRITICAL' ? 'text-danger' : (currentUserData.stressLevel === 'MEDIUM' ? 'text-warning' : 'text-success');
-            document.getElementById('stressLevelLabel').innerHTML = currentUserData.stressLevel;
-            document.getElementById('stressLevelLabel').className = `fw-bold mb-0 ${colorClass}`;
-            document.getElementById('btnWellness').innerHTML = '<i class="bi bi-robot me-2"></i> Update Assessment';
-        }
-        
-        loadAcademicData();
-        listenForMyAttendance();
-        loadAnnouncements();
-        loadMaterials();
-        await loadContacts();
     }
     
-    // ============ LOAD CONTACTS FOR CHAT ============
-    async function loadContacts() {
-        const usersSnap = await getDocs(collection(db, "users"));
-        allContacts = [];
-        usersSnap.forEach(doc => {
-            const data = doc.data();
-            if (doc.id !== activeID && data.role !== 'admin' && data.role !== 'student') {
-                allContacts.push({
-                    id: doc.id,
-                    name: data.name || doc.id.split('@')[0],
-                    role: data.role
-                });
-            }
-        });
-        
-        const select = document.getElementById('contactSelect');
-        select.innerHTML = '<option value="">-- Select Contact --</option>';
-        allContacts.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${roleNames[c.role] || c.role})</option>`;
-        });
-    }
-    
-    // ============ LOAD MESSAGES ============
     window.loadMessages = () => {
         const select = document.getElementById('contactSelect');
         if (!select.value) {
@@ -517,7 +633,7 @@
         
         if (messageUnsubscribe) messageUnsubscribe();
         
-        const chatId = [activeID, currentContact.id].sort().join('_');
+        const chatId = [currentUserId, currentContact.id].sort().join('_');
         const messagesRef = collection(db, "chat_messages", chatId, "msgs");
         const q = query(messagesRef, orderBy("timestamp", "asc"));
         
@@ -531,7 +647,7 @@
             let html = '';
             snapshot.forEach(docSnap => {
                 const msg = docSnap.data();
-                const isSent = msg.senderId === activeID;
+                const isSent = msg.senderId === currentUserId;
                 const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
                 
                 html += `
@@ -557,7 +673,6 @@
         document.getElementById('messageInput').focus();
     };
     
-    // ============ SEND MESSAGE ============
     window.sendMessage = async () => {
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
@@ -565,10 +680,10 @@
         
         input.value = '';
         
-        const chatId = [activeID, currentContact.id].sort().join('_');
+        const chatId = [currentUserId, currentContact.id].sort().join('_');
         await addDoc(collection(db, "chat_messages", chatId, "msgs"), {
             text: message,
-            senderId: activeID,
+            senderId: currentUserId,
             senderName: currentUserData.name || 'Student',
             receiverId: currentContact.id,
             timestamp: serverTimestamp(),
@@ -578,7 +693,7 @@
         await addDoc(collection(db, "notifications"), {
             userID: currentContact.id,
             message: `💬 New message from ${currentUserData.name || 'Student'}: "${message.substring(0, 50)}"`,
-            sender: activeID,
+            sender: currentUserId,
             type: "chat",
             status: "unread",
             timestamp: serverTimestamp()
@@ -601,90 +716,6 @@
         }
     };
     
-    // ============ ACADEMIC DATA ============
-    async function loadAcademicData() {
-        const q = query(collection(db, "course_registrations"), where("studentID", "==", activeID));
-        const snap = await getDocs(q);
-        const container = document.getElementById('courseList');
-        
-        if (snap.empty) {
-            container.innerHTML = '<div class="alert alert-warning p-4 text-center small">No courses enrolled.</div>';
-            document.getElementById('totalCourses').innerText = '0';
-            document.getElementById('avgGrade').innerText = '0%';
-            return;
-        }
-        
-        container.innerHTML = '';
-        let totalMarks = 0, courses = [];
-        
-        snap.forEach(doc => {
-            const data = doc.data();
-            const mark = parseFloat(data.totalMark) || 0;
-            courses.push(data.course);
-            totalMarks += mark;
-            
-            container.innerHTML += `
-                <div class="glass-card mb-3 d-flex justify-content-between align-items-center">
-                    <div><h6 class="fw-bold mb-1">${escapeHtml(data.course)}</h6><span class="badge ${data.status === 'Marked' ? 'bg-success' : 'bg-warning'} rounded-pill">${data.status || 'Pending'}</span></div>
-                    <div class="text-end"><div class="fw-bold text-primary">${mark}%</div><div class="grade-circle shadow-sm mt-2">${data.grade || '-'}</div></div>
-                </div>
-            `;
-        });
-        
-        document.getElementById('totalCourses').innerText = courses.length;
-        const avg = courses.length > 0 ? (totalMarks / courses.length).toFixed(1) : 0;
-        document.getElementById('avgGrade').innerText = avg + '%';
-        
-        if (gradeChart) gradeChart.destroy();
-        const ctx = document.getElementById('gradeTrendChart').getContext('2d');
-        gradeChart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: courses.map(c => c.length > 12 ? c.substring(0, 10) + '...' : c), datasets: [{ label: 'Score (%)', data: courses.map((_, i) => 0), backgroundColor: '#4361ee' }] },
-            options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, max: 100 } } }
-        });
-        
-        // Update chart with real data
-        let gradeData = [];
-        snap.forEach(doc => {
-            const data = doc.data();
-            gradeData.push({ course: data.course, mark: parseFloat(data.totalMark) || 0 });
-        });
-        gradeChart.data.datasets[0].data = gradeData.map(g => g.mark);
-        gradeChart.update();
-    }
-    
-    // ============ ANNOUNCEMENTS ============
-    async function loadAnnouncements() {
-        const q = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc"), limit(20));
-        onSnapshot(q, (snapshot) => {
-            const container = document.getElementById('announcementsList');
-            if (snapshot.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No announcements.</div>'; return; }
-            
-            let html = '';
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const date = data.timestamp?.toDate().toLocaleDateString() || 'Just now';
-                html += `<div class="announcement-card"><div class="fw-bold small mb-1">📢 ${escapeHtml(data.sender || 'System')}</div><div class="small">${escapeHtml(data.message)}</div><small class="text-muted">${date}</small></div>`;
-            });
-            container.innerHTML = html;
-        });
-    }
-    
-    // ============ RESOURCES ============
-    async function loadMaterials() {
-        const q = query(collection(db, "materials"), orderBy("datePosted", "desc"));
-        const snap = await getDocs(q);
-        const container = document.getElementById('materialsList');
-        if (snap.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No resources.</div>'; return; }
-        
-        let html = '';
-        snap.forEach(doc => {
-            const data = doc.data();
-            html += `<div class="material-card"><div class="fw-bold mb-1">📄 ${escapeHtml(data.title)}</div><a href="${escapeHtml(data.content)}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill mt-2 w-100">Open</a></div>`;
-        });
-        container.innerHTML = html;
-    }
-    
     // ============ WELLNESS ============
     window.openWellnessAssessment = async () => {
         const questions = ["Feeling overwhelmed by workload?", "Having difficulty sleeping?", "Lost interest in studies?", "Worried about failing?", "Feeling isolated?"];
@@ -706,10 +737,14 @@
         let result = score >= 11 ? "CRITICAL" : (score >= 6 ? "MEDIUM" : "NORMAL");
         const icon = result === "CRITICAL" ? 'error' : (result === "MEDIUM" ? 'warning' : 'success');
         
-        await setDoc(doc(db, "assessments", activeID), {
-            studentID: activeID, studentName: currentUserData.name, score: score, riskLevel: result, timestamp: serverTimestamp()
+        await setDoc(doc(db, "assessments", currentUserId), {
+            studentID: currentUserId,
+            studentName: currentUserData.name,
+            score: score,
+            riskLevel: result,
+            timestamp: serverTimestamp()
         });
-        await updateDoc(doc(db, "users", activeID), { stressLevel: result });
+        await updateDoc(doc(db, "users", currentUserId), { stressLevel: result });
         
         Swal.fire({ icon: icon, title: `Status: ${result}`, text: `Score: ${score}/15` });
         location.reload();
@@ -718,7 +753,7 @@
     window.viewProfile = () => {
         Swal.fire({
             title: 'Profile',
-            html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>ID:</strong> ${currentUserData.assignedID || activeID}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`,
+            html: `<div class="text-start"><strong>Name:</strong> ${currentUserData.name}<br><strong>ID:</strong> ${currentUserData.assignedID || currentUserId}<br><strong>Supervisor:</strong> ${currentUserData.supervisorEmail || 'Not assigned'}</div>`,
             icon: 'info'
         });
     };
@@ -727,10 +762,6 @@
     if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
     
     window.logout = async () => { if (html5QrcodeScanner) html5QrcodeScanner.clear(); if (messageUnsubscribe) messageUnsubscribe(); await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
-    
-    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    initUser();
 </script>
 </body>
 </html>
