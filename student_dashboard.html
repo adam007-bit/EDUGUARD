@@ -28,7 +28,7 @@
         .glass-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
         
-        /* SIMPLE WORKING CHAT - ONE SYSTEM */
+        /* CHAT STYLES */
         .chat-panel { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
         .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 12px 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .chat-contact-select { padding: 10px; border-bottom: 1px solid #ddd; background: #f9f9f9; }
@@ -122,10 +122,10 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
             </div>
 
-            <!-- SECURE QR CODE WITH LOCATION -->
+            <!-- ATTENDANCE QR CODE - READY FOR SCANNER -->
             <h5 class="fw-bold mb-3"><i class="bi bi-qr-code-scan text-primary me-2"></i>Attendance QR</h5>
             <div class="glass-card text-center mb-4">
-                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Dynamic QR with Location</span></div>
+                <div class="mb-2"><span class="secure-badge"><i class="bi bi-shield-check me-1"></i> Scan this QR at coordinator's device</span></div>
                 <div id="studentQRCode" class="d-flex justify-content-center mb-3"><div id="qrcodeContainer"></div></div>
                 <div id="qrTimerDisplay" class="mt-2 small"></div>
                 <div id="gpsStatus" class="gps-status text-muted small">Getting GPS location...</div>
@@ -133,7 +133,8 @@
                 <button class="btn btn-outline-success btn-sm rounded-pill mt-2 ms-2" onclick="downloadQR()"><i class="bi bi-download me-1"></i> Save QR</button>
             </div>
 
-            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Attendance History</h5>
+            <!-- ATTENDANCE HISTORY -->
+            <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>My Attendance History</h5>
             <div id="attendanceHistoryContainer" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
                 <div id="attendanceList"><div class="text-center py-3 text-muted small">Loading...</div></div>
             </div>
@@ -151,13 +152,13 @@
     </div>
 </div>
 
-<!-- SIMPLE FLOATING CHAT BUTTON -->
+<!-- FLOATING CHAT BUTTON -->
 <div class="floating-chat-btn" onclick="toggleChat()">
     <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
     <span id="unreadBadge" class="chat-unread" style="display: none;">0</span>
 </div>
 
-<!-- SIMPLE CHAT WINDOW -->
+<!-- CHAT WINDOW -->
 <div id="chatPanel" class="chat-panel">
     <div class="chat-header">
         <span><i class="bi bi-chat-dots me-2"></i> Messages</span>
@@ -263,13 +264,14 @@
             const location = await getCurrentLocation();
             currentLocation = location;
             const studentId = currentUserData?.assignedID || activeID;
+            const studentName = currentUserData?.name || 'Student';
             const timestamp = Date.now();
             const timeSlot = Math.floor(timestamp / 30000);
             const hashBase = `${studentId}_${timeSlot}_${location.lat}_${location.lng}`;
             const hash = generateSecureHash(hashBase).substring(0, 16);
             
-            // Format: studentId|lat|lng|timestamp|hash
-            const qrData = `${studentId}|${location.lat.toFixed(6)}|${location.lng.toFixed(6)}|${timestamp}|${hash}`;
+            // Format: studentId|studentName|lat|lng|timestamp|hash
+            const qrData = `${studentId}|${studentName}|${location.lat.toFixed(6)}|${location.lng.toFixed(6)}|${timestamp}|${hash}`;
             
             const qrContainer = document.getElementById('qrcodeContainer');
             qrContainer.innerHTML = '';
@@ -285,7 +287,7 @@
                 }
             });
             
-            document.getElementById('gpsStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success"></i> Location: ${location.lat.toFixed(4)}°, ${location.lng.toFixed(4)}° (acc: ${Math.round(location.accuracy)}m)`;
+            document.getElementById('gpsStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success"></i> Location ready - Show this QR to coordinator`;
             updateQRCountdown();
             
         } catch (error) {
@@ -293,8 +295,9 @@
             document.getElementById('gpsStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger"></i> GPS error. Please enable location services.`;
             // Fallback QR without location
             const studentId = currentUserData?.assignedID || activeID;
+            const studentName = currentUserData?.name || 'Student';
             const timestamp = Date.now();
-            const qrData = `${studentId}|0|0|${timestamp}|fallback`;
+            const qrData = `${studentId}|${studentName}|0|0|${timestamp}|fallback`;
             const qrContainer = document.getElementById('qrcodeContainer');
             qrContainer.innerHTML = '';
             QRCode.toCanvas(document.createElement('canvas'), qrData, { width: 180, margin: 2 }, (error, canvas) => {
@@ -325,6 +328,54 @@
     function stopSecureQR() { if (qrInterval) clearInterval(qrInterval); }
     window.refreshQRWithLocation = () => { generateSecureQRWithLocation(); Swal.fire({ toast: true, icon: 'success', title: 'QR Refreshed!', timer: 1500, showConfirmButton: false }); };
     window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `Attendance_QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); Swal.fire({ toast: true, icon: 'success', title: 'QR Saved!', timer: 1500, showConfirmButton: false }); } };
+    
+    // ============ LISTEN FOR ATTENDANCE UPDATES ============
+    function listenForMyAttendance() {
+        const attendanceRef = ref(rtdb, `kehadiran_unimap`);
+        onValue(attendanceRef, (snapshot) => {
+            const container = document.getElementById('attendanceList');
+            if (!snapshot.exists()) { 
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                return; 
+            }
+            
+            let myRecords = [];
+            snapshot.forEach(dateSnap => {
+                const date = dateSnap.key;
+                const dayData = dateSnap.val();
+                if (dayData && dayData[activeID]) {
+                    myRecords.push({ date: date, ...dayData[activeID] });
+                }
+            });
+            myRecords.sort((a, b) => b.date.localeCompare(a.date));
+            
+            if (myRecords.length === 0) {
+                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                return;
+            }
+            
+            let html = '';
+            myRecords.slice(0, 10).forEach(rec => {
+                html += `
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="fw-bold small">📅 ${rec.date}</div>
+                                <div class="small text-muted">⏰ ${rec.masa || '--:--'}</div>
+                            </div>
+                            <span class="badge bg-success">✅ Present</span>
+                        </div>
+                        <div class="small text-muted mt-1">📍 ${rec.lokasi || 'Campus'}</div>
+                        <div class="small text-muted">✅ Verified by: ${rec.verifiedBy || 'Coordinator'}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            // Update unread count badge
+            document.getElementById('unreadCount').innerText = myRecords.length;
+        });
+    }
     
     // ============ INIT ============
     async function initUser() {
@@ -360,7 +411,7 @@
         
         startSecureQR();
         loadAcademicData();
-        loadAttendanceHistory();
+        listenForMyAttendance(); // Listen for attendance updates
         loadAnnouncements();
         loadMaterials();
         await loadContacts();
@@ -528,32 +579,6 @@
             type: 'bar',
             data: { labels: gradeData.map(g => g.course.length > 12 ? g.course.substring(0, 10) + '...' : g.course), datasets: [{ label: 'Score (%)', data: gradeData.map(g => g.mark), backgroundColor: '#4361ee' }] },
             options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, max: 100 } } }
-        });
-    }
-    
-    // ============ ATTENDANCE HISTORY ============
-    function loadAttendanceHistory() {
-        const attendanceRef = ref(rtdb, 'kehadiran_unimap');
-        onValue(attendanceRef, (snapshot) => {
-            const container = document.getElementById('attendanceList');
-            if (!snapshot.exists()) { container.innerHTML = '<div class="text-center py-3 text-muted small">No records.</div>'; return; }
-            
-            let records = [];
-            snapshot.forEach(dateSnap => {
-                const date = dateSnap.key;
-                const dayData = dateSnap.val();
-                if (dayData && dayData[activeID]) records.push({ date, ...dayData[activeID] });
-            });
-            records.sort((a, b) => b.date.localeCompare(a.date));
-            
-            if (records.length === 0) { container.innerHTML = '<div class="text-center py-3 text-muted small">No records.</div>'; return; }
-            
-            let html = '';
-            records.slice(0, 10).forEach(rec => {
-                const distanceInfo = rec.distanceMeters ? ` • ${rec.distanceMeters}m from coordinator` : '';
-                html += `<div class="border-bottom pb-2 mb-2"><div class="d-flex justify-content-between"><div><div class="fw-bold small">📅 ${rec.date}</div><div class="small text-muted">⏰ ${rec.masa || '--:--'}</div></div><span class="badge bg-success">✅ Present</span></div><div class="small text-muted">📍 ${rec.lokasi || 'Kampus'}${distanceInfo}</div></div>`;
-            });
-            container.innerHTML = html;
         });
     }
     
