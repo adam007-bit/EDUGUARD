@@ -122,7 +122,7 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
             </div>
 
-            <!-- SCANNER SECTION - REPLACED QR CODE -->
+            <!-- SCANNER SECTION -->
             <h5 class="fw-bold mb-3"><i class="bi bi-upc-scan text-primary me-2"></i>Scan Attendance</h5>
             <div class="glass-card text-center mb-4">
                 <div class="mb-2"><span class="badge bg-primary"><i class="bi bi-camera me-1"></i> Point camera at coordinator's QR code</span></div>
@@ -130,13 +130,13 @@
                     <div id="reader" style="width: 100%;"></div>
                 </div>
                 <div id="scanStatus" class="mt-3 small text-muted">
-                    <i class="bi bi-info-circle me-1"></i> Waiting for QR code...
+                    <i class="bi bi-info-circle me-1"></i> Click "Start Camera" to begin
                 </div>
                 <div class="mt-3">
-                    <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="startScanner()">
+                    <button class="btn btn-success btn-sm rounded-pill" onclick="startScanner()">
                         <i class="bi bi-play-fill me-1"></i> Start Camera
                     </button>
-                    <button class="btn btn-outline-danger btn-sm rounded-pill ms-2" onclick="stopScanner()">
+                    <button class="btn btn-danger btn-sm rounded-pill ms-2" onclick="stopScanner()">
                         <i class="bi bi-stop-fill me-1"></i> Stop Camera
                     </button>
                 </div>
@@ -193,7 +193,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    import { getDatabase, ref, set, get, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+    import { getDatabase, ref, set, get, serverTimestamp, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
@@ -263,55 +263,37 @@
     }
     
     async function processScannedQR(decodedText) {
-        if (isProcessingScan) {
-            console.log('Already processing');
-            return;
-        }
+        if (isProcessingScan) return;
         
         isProcessingScan = true;
         
         try {
-            // Parse QR data (JSON from coordinator)
             let qrData;
             try {
                 qrData = JSON.parse(decodedText);
             } catch (e) {
-                // Try alternative format
-                if (decodedText.includes('|')) {
-                    const parts = decodedText.split('|');
-                    qrData = {
-                        type: "attendance",
-                        sessionId: parts[0],
-                        course: parts[1],
-                        coordinatorLat: parseFloat(parts[2]),
-                        coordinatorLng: parseFloat(parts[3]),
-                        radius: 20,
-                        timestamp: parseInt(parts[4])
-                    };
-                } else {
-                    throw new Error('Invalid QR format');
-                }
+                throw new Error('Invalid QR code format');
             }
             
             if (qrData.type !== 'attendance') {
                 throw new Error('Not an attendance QR code');
             }
             
-            // Check if QR is expired (30 seconds)
+            // Check if expired (30 seconds)
             if (Date.now() - qrData.timestamp > 30000) {
                 throw new Error('QR code expired. Please ask coordinator to refresh.');
             }
             
-            // Get student's current location
+            // Get student location
             let studentLocation;
             try {
                 studentLocation = await getCurrentLocation();
-                document.getElementById('scanStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success me-1"></i> Location obtained: ${studentLocation.lat.toFixed(4)}°, ${studentLocation.lng.toFixed(4)}°`;
+                document.getElementById('scanStatus').innerHTML = `<i class="bi bi-geo-alt-fill text-success me-1"></i> Location obtained`;
             } catch (gpsError) {
                 throw new Error('Unable to get your location. Please enable GPS.');
             }
             
-            // Calculate distance to coordinator
+            // Calculate distance
             const distance = calculateDistance(
                 qrData.coordinatorLat, qrData.coordinatorLng,
                 studentLocation.lat, studentLocation.lng
@@ -320,7 +302,7 @@
             const requiredRadius = qrData.radius || 20;
             
             if (distance > requiredRadius) {
-                throw new Error(`You are ${distance.toFixed(1)}m away. Must be within ${requiredRadius}m of coordinator.`);
+                throw new Error(`You are ${distance.toFixed(1)}m away. Must be within ${requiredRadius}m.`);
             }
             
             // Check if already marked today
@@ -329,7 +311,7 @@
             const checkSnap = await get(checkRef);
             
             if (checkSnap.exists()) {
-                throw new Error('You have already been marked present today!');
+                throw new Error('Already marked present today!');
             }
             
             // Record attendance
@@ -349,59 +331,58 @@
                 method: "STUDENT_SCAN"
             });
             
-            // Also update session scans if sessionId provided
-            if (qrData.sessionId) {
-                await push(ref(rtdb, `active_sessions/${qrData.sessionId}/scans`), {
-                    studentId: activeID,
-                    studentName: currentUserData.name || 'Student',
-                    distance: distance.toFixed(2),
-                    timestamp: serverTimestamp()
-                });
-            }
-            
-            document.getElementById('scanStatus').innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> ✅ Attendance recorded! (${distance.toFixed(1)}m from coordinator)`;
+            document.getElementById('scanStatus').innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> ✅ Attendance recorded! (${distance.toFixed(1)}m)`;
             
             Swal.fire({
                 icon: 'success',
                 title: 'Attendance Recorded!',
-                html: `You are <strong>${distance.toFixed(1)}m</strong> from coordinator.<br>Course: ${qrData.course}`,
+                html: `Distance: ${distance.toFixed(1)}m<br>Course: ${qrData.course}`,
                 timer: 3000,
                 showConfirmButton: false
             });
             
-            // Refresh attendance history
             listenForMyAttendance();
             
         } catch (error) {
-            console.error('Scan error:', error);
             document.getElementById('scanStatus').innerHTML = `<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> ${error.message}`;
-            Swal.fire({ icon: 'error', title: 'Attendance Failed', text: error.message, timer: 3000, showConfirmButton: false });
+            Swal.fire({ icon: 'error', title: 'Failed', text: error.message, timer: 3000, showConfirmButton: false });
         } finally {
             setTimeout(() => { isProcessingScan = false; }, 3000);
         }
     }
     
-    function startScanner() {
-        if (html5QrcodeScanner) {
-            html5QrcodeScanner.clear();
-            html5QrcodeScanner = null;
+    async function startScanner() {
+        try {
+            // Request camera permission first
+            await navigator.mediaDevices.getUserMedia({ video: true });
+            
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+            }
+            
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-camera me-1"></i> Starting camera...';
+            
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 }, 
+                aspectRatio: 1.0,
+                rememberLastUsedCamera: true,
+                supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+            });
+            
+            await html5QrcodeScanner.render(
+                (decodedText) => processScannedQR(decodedText),
+                (error) => { /* silent */ }
+            );
+            
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-upc-scan me-1"></i> Camera active - Scan QR code';
+            
+        } catch (err) {
+            console.error('Camera error:', err);
+            document.getElementById('scanStatus').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Camera access denied. Please allow camera permissions.';
+            Swal.fire({ icon: 'error', title: 'Camera Error', text: 'Unable to access camera. Please check permissions.' });
         }
-        
-        document.getElementById('scanStatus').innerHTML = '<i class="bi bi-camera me-1"></i> Starting camera...';
-        
-        html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-            fps: 10, 
-            qrbox: { width: 280, height: 280 }, 
-            aspectRatio: 1.0,
-            rememberLastUsedCamera: true
-        });
-        
-        html5QrcodeScanner.render(
-            (decodedText) => { processScannedQR(decodedText); },
-            (error) => { console.log('Scan error:', error); }
-        );
-        
-        document.getElementById('scanStatus').innerHTML = '<i class="bi bi-upc-scan me-1"></i> Camera active - Point at coordinator\'s QR code';
     }
     
     function stopScanner() {
@@ -452,7 +433,6 @@
                             <span class="badge bg-success">✅ Present</span>
                         </div>
                         <div class="small text-muted mt-1">📍 ${rec.distanceMeters ? rec.distanceMeters + 'm from coordinator' : 'Verified'}</div>
-                        <div class="small text-muted">✅ Verified by: ${rec.verifiedBy || 'Coordinator'}</div>
                     </div>
                 `;
             });
@@ -498,9 +478,6 @@
         loadAnnouncements();
         loadMaterials();
         await loadContacts();
-        
-        // Auto-start scanner
-        setTimeout(() => startScanner(), 1000);
     }
     
     // ============ LOAD CONTACTS FOR CHAT ============
@@ -521,7 +498,7 @@
         const select = document.getElementById('contactSelect');
         select.innerHTML = '<option value="">-- Select Contact --</option>';
         allContacts.forEach(c => {
-            select.innerHTML += `<option value="${c.id}" data-role="${c.role}">${escapeHtml(c.name)} (${roleNames[c.role] || c.role})</option>`;
+            select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${roleNames[c.role] || c.role})</option>`;
         });
     }
     
@@ -637,15 +614,14 @@
             return;
         }
         
-        let courses = [], totalMarks = 0, gradeData = [];
         container.innerHTML = '';
+        let totalMarks = 0, courses = [];
         
         snap.forEach(doc => {
             const data = doc.data();
             const mark = parseFloat(data.totalMark) || 0;
             courses.push(data.course);
             totalMarks += mark;
-            gradeData.push({ course: data.course, mark: mark, grade: data.grade || '-' });
             
             container.innerHTML += `
                 <div class="glass-card mb-3 d-flex justify-content-between align-items-center">
@@ -663,9 +639,18 @@
         const ctx = document.getElementById('gradeTrendChart').getContext('2d');
         gradeChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: gradeData.map(g => g.course.length > 12 ? g.course.substring(0, 10) + '...' : g.course), datasets: [{ label: 'Score (%)', data: gradeData.map(g => g.mark), backgroundColor: '#4361ee' }] },
+            data: { labels: courses.map(c => c.length > 12 ? c.substring(0, 10) + '...' : c), datasets: [{ label: 'Score (%)', data: courses.map((_, i) => 0), backgroundColor: '#4361ee' }] },
             options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, max: 100 } } }
         });
+        
+        // Update chart with real data
+        let gradeData = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            gradeData.push({ course: data.course, mark: parseFloat(data.totalMark) || 0 });
+        });
+        gradeChart.data.datasets[0].data = gradeData.map(g => g.mark);
+        gradeChart.update();
     }
     
     // ============ ANNOUNCEMENTS ============
