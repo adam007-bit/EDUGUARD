@@ -29,7 +29,7 @@
         .stat-card { background: white; border-radius: 16px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; }
         
         /* Chat Styles */
-        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 380px; height: 520px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
         .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 15px 20px; font-weight: 700; cursor: pointer; }
         .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
         .chat-message { max-width: 85%; display: flex; flex-direction: column; }
@@ -40,11 +40,13 @@
         .chat-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
         .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 10px; }
-        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; }
-        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; }
+        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; outline: none; }
+        .chat-input:focus { border-color: var(--p-blue); }
+        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; transition: 0.2s; }
+        .chat-send-btn:hover { background: var(--p-purple); transform: scale(1.02); }
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
-        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .typing-indicator { font-size: 11px; color: #94a3b8; padding: 5px 15px; font-style: italic; }
         
         .grade-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: var(--p-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
@@ -52,6 +54,8 @@
         .secure-badge { background: #10b981; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 30px; display: inline-block; margin-bottom: 8px; }
         .announcement-card { border-left: 4px solid var(--p-orange); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
         .material-card { border-left: 4px solid var(--p-blue); background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+        .online-status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-left: 8px; box-shadow: 0 0 5px #10b981; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @media (max-width: 640px) { .chat-container { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; bottom: 20px; right: 20px; } }
     </style>
 </head>
@@ -73,7 +77,7 @@
             <div class="col-md-8">
                 <h2 class="fw-bold mb-1 animate__animated animate__fadeInLeft">Welcome back, <span id="studentNameDisplay" class="text-warning">...</span></h2>
                 <p class="opacity-75 small mb-0"><i class="bi bi-person-badge me-1"></i> Student ID: <span id="studentIDDisplay" class="fw-bold">...</span></p>
-                <p class="opacity-75 small mt-1"><i class="bi bi-person-circle me-1"></i> Supervisor: <span id="supervisorNameDisplay" class="fw-bold">Loading...</span></p>
+                <p class="opacity-75 small mt-1"><i class="bi bi-person-circle me-1"></i> Supervisor: <span id="supervisorNameDisplay" class="fw-bold">Loading...</span> <span class="online-status" id="supervisorOnline" style="display: none;"></span></p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <div class="d-inline-block bg-white bg-opacity-20 rounded-3 p-2 px-3"><i class="bi bi-calendar3 me-1"></i><span id="currentDate" class="small"></span></div>
@@ -160,16 +164,16 @@
 
 <!-- Chat Window -->
 <div id="chatContainer" class="chat-container">
-    <div class="chat-header d-flex justify-content-between align-items-center" onclick="toggleChat()">
-        <span><i class="bi bi-person-circle me-2"></i> Chat with Supervisor</span>
-        <i class="bi bi-chevron-down"></i>
+    <div class="chat-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person-circle me-2"></i> Chat with Supervisor <span id="supervisorChatName">-</span></span>
+        <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
     </div>
     <div id="chatMessagesArea" class="chat-messages-area">
-        <div class="text-center text-muted py-5">Select a conversation</div>
+        <div class="text-center text-muted py-5">Loading messages...</div>
     </div>
     <div id="typingIndicator" class="typing-indicator"></div>
     <div class="chat-input-area">
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message to supervisor..." autocomplete="off">
         <button class="chat-send-btn" onclick="sendChatMessage()">
             <i class="bi bi-send-fill"></i> Send
         </button>
@@ -181,7 +185,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
     const firebaseConfig = { 
@@ -203,15 +207,26 @@
     if (!activeID) window.location.href = "index.html";
     
     let currentUserData = null;
+    let supervisorData = null;
     let currentChatUnsubscribe = null;
     let gradeChart = null;
     let unreadChatCount = 0;
     let isChatOpen = false;
     let qrInterval = null;
+    let notificationSound = null;
     const SECRET_KEY = "RPS_SECURE_KEY_2024";
     
     // Helper functions
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    
+    // Play notification sound for new messages
+    function playNotificationSound() {
+        try {
+            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log('Audio play failed'));
+        } catch(e) { console.log('Sound not supported'); }
+    }
     
     // ============ USER AUTHENTICATION ============
     async function initUser() {
@@ -222,15 +237,24 @@
         if (currentUserData.role !== 'student') { window.location.href = "index.html"; return; }
         if (currentUserData.registrationStatus !== 'complete') { window.location.href = "register_course.html"; return; }
         
-        // Get supervisor name
+        // Get supervisor data
         if (currentUserData.supervisorEmail) {
             const supervisorQuery = query(collection(db, "users"), where("email", "==", currentUserData.supervisorEmail));
             const supervisorSnap = await getDocs(supervisorQuery);
             if (!supervisorSnap.empty) {
-                const supervisorData = supervisorSnap.docs[0].data();
+                supervisorData = supervisorSnap.docs[0].data();
                 document.getElementById('supervisorNameDisplay').innerHTML = supervisorData.name || currentUserData.supervisorEmail;
+                document.getElementById('supervisorChatName').innerHTML = supervisorData.name || 'Supervisor';
+                
+                // Check supervisor online status
+                const onlineRef = ref(rtdb, `online_status/${supervisorSnap.docs[0].id}`);
+                onValue(onlineRef, (snap) => {
+                    const isOnline = snap.val() === true;
+                    document.getElementById('supervisorOnline').style.display = isOnline ? 'inline-block' : 'none';
+                });
             } else {
                 document.getElementById('supervisorNameDisplay').innerHTML = currentUserData.supervisorEmail;
+                document.getElementById('supervisorChatName').innerHTML = 'Supervisor';
             }
         }
         
@@ -257,18 +281,18 @@
         loadMaterials();
         loadUnreadNotifications();
         
-        // Start listening for chat messages
+        // Start listening for chat messages from supervisor
         listenForChatMessages();
     }
     
-    // ============ CHAT SYSTEM (FULLY FUNCTIONAL) ============
+    // ============ CHAT SYSTEM - RECEIVE FROM SUPERVISOR ============
     function listenForChatMessages() {
         if (!currentUserData?.supervisorEmail) {
-            console.log("No supervisor assigned yet");
+            document.getElementById('chatMessagesArea').innerHTML = '<div class="text-center text-muted py-5">No supervisor assigned yet.<br>Please register for a course first.</div>';
             return;
         }
         
-        // Query chats where student is the recipient or sender
+        // Query chats where this student is involved (both sent and received)
         const chatsQuery = query(
             collection(db, "chats"),
             where("studentID", "==", activeID),
@@ -283,7 +307,7 @@
             let unread = 0;
             
             if (snapshot.empty) {
-                messagesArea.innerHTML = '<div class="text-center text-muted py-5">No messages yet.<br>Send a message to your supervisor!</div>';
+                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet.<br>Send a message to your supervisor to start the conversation!</div>';
                 document.getElementById('chatUnreadBadge').style.display = 'none';
                 return;
             }
@@ -292,18 +316,28 @@
             snapshot.forEach(docSnap => {
                 const msg = docSnap.data();
                 const isSent = msg.sender === activeID;
+                const senderName = isSent ? 'You' : (msg.senderName || 'Supervisor');
                 const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
                 
+                // Count unread messages from supervisor
                 if (!isSent && !msg.read && !isChatOpen) {
                     unread++;
+                    // Play sound for new message from supervisor
+                    if (!isChatOpen) playNotificationSound();
+                }
+                
+                // Mark message as read if chat is open
+                if (!isSent && !msg.read && isChatOpen) {
+                    updateDoc(doc(db, "chats", docSnap.id), { read: true }).catch(e => console.log(e));
                 }
                 
                 messagesHtml += `
                     <div class="chat-message ${isSent ? 'sent' : 'received'}">
                         <div class="message-bubble">
+                            <div class="small fw-semibold mb-1" style="font-size: 0.7rem;">${escapeHtml(senderName)}</div>
                             ${escapeHtml(msg.text)}
                         </div>
-                        <div class="message-time">${time} ${!isSent && !msg.read ? ' • Unread' : ''}</div>
+                        <div class="message-time">${time} ${!isSent && !msg.read && !isChatOpen ? ' • New' : ''}</div>
                     </div>
                 `;
             });
@@ -314,14 +348,16 @@
             unreadChatCount = unread;
             if (unread > 0 && !isChatOpen) {
                 document.getElementById('chatUnreadBadge').style.display = 'flex';
-                document.getElementById('chatUnreadBadge').innerText = unread;
+                document.getElementById('chatUnreadBadge').innerText = unread > 9 ? '9+' : unread;
+                // Update the unread count in stats
+                document.getElementById('unreadCount').innerText = (parseInt(document.getElementById('unreadCount').innerText) + unread);
             } else {
                 document.getElementById('chatUnreadBadge').style.display = 'none';
             }
         });
     }
     
-    async function markMessagesAsRead() {
+    async function markAllMessagesAsRead() {
         if (!currentUserData?.supervisorEmail) return;
         
         const chatsQuery = query(
@@ -333,9 +369,11 @@
         );
         
         const unreadSnap = await getDocs(chatsQuery);
-        unreadSnap.forEach(async (docSnap) => {
-            await updateDoc(doc(db, "chats", docSnap.id), { read: true });
+        const updatePromises = [];
+        unreadSnap.forEach((docSnap) => {
+            updatePromises.push(updateDoc(doc(db, "chats", docSnap.id), { read: true }));
         });
+        await Promise.all(updatePromises);
         
         unreadChatCount = 0;
         document.getElementById('chatUnreadBadge').style.display = 'none';
@@ -345,9 +383,13 @@
         const input = document.getElementById('chatInput');
         const message = input.value.trim();
         
-        if (!message) return;
+        if (!message) {
+            Swal.fire({ icon: 'warning', title: 'Empty Message', text: 'Please type a message first.', toast: true, timer: 1500, showConfirmButton: false });
+            return;
+        }
+        
         if (!currentUserData?.supervisorEmail) {
-            Swal.fire({ icon: 'error', title: 'No Supervisor', text: 'You don\'t have a supervisor assigned yet.' });
+            Swal.fire({ icon: 'error', title: 'No Supervisor', text: 'You don\'t have a supervisor assigned yet. Please register for a course first.' });
             return;
         }
         
@@ -358,6 +400,7 @@
                 studentID: activeID,
                 studentName: currentUserData.name || 'Student',
                 supervisorEmail: currentUserData.supervisorEmail,
+                supervisorName: supervisorData?.name || 'Supervisor',
                 sender: activeID,
                 senderName: currentUserData.name || 'Student',
                 text: message,
@@ -376,19 +419,23 @@
                 timestamp: serverTimestamp()
             });
             
+            // Scroll to bottom
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            
         } catch (error) {
             console.error('Send message error:', error);
-            Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message' });
+            Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message. Please try again.' });
         }
     };
     
-    window.toggleChat = () => {
+    window.toggleChat = async () => {
         const container = document.getElementById('chatContainer');
         isChatOpen = container.style.display !== 'flex';
         container.style.display = isChatOpen ? 'flex' : 'none';
         
         if (isChatOpen) {
-            markMessagesAsRead();
+            await markAllMessagesAsRead();
             const messagesArea = document.getElementById('chatMessagesArea');
             messagesArea.scrollTop = messagesArea.scrollHeight;
             document.getElementById('chatInput').focus();
@@ -437,7 +484,7 @@
     
     function startSecureQR() { generateSecureQR(); if (qrInterval) clearInterval(qrInterval); qrInterval = setInterval(generateSecureQR, 30000); }
     function stopSecureQR() { if (qrInterval) clearInterval(qrInterval); }
-    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); } };
+    window.downloadQR = () => { const canvas = document.querySelector('#qrcodeContainer canvas'); if (canvas) { const link = document.createElement('a'); link.download = `QR_${currentUserData?.assignedID || activeID}.png`; link.href = canvas.toDataURL(); link.click(); Swal.fire({ toast: true, icon: 'success', title: 'QR Saved!', timer: 1500, showConfirmButton: false }); } };
     
     // ============ ACADEMIC DATA ============
     async function loadAcademicData() {
@@ -446,7 +493,7 @@
         const container = document.getElementById('courseList');
         
         if (snap.empty) {
-            container.innerHTML = '<div class="alert alert-warning rounded-4 p-4 text-center small">No courses enrolled yet.</div>';
+            container.innerHTML = '<div class="alert alert-warning rounded-4 p-4 text-center small">No courses enrolled yet. Click "Register New Course" to get started.</div>';
             document.getElementById('totalCourses').innerText = '0';
             document.getElementById('avgGrade').innerText = '0%';
             return;
@@ -516,7 +563,7 @@
     
     // ============ ANNOUNCEMENTS ============
     async function loadAnnouncements() {
-        const q = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc"));
+        const q = query(collection(db, "notifications"), where("studentID", "==", activeID), orderBy("timestamp", "desc"), limit(20));
         onSnapshot(q, (snapshot) => {
             const container = document.getElementById('announcementsList');
             if (snapshot.empty) { container.innerHTML = '<div class="text-center py-3 text-muted small">No announcements yet.</div>'; return; }
@@ -616,7 +663,7 @@
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     
     // Initialize
-    await initUser();
+    initUser();
 </script>
 </body>
 </html>
