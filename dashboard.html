@@ -42,8 +42,42 @@
         
         .live-badge { display: inline-flex; align-items: center; gap: 6px; background: #10b981; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; }
         
+        /* UNIFIED CHAT STYLES */
+        .chat-container { position: fixed; bottom: 30px; right: 30px; width: 400px; height: 550px; background: white; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #e2e8f0; }
+        .chat-header { background: linear-gradient(135deg, var(--p-blue), #8b5cf6); color: white; padding: 15px 20px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .chat-contacts { max-height: 180px; overflow-y: auto; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+        .chat-contact-item { padding: 12px 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; }
+        .chat-contact-item:hover { background: #eef2ff; }
+        .chat-contact-item.active { background: #e0e7ff; border-left: 3px solid var(--p-blue); }
+        .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; display: flex; flex-direction: column; margin-bottom: 8px; }
+        .chat-message.sent { align-self: flex-end; }
+        .chat-message.received { align-self: flex-start; }
+        .message-bubble { padding: 10px 16px; border-radius: 20px; word-wrap: break-word; max-width: 100%; }
+        .chat-message.sent .message-bubble { background: linear-gradient(135deg, var(--p-blue), #8b5cf6); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received .message-bubble { background: white; color: #1e293b; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .message-time { font-size: 10px; margin-top: 4px; color: #94a3b8; }
+        .message-sender-name { font-size: 10px; font-weight: 600; margin-bottom: 2px; color: #64748b; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; background: white; display: flex; gap: 10px; }
+        .chat-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 30px; padding: 10px 18px; font-size: 0.85rem; outline: none; }
+        .chat-send-btn { background: var(--p-blue); border: none; border-radius: 30px; padding: 8px 20px; color: white; font-weight: 600; transition: 0.2s; }
+        .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
+        .floating-chat-btn:hover { transform: scale(1.05); }
+        .chat-unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 20px; margin-left: 6px; }
+        .role-host { background: #dcfce7; color: #166534; }
+        .role-counselor { background: #fce7f3; color: #9d174d; }
+        .role-student { background: #dbeafe; color: #1e40af; }
+        
+        body.dark-mode .chat-messages-area { background: #0f172a; }
+        body.dark-mode .chat-message.received .message-bubble { background: #334155; color: #e2e8f0; }
+        body.dark-mode .chat-contacts { background: #1e293b; }
+        body.dark-mode .chat-contact-item:hover { background: #334155; }
+        body.dark-mode .chat-contact-item.active { background: #2d3a4a; }
+        
         @media print { .no-print { display: none !important; } .stat-card { border: 1px solid #ddd; } }
-        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } }
+        @media (max-width: 768px) { .stat-card { padding: 15px; } .stat-card h3 { font-size: 1.5rem; } .chat-container { width: 320px; height: 480px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 50px; height: 50px; } }
     </style>
 </head>
 <body id="dashboardContent">
@@ -169,10 +203,36 @@
     </div>
 </div>
 
+<!-- UNIFIED CHAT BUTTON - ONE CHAT FOR ALL -->
+<div class="floating-chat-btn" onclick="toggleChat()">
+    <i class="bi bi-chat-dots-fill fs-4 text-white"></i>
+    <span id="chatUnreadBadge" class="chat-unread-badge" style="display: none;">0</span>
+</div>
+
+<!-- UNIFIED CHAT WINDOW - ONE PLACE FOR ALL MESSAGES -->
+<div id="chatContainer" class="chat-container">
+    <div class="chat-header">
+        <span><i class="bi bi-people-fill me-2"></i> Messages - All Contacts</span>
+        <i class="bi bi-chevron-down" style="cursor: pointer;" onclick="toggleChat()"></i>
+    </div>
+    <div id="chatContactsList" class="chat-contacts">
+        <div class="text-center py-3 text-muted small">Loading contacts...</div>
+    </div>
+    <div id="chatMessagesArea" class="chat-messages-area">
+        <div class="text-center text-muted py-5">Select a contact to start chatting</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message to selected contact..." autocomplete="off" disabled>
+        <button class="chat-send-btn" onclick="sendMessage()" disabled><i class="bi bi-send-fill"></i> Send</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, doc, getDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, where, doc, getDoc, addDoc, serverTimestamp, updateDoc, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
     const firebaseConfig = { 
         apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw",
@@ -193,8 +253,30 @@
     let currentFilter = 'all';
     let unsubscribeReg = null;
     let unsubscribeAssess = null;
+    let currentUserId = null;
+    let currentUserName = null;
+    
+    // UNIFIED CHAT VARIABLES
+    let allContacts = [];
+    let currentContact = null;
+    let messagesUnsubscribe = null;
+    let isChatOpen = false;
+    let totalUnread = 0;
+    
+    const roleNames = { 'student': 'Student', 'host': 'Coordinator', 'counselor': 'Counselor', 'supervisor': 'Supervisor' };
+    const roleColors = { 'host': 'role-host', 'counselor': 'role-counselor', 'student': 'role-student' };
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
+    
+    function playNotificationSound() {
+        try {
+            const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log('Audio play failed'));
+        } catch(e) { console.log('Sound not supported'); }
+    }
 
-    // AUTHENTICATION & ROLE VERIFICATION
+    // ============ AUTHENTICATION & ROLE VERIFICATION ============
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "index.html";
@@ -209,11 +291,249 @@
             return;
         }
         
+        currentUserId = user.uid;
+        currentUserName = userDoc.data().name || 'Supervisor';
         document.getElementById('svEmailDisplay').innerText = user.email;
-        document.getElementById('svNameDisplay').innerText = userDoc.data().name || 'Supervisor';
+        document.getElementById('svNameDisplay').innerText = currentUserName;
         loadData(user.email);
+        
+        // Load all contacts and listen for messages
+        await loadAllContacts();
+        listenForAllMessages();
     });
-
+    
+    // ============ LOAD ALL CONTACTS ============
+    async function loadAllContacts() {
+        const usersSnap = await getDocs(collection(db, "users"));
+        allContacts = [];
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            if (doc.id !== currentUserId && data.role !== 'admin' && data.role !== 'supervisor') {
+                allContacts.push({
+                    id: doc.id,
+                    name: data.name || doc.id.split('@')[0],
+                    email: data.email || doc.id,
+                    role: data.role,
+                    avatar: data.name?.charAt(0).toUpperCase() || 'U',
+                    unread: 0
+                });
+            }
+        });
+        
+        // Sort by role priority: Student first, then Coordinator, then Counselor
+        const rolePriority = { 'student': 1, 'host': 2, 'counselor': 3 };
+        allContacts.sort((a, b) => (rolePriority[a.role] || 99) - (rolePriority[b.role] || 99));
+        
+        renderContactsList();
+    }
+    
+    function renderContactsList() {
+        const container = document.getElementById('chatContactsList');
+        if (allContacts.length === 0) {
+            container.innerHTML = '<div class="text-center py-3 text-muted small">No contacts available</div>';
+            return;
+        }
+        
+        let html = '';
+        allContacts.forEach(contact => {
+            const roleDisplay = roleNames[contact.role] || contact.role;
+            const roleClass = roleColors[contact.role] || '';
+            const isActive = currentContact?.id === contact.id;
+            const unreadBadge = contact.unread > 0 ? `<span class="badge bg-danger rounded-pill ms-2" style="font-size: 10px;">${contact.unread}</span>` : '';
+            
+            html += `
+                <div class="chat-contact-item ${isActive ? 'active' : ''}" onclick="selectContact('${contact.id}', '${escapeHtml(contact.name)}', '${contact.role}')">
+                    <div class="contact-avatar">${contact.avatar}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">${escapeHtml(contact.name)} ${unreadBadge}</div>
+                        <div><span class="role-badge ${roleClass}">${roleDisplay}</span></div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    // ============ SELECT CONTACT AND LOAD MESSAGES ============
+    window.selectContact = async (contactId, contactName, contactRole) => {
+        currentContact = { id: contactId, name: contactName, role: contactRole };
+        
+        // Update UI
+        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
+        if (event.target.closest('.chat-contact-item')) {
+            event.target.closest('.chat-contact-item').classList.add('active');
+        }
+        
+        // Enable chat input
+        document.getElementById('chatInput').disabled = false;
+        document.querySelector('.chat-send-btn').disabled = false;
+        document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
+        
+        // Mark messages as read
+        await markMessagesAsRead(contactId);
+        
+        // Load messages with this contact
+        loadMessagesWithContact(contactId);
+    };
+    
+    async function markMessagesAsRead(contactId) {
+        const chatId = [currentUserId, contactId].sort().join('_');
+        const messagesRef = collection(db, "all_chats", chatId, "messages");
+        const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentUserId));
+        const unreadSnap = await getDocs(unreadQuery);
+        
+        unreadSnap.forEach(async (docSnap) => {
+            await updateDoc(doc(db, "all_chats", chatId, "messages", docSnap.id), { read: true });
+        });
+        
+        // Update unread count
+        const contact = allContacts.find(c => c.id === contactId);
+        if (contact) {
+            contact.unread = 0;
+            renderContactsList();
+            calculateTotalUnread();
+        }
+    }
+    
+    function loadMessagesWithContact(contactId) {
+        if (messagesUnsubscribe) messagesUnsubscribe();
+        
+        const chatId = [currentUserId, contactId].sort().join('_');
+        const messagesRef = collection(db, "all_chats", chatId, "messages");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+        
+        messagesUnsubscribe = onSnapshot(q, (snapshot) => {
+            const messagesArea = document.getElementById('chatMessagesArea');
+            if (snapshot.empty) {
+                messagesArea.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-chat-dots fs-1 d-block mb-3"></i>No messages yet. Start the conversation!</div>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(docSnap => {
+                const msg = docSnap.data();
+                const isSent = msg.senderId === currentUserId;
+                const senderName = isSent ? 'You' : (msg.senderName || currentContact?.name);
+                const time = msg.timestamp?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || '';
+                
+                html += `
+                    <div class="chat-message ${isSent ? 'sent' : 'received'}">
+                        <div class="message-sender-name">${escapeHtml(senderName)}</div>
+                        <div class="message-bubble">
+                            ${escapeHtml(msg.text)}
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            });
+            
+            messagesArea.innerHTML = html;
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        });
+    }
+    
+    // ============ SEND MESSAGE ============
+    window.sendMessage = async () => {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        
+        if (!message || !currentContact) {
+            Swal.fire({ icon: 'warning', title: 'No message', text: 'Please type a message and select a contact.', toast: true, timer: 1500, showConfirmButton: false });
+            return;
+        }
+        
+        input.value = '';
+        
+        const chatId = [currentUserId, currentContact.id].sort().join('_');
+        
+        try {
+            await addDoc(collection(db, "all_chats", chatId, "messages"), {
+                text: message,
+                senderId: currentUserId,
+                senderName: currentUserName,
+                senderRole: 'supervisor',
+                receiverId: currentContact.id,
+                receiverName: currentContact.name,
+                receiverRole: currentContact.role,
+                timestamp: serverTimestamp(),
+                read: false
+            });
+            
+            // Send notification to the receiver
+            await addDoc(collection(db, "notifications"), {
+                userID: currentContact.id,
+                message: `💬 New message from ${currentUserName} (Supervisor): "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+                sender: currentUserId,
+                senderName: currentUserName,
+                senderRole: 'supervisor',
+                type: "chat",
+                status: "unread",
+                timestamp: serverTimestamp()
+            });
+            
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            
+        } catch (error) {
+            console.error('Send message error:', error);
+            Swal.fire({ icon: 'error', title: 'Failed', text: 'Could not send message.' });
+        }
+    };
+    
+    // ============ LISTEN FOR ALL INCOMING MESSAGES ============
+    function listenForAllMessages() {
+        setInterval(async () => {
+            for (const contact of allContacts) {
+                const chatId = [currentUserId, contact.id].sort().join('_');
+                const messagesRef = collection(db, "all_chats", chatId, "messages");
+                const unreadQuery = query(messagesRef, where("read", "==", false), where("senderId", "!=", currentUserId));
+                const unreadSnap = await getDocs(unreadQuery);
+                const unreadCount = unreadSnap.size;
+                
+                if (unreadCount !== contact.unread) {
+                    contact.unread = unreadCount;
+                    if (unreadCount > 0 && !isChatOpen) {
+                        playNotificationSound();
+                        totalUnread++;
+                        document.getElementById('chatUnreadBadge').style.display = 'flex';
+                        document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+                    }
+                    renderContactsList();
+                }
+            }
+            calculateTotalUnread();
+        }, 3000);
+    }
+    
+    function calculateTotalUnread() {
+        totalUnread = allContacts.reduce((sum, c) => sum + (c.unread || 0), 0);
+        if (totalUnread > 0 && !isChatOpen) {
+            document.getElementById('chatUnreadBadge').style.display = 'flex';
+            document.getElementById('chatUnreadBadge').innerText = totalUnread > 9 ? '9+' : totalUnread;
+        } else if (!isChatOpen) {
+            document.getElementById('chatUnreadBadge').style.display = 'none';
+        }
+    }
+    
+    window.toggleChat = async () => {
+        const container = document.getElementById('chatContainer');
+        isChatOpen = container.style.display !== 'flex';
+        container.style.display = isChatOpen ? 'flex' : 'none';
+        
+        if (isChatOpen) {
+            document.getElementById('chatUnreadBadge').style.display = 'none';
+            if (currentContact) {
+                await markMessagesAsRead(currentContact.id);
+            }
+            document.getElementById('chatInput').focus();
+        }
+    };
+    
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && currentContact) sendMessage();
+    });
+    
+    // ============ ORIGINAL SUPERVISOR FUNCTIONS ============
     function loadData(svEmail) {
         if (unsubscribeReg) unsubscribeReg();
         if (unsubscribeAssess) unsubscribeAssess();
@@ -319,22 +639,22 @@
                                 <small class="text-muted" style="font-size:0.7rem;">ID: ${id}</small>
                             </div>
                         </div>
-                     </td>
+                      </div>
                     <td class="text-center"><span class="badge bg-light text-dark border px-3 py-2">${stu.courses.length} Courses</span></td>
                     <td class="text-center fw-bold ${parseFloat(avg) < 40 ? 'text-danger fs-5' : 'text-dark'}">${avg}%</td>
                     <td class="text-center">
                         <span class="badge-custom ${risk === 'CRITICAL' || risk === 'HIGH' ? 'bg-danger text-white' : (risk === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-info text-white')}">
                             ${risk}
                         </span>
-                     </td>
+                      </td>
                     <td class="text-center">${statusBadge}</td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="event.stopPropagation(); sendIntervention('${id}', '${escapeHtml(stu.name)}')">
-                            <i class="bi bi-chat-dots me-1"></i> Message
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="event.stopPropagation(); openChatFromSupervisor('${id}', '${escapeHtml(stu.name)}', 'student')">
+                            <i class="bi bi-chat-dots me-1"></i> Chat
                         </button>
                         <i class="bi bi-chevron-down ms-2 text-muted"></i>
-                     </td>
-                 </tr>
+                      </td>
+                  </tr>
                 <tr class="collapse" id="${collId}">
                     <td colspan="6" class="detail-pane">
                         <div class="inner-table-card p-4">
@@ -380,36 +700,51 @@
                                 </div>
                             </div>
                         </div>
-                     </td>
+                      </td>
                  <\/tr>
             `;
         });
     }
-
-    window.sendIntervention = async (studentId, studentName) => {
-        const { value: message } = await Swal.fire({
-            title: `Contact: ${studentName}`,
-            input: 'textarea',
-            inputLabel: 'Message for Student',
-            inputPlaceholder: 'Write your guidance message here...',
-            showCancelButton: true,
-            confirmButtonText: 'Send Notification',
-            confirmButtonColor: '#4361ee'
-        });
-        if (message && message.trim()) {
-            try {
-                await addDoc(collection(db, "notifications"), {
-                    studentID: studentId,
-                    message: message.trim(),
-                    sender: "Supervisor (RPS)",
-                    status: "unread",
-                    timestamp: serverTimestamp()
-                });
-                Swal.fire({ icon: 'success', title: 'Sent!', text: 'Notification delivered to student.', timer: 1500, showConfirmButton: false });
-            } catch (e) {
-                Swal.fire('Error', 'Failed to send message.', 'error');
+    
+    // Open chat from student row
+    window.openChatFromSupervisor = (contactId, contactName, contactRole) => {
+        // Find or add to contacts
+        let contact = allContacts.find(c => c.id === contactId);
+        if (!contact) {
+            contact = { id: contactId, name: contactName, role: contactRole, avatar: contactName.charAt(0).toUpperCase(), unread: 0 };
+            allContacts.push(contact);
+            renderContactsList();
+        }
+        
+        // Select this contact
+        currentContact = contact;
+        
+        // Update UI
+        document.querySelectorAll('.chat-contact-item').forEach(el => el.classList.remove('active'));
+        const contactItems = document.querySelectorAll('.chat-contact-item');
+        for (let item of contactItems) {
+            if (item.innerText.includes(contactName)) {
+                item.classList.add('active');
+                break;
             }
         }
+        
+        // Enable chat input
+        document.getElementById('chatInput').disabled = false;
+        document.querySelector('.chat-send-btn').disabled = false;
+        document.getElementById('chatInput').placeholder = `Message ${contactName} (${roleNames[contactRole]})...`;
+        
+        // Open chat if not open
+        const container = document.getElementById('chatContainer');
+        if (container.style.display !== 'flex') {
+            container.style.display = 'flex';
+            isChatOpen = true;
+        }
+        
+        // Mark messages as read and load
+        markMessagesAsRead(contactId);
+        loadMessagesWithContact(contactId);
+        document.getElementById('chatInput').focus();
     };
 
     window.setFilter = (filter) => {
@@ -473,10 +808,6 @@
     };
 
     window.handleLogout = async () => { await signOut(auth); sessionStorage.clear(); window.location.href = "index.html"; };
-    
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]; }); }
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
