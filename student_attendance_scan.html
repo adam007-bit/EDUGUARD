@@ -77,14 +77,15 @@
     import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getDatabase, ref, set, get, onValue, push } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
-        authDomain: "eduguard-ai-2742b.firebaseapp.com", 
-        projectId: "eduguard-ai-2742b", 
-        storageBucket: "eduguard-ai-2742b.firebasestorage.app", 
-        messagingSenderId: "96233022148", 
-        appId: "1:96233022148:web:1f903d72b3f79690409f91" 
-    };
+   const firebaseConfig = { 
+    apiKey: "AIzaSyDup2zZ06JLmQCHPc8zGbetLUsXMjX3mjw", 
+    authDomain: "eduguard-ai-2742b.firebaseapp.com", 
+    projectId: "eduguard-ai-2742b", 
+    storageBucket: "eduguard-ai-2742b.firebasestorage.app", 
+    messagingSenderId: "96233022148", 
+    appId: "1:96233022148:web:1f903d72b3f79690409f91",
+    databaseURL: "https://eduguard-ai-2742b-default-rtdb.asia-southeast1.firebasedatabase.app"  // ADD THIS LINE
+};
     
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
