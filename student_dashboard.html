@@ -33,6 +33,20 @@
         .register-btn { background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; padding: 12px 20px; font-weight: 700; border-radius: 50px; width: 100%; transition: all 0.3s; }
         .register-btn:hover { transform: scale(1.02); }
         
+        /* Attendance History Item */
+        .attendance-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #10b981;
+            transition: all 0.2s;
+        }
+        .attendance-item:hover { transform: translateX(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        body.dark-mode .attendance-item { background: #1e293b; border-left-color: #10b981; }
+        .attendance-date { font-size: 0.8rem; font-weight: 600; color: #10b981; }
+        .attendance-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        
         /* CHAT STYLES */
         .chat-panel { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
         .chat-header { background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); color: white; padding: 12px 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -140,10 +154,15 @@
                 </div>
             </div>
 
-            <!-- ATTENDANCE HISTORY -->
+            <!-- ATTENDANCE HISTORY - IMPROVED DISPLAY -->
             <h5 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>My Attendance History</h5>
-            <div id="attendanceHistoryContainer" class="glass-card p-3 mb-4" style="max-height: 300px; overflow-y: auto;">
-                <div id="attendanceList"><div class="text-center py-3 text-muted small">Loading attendance...</div></div>
+            <div id="attendanceHistoryContainer" class="glass-card p-3 mb-4" style="max-height: 350px; overflow-y: auto;">
+                <div id="attendanceList">
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-check fs-3 d-block mb-2"></i>
+                        <span>Loading attendance records...</span>
+                    </div>
+                </div>
             </div>
 
             <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill text-warning me-2"></i>Announcements</h5>
@@ -253,6 +272,16 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
+    // Format date nicely
+    function formatDate(dateStr) {
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-MY', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+        } catch(e) {
+            return dateStr;
+        }
+    }
+    
     // ============ AUTHENTICATION ============
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
@@ -329,7 +358,6 @@
         Swal.fire({ title: 'Registering...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         
         try {
-            // Check if already registered
             const existingQuery = query(collection(db, "course_registrations"), where("studentID", "==", currentUserId), where("course", "==", selectedCourse));
             const existingSnap = await getDocs(existingQuery);
             
@@ -338,10 +366,8 @@
                 return;
             }
             
-            // Create unique document ID
             const uniqueDocID = `${currentUserId}_${selectedCourse.replace(/\s+/g, '')}_${Date.now()}`;
             
-            // Register course
             await setDoc(doc(db, "course_registrations", uniqueDocID), {
                 studentID: currentUserId,
                 studentName: currentUserData.name || 'Student',
@@ -359,7 +385,6 @@
             
             Swal.fire({ icon: 'success', title: 'Registered!', text: `Successfully registered for ${selectedCourse}`, timer: 2000, showConfirmButton: false });
             
-            // Close modal and refresh
             bootstrap.Modal.getInstance(document.getElementById('registerCourseModal')).hide();
             document.getElementById('newCourseSelect').value = '';
             await loadAcademicData();
@@ -419,7 +444,6 @@
             const avg = courses.length > 0 ? (totalMarks / courses.length).toFixed(1) : 0;
             document.getElementById('avgGrade').innerText = avg + '%';
             
-            // Update chart
             if (gradeChart) gradeChart.destroy();
             const ctx = document.getElementById('gradeTrendChart').getContext('2d');
             gradeChart = new Chart(ctx, {
@@ -440,13 +464,21 @@
         }
     }
     
-    // ============ ATTENDANCE HISTORY ============
+    // ============ ATTENDANCE HISTORY - IMPROVED ============
     async function loadAttendanceHistory() {
         const attendanceRef = ref(rtdb, 'kehadiran_unimap');
+        
         onValue(attendanceRef, (snapshot) => {
             const container = document.getElementById('attendanceList');
+            
             if (!snapshot.exists()) {
-                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>
+                        <span>No attendance records yet.</span>
+                        <p class="small mt-2">Use the scanner above to mark your attendance.</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -458,30 +490,46 @@
                     records.push({ date: date, ...dayData[currentUserId] });
                 }
             });
+            
             records.sort((a, b) => b.date.localeCompare(a.date));
             
             if (records.length === 0) {
-                container.innerHTML = '<div class="text-center py-3 text-muted small">No attendance records yet.</div>';
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>
+                        <span>No attendance records yet.</span>
+                        <p class="small mt-2">Use the scanner above to mark your attendance.</p>
+                    </div>
+                `;
                 return;
             }
             
             let html = '';
-            records.slice(0, 10).forEach(rec => {
+            records.forEach(rec => {
+                const formattedDate = formatDate(rec.date);
+                const distanceText = rec.distanceMeters ? `${rec.distanceMeters}m from coordinator` : 'Verified';
+                const timeText = rec.masa || '--:--';
+                const courseText = rec.course || 'General';
+                const verifiedBy = rec.verifiedBy || 'Coordinator';
+                
                 html += `
-                    <div class="border-bottom pb-2 mb-2">
-                        <div class="d-flex justify-content-between">
+                    <div class="attendance-item">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <div class="fw-bold small">📅 ${rec.date}</div>
-                                <div class="small text-muted">⏰ ${rec.masa || '--:--'}</div>
-                                <div class="small text-muted">📚 ${rec.course || '-'}</div>
+                                <span class="attendance-date"><i class="bi bi-calendar-check-fill me-1"></i> ${formattedDate}</span>
+                                <div class="small text-muted mt-1">⏰ ${timeText}</div>
                             </div>
-                            <span class="badge bg-success">✅ Present</span>
+                            <span class="attendance-badge">✅ Present</span>
                         </div>
-                        <div class="small text-muted mt-1">📍 ${rec.distanceMeters ? rec.distanceMeters + 'm from coordinator' : 'Verified'}</div>
-                        <div class="small text-muted">✅ Verified by: ${rec.verifiedBy || 'Coordinator'}</div>
+                        <div class="small text-muted mt-2">
+                            <div><i class="bi bi-bookmark-fill me-1"></i> Course: ${escapeHtml(courseText)}</div>
+                            <div><i class="bi bi-geo-alt-fill me-1"></i> Distance: ${distanceText}</div>
+                            <div><i class="bi bi-person-check-fill me-1"></i> Verified by: ${escapeHtml(verifiedBy)}</div>
+                        </div>
                     </div>
                 `;
             });
+            
             container.innerHTML = html;
             document.getElementById('unreadCount').innerText = records.length;
         });
