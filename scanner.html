@@ -32,6 +32,8 @@
         .course-select { background: #1e293b; border: 1px solid #334155; color: white; border-radius: 12px; padding: 12px; width: 100%; }
         .course-select option { background: #1e293b; color: white; }
         .label-text { color: #94a3b8; font-size: 0.8rem; font-weight: 500; margin-bottom: 5px; display: block; }
+        .attendance-item { background: #1e293b; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #10b981; transition: all 0.2s; }
+        .attendance-item:hover { transform: translateX(3px); background: #2d3a4a; }
     </style>
 </head>
 <body>
@@ -234,6 +236,10 @@
     let gpsWatchId = null;
     let qrRefreshInterval = null;
     
+    // Rate limiting - prevent spam
+    let studentScanCooldown = new Map();
+    const SCAN_COOLDOWN_MS = 5000; // 5 seconds between scans per student
+    
     const todayStr = new Date().toISOString().split('T')[0];
     
     function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -253,10 +259,19 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
+    // Check if student can scan (rate limiting)
+    function canStudentScan(studentId) {
+        const lastScan = studentScanCooldown.get(studentId);
+        if (lastScan && (Date.now() - lastScan) < SCAN_COOLDOWN_MS) {
+            return { allowed: false, remaining: Math.ceil((SCAN_COOLDOWN_MS - (Date.now() - lastScan)) / 1000) };
+        }
+        return { allowed: true };
+    }
+    
     // Generate QR Code for students to scan
     function generateClassQR() {
         if (!isSessionActive || !sessionId || !coordinatorLocation || !currentCourse) {
-            console.log('Cannot generate QR: missing data', { isSessionActive, sessionId, hasLocation: !!coordinatorLocation, currentCourse });
+            console.log('Cannot generate QR: missing data');
             return;
         }
         
@@ -272,16 +287,13 @@
             timestamp: Date.now()
         });
         
-        console.log('Generating QR with data:', qrData);
-        
         const qrContainer = document.getElementById('qrcodeContainer');
         qrContainer.innerHTML = '';
         
-        // Use QRCode library
         QRCode.toCanvas(document.createElement('canvas'), qrData, { width: 250, margin: 2 }, function(error, canvas) {
             if (error) {
                 console.error('QR Error:', error);
-                qrContainer.innerHTML = `<div class="text-danger">Error generating QR code: ${error.message}</div>`;
+                qrContainer.innerHTML = `<div class="text-danger">Error generating QR code</div>`;
             } else {
                 canvas.style.width = '100%';
                 canvas.style.maxWidth = '250px';
@@ -447,7 +459,7 @@
         Swal.fire({ icon: 'info', title: 'Session Ended', text: 'Attendance session has been closed.' });
     };
     
-    // Listen for attendance records
+    // Listen for attendance records (shows in log)
     function listenForAttendance() {
         const attendanceRef = ref(rtdb, `kehadiran_unimap/${todayStr}`);
         
@@ -459,24 +471,27 @@
                 const records = Object.values(snapshot.val());
                 count = records.length;
                 document.getElementById('scansToday').innerText = count;
+                document.getElementById('todayCount').innerText = count;
                 
                 container.innerHTML = '';
                 records.reverse().forEach(rec => {
+                    const distanceText = rec.distanceMeters ? `${rec.distanceMeters}m away` : 'Verified';
                     container.innerHTML += `
-                        <div class="border-bottom border-secondary p-3">
+                        <div class="attendance-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <div class="fw-bold text-white">${escapeHtml(rec.studentName || rec.studentID)}</div>
-                                    <small class="text-muted">ID: ${rec.studentID}</small>
-                                    <div class="mt-1"><small class="text-muted">Course: ${escapeHtml(rec.course || '-')}</small></div>
+                                    <div class="small text-muted">ID: ${rec.studentID}</div>
+                                    <div class="small text-muted mt-1">📚 Course: ${escapeHtml(rec.course || '-')}</div>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-success mb-1">Present</span>
-                                    <div><small class="text-muted">${rec.masa || '--:--'}</small></div>
+                                    <span class="badge bg-success mb-1">✅ Present</span>
+                                    <div><small class="text-muted">⏰ ${rec.masa || '--:--'}</small></div>
                                 </div>
                             </div>
                             <div class="small text-muted mt-2">
-                                📏 ${rec.distanceMeters || '?'}m from coordinator
+                                📏 Distance: ${distanceText}<br>
+                                ✅ Verified by: ${rec.verifiedBy || 'Coordinator'}
                             </div>
                         </div>
                     `;
@@ -484,8 +499,8 @@
             } else {
                 container.innerHTML = '<div class="text-center py-5 text-muted small">No attendance records yet</div>';
                 document.getElementById('scansToday').innerText = '0';
+                document.getElementById('todayCount').innerText = '0';
             }
-            document.getElementById('todayCount').innerText = count;
         });
     }
     
