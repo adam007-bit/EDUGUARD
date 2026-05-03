@@ -28,8 +28,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* SCAN BUTTON */
-        .scan-button { background: linear-gradient(135deg, #4361ee, #8b5cf6); border: none; padding: 15px 30px; font-weight: 700; border-radius: 50px; transition: all 0.3s; width: 100%; }
+        .scan-button { background: linear-gradient(135deg, #4361ee, #8b5cf6); border: none; padding: 12px 20px; font-weight: 700; border-radius: 50px; transition: all 0.3s; width: 100%; }
         .scan-button:hover { transform: scale(1.02); box-shadow: 0 10px 25px -5px rgba(67,97,238,0.4); }
+        .register-btn { background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; padding: 12px 20px; font-weight: 700; border-radius: 50px; width: 100%; transition: all 0.3s; }
+        .register-btn:hover { transform: scale(1.02); }
         
         /* CHAT STYLES */
         .chat-panel { position: fixed; bottom: 30px; right: 30px; width: 350px; height: 480px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 1060; overflow: hidden; border: 1px solid #ddd; }
@@ -48,6 +50,10 @@
         .floating-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--p-blue), var(--p-purple)); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); z-index: 1050; transition: transform 0.2s; }
         .floating-chat-btn:hover { transform: scale(1.05); }
         .chat-unread { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+        
+        /* Modal Styles */
+        .modal-content { border-radius: 24px; overflow: hidden; }
+        .modal-header { background: linear-gradient(135deg, #1e293b, #2d3a4a); color: white; border: none; }
         
         @media (max-width: 640px) { .chat-panel { width: 320px; height: 450px; right: 10px; bottom: 80px; } .floating-chat-btn { width: 48px; height: 48px; } }
     </style>
@@ -89,7 +95,12 @@
 
     <div class="row g-4">
         <div class="col-lg-7">
-            <h5 class="fw-bold mb-3"><i class="bi bi-grid-fill text-primary me-2"></i>Academic Performance</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-grid-fill text-primary me-2"></i>Academic Performance</h5>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="openRegisterCourseModal()">
+                    <i class="bi bi-plus-circle me-1"></i> Register Course
+                </button>
+            </div>
             <div id="courseList" class="mb-4"><div class="text-center py-4"><span class="loading-spinner"></span> Loading courses...</div></div>
             <h5 class="fw-bold mt-4 mb-3"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Grade Trend</h5>
             <div class="glass-card mb-4"><canvas id="gradeTrendChart" style="height: 200px; width: 100%;"></canvas></div>
@@ -113,7 +124,7 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="viewProfile()"><i class="bi bi-pencil me-1"></i> Edit Profile</button>
             </div>
 
-            <!-- SCAN ATTENDANCE BUTTON - REPLACED CAMERA SECTION -->
+            <!-- SCAN ATTENDANCE BUTTON -->
             <h5 class="fw-bold mb-3"><i class="bi bi-upc-scan text-primary me-2"></i>Attendance</h5>
             <div class="glass-card text-center mb-4">
                 <div class="mb-3">
@@ -143,6 +154,38 @@
             <h5 class="fw-bold mb-3"><i class="bi bi-collection-play-fill text-primary me-2"></i>Resources</h5>
             <div id="materialsList" class="glass-card p-3" style="max-height: 300px; overflow-y: auto;">
                 <div class="text-center py-3 text-muted small">Loading resources...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Register Course Modal -->
+<div class="modal fade" id="registerCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 bg-primary text-white rounded-top-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-journal-plus me-2"></i>Register New Course</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Course</label>
+                    <select id="newCourseSelect" class="form-select rounded-pill">
+                        <option value="">-- Select Course --</option>
+                        <option value="Software Engineering">💻 Software Engineering</option>
+                        <option value="IoT Systems">📡 IoT Systems</option>
+                        <option value="Data Analytics">📊 Data Analytics</option>
+                        <option value="AI Solutions">🤖 AI Solutions</option>
+                    </select>
+                </div>
+                <div class="alert alert-info small rounded-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Your supervisor will be assigned to this course automatically upon registration.
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="submitCourseRegistration()">Register Course</button>
             </div>
         </div>
     </div>
@@ -270,6 +313,63 @@
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     });
     
+    // ============ COURSE REGISTRATION ============
+    window.openRegisterCourseModal = () => {
+        const modal = new bootstrap.Modal(document.getElementById('registerCourseModal'));
+        modal.show();
+    };
+    
+    window.submitCourseRegistration = async () => {
+        const selectedCourse = document.getElementById('newCourseSelect').value;
+        if (!selectedCourse) {
+            Swal.fire({ icon: 'warning', title: 'Select Course', text: 'Please select a course to register.' });
+            return;
+        }
+        
+        Swal.fire({ title: 'Registering...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        
+        try {
+            // Check if already registered
+            const existingQuery = query(collection(db, "course_registrations"), where("studentID", "==", currentUserId), where("course", "==", selectedCourse));
+            const existingSnap = await getDocs(existingQuery);
+            
+            if (!existingSnap.empty) {
+                Swal.fire({ icon: 'warning', title: 'Already Registered', text: `You are already registered for ${selectedCourse}!` });
+                return;
+            }
+            
+            // Create unique document ID
+            const uniqueDocID = `${currentUserId}_${selectedCourse.replace(/\s+/g, '')}_${Date.now()}`;
+            
+            // Register course
+            await setDoc(doc(db, "course_registrations", uniqueDocID), {
+                studentID: currentUserId,
+                studentName: currentUserData.name || 'Student',
+                studentRefID: currentUserData.assignedID || currentUserId,
+                course: selectedCourse,
+                supervisorEmail: currentUserData.supervisorEmail || null,
+                quiz: 0,
+                test: 0,
+                midterm: 0,
+                totalMark: 0,
+                grade: "-",
+                status: "Pending",
+                registeredAt: serverTimestamp()
+            });
+            
+            Swal.fire({ icon: 'success', title: 'Registered!', text: `Successfully registered for ${selectedCourse}`, timer: 2000, showConfirmButton: false });
+            
+            // Close modal and refresh
+            bootstrap.Modal.getInstance(document.getElementById('registerCourseModal')).hide();
+            document.getElementById('newCourseSelect').value = '';
+            await loadAcademicData();
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            Swal.fire({ icon: 'error', title: 'Registration Failed', text: error.message });
+        }
+    };
+    
     // Open scanner in new window/tab
     window.openScanner = () => {
         window.open('student_attendance_scan.html', '_blank', 'width=500,height=700');
@@ -283,7 +383,7 @@
             const container = document.getElementById('courseList');
             
             if (snap.empty) {
-                container.innerHTML = '<div class="alert alert-warning p-4 text-center small">No courses enrolled yet.</div>';
+                container.innerHTML = '<div class="alert alert-warning p-4 text-center small">No courses enrolled yet. Click "Register Course" to get started.</div>';
                 document.getElementById('totalCourses').innerText = '0';
                 document.getElementById('avgGrade').innerText = '0%';
                 return;
